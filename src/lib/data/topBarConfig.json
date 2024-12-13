@@ -92,11 +92,11 @@
     "/lists/": {
         "showBackButton": true,
         "title": {
-            "text": "Libraire",
+            "text": "Bibliothèque",
             "icon": ""
         },
         "rightIcons": [
-            "search"
+            "plus"
         ]
     },
     "/feed/": {
