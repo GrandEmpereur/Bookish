@@ -37,7 +37,7 @@ const ListsPage = () => {
       </div>
 
       {/* Faire une condition pour l'affichage des images quand ya un ou plusieurs livres dans la liste @remind */}
-      {/* <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         <div className="flex flex-col gap-2 p-4 shadow-md rounded-xl">
           <div className="flex gap-2 aspect-square sm:aspect-[4/3] md:aspect-[16/9]">
             <img
@@ -58,8 +58,8 @@ const ListsPage = () => {
           <div>
             <h3>A lire</h3>
             <div className="flex gap-1 items-center">
-              <LibraryBig className="w-3 h-3 text-gray-400" />
-              <p className="text-xs text-gray-400">100</p>
+              {/* <LibraryBig className="w-3 h-3 text-gray-400" /> */}
+              <p className="text-xs text-gray-400">100 livres</p>
             </div>
           </div>
         </div>
@@ -84,8 +84,8 @@ const ListsPage = () => {
           <div>
             <h3>A lire</h3>
             <div className="flex gap-1 items-center">
-              <LibraryBig className="w-3 h-3 text-gray-400" />
-              <p className="text-xs text-gray-400">100</p>
+              {/* <LibraryBig className="w-3 h-3 text-gray-400" /> */}
+              <p className="text-xs text-gray-400">100 livres</p>
             </div>
           </div>
         </div>
@@ -110,14 +110,14 @@ const ListsPage = () => {
           <div>
             <h3>A lire</h3>
             <div className="flex gap-1 items-center">
-              <LibraryBig className="w-3 h-3 text-gray-400" />
-              <p className="text-xs text-gray-400">100</p>
+              {/* <LibraryBig className="w-3 h-3 text-gray-400" /> */}
+              <p className="text-xs text-gray-400">100 livres</p>
             </div>
           </div>
         </div>
-      </div> */}
+      </div>
 
-      {/* <h1 className="mt-16">Mes Listes</h1>
+      <h1 className="mt-16">Mes Listes</h1>
       <ul>
         {lists.map((list) => (
           <li key={list.id}>
@@ -125,7 +125,7 @@ const ListsPage = () => {
             <p>{list.description}</p>
           </li>
         ))}
-      </ul> */}
+      </ul>
     </div>
   );
 };
