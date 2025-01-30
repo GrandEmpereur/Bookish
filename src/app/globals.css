@@ -123,26 +123,5 @@
   body {
     @apply bg-background text-foreground;
     margin: 0;
-    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-  }
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    @apply font-heading;
-  }
-
-  @media screen and (max-width: 767px) {
-
-    input,
-    Input,
-    textarea,
-    select {
-      font-size: 16px !important;
-      /* Ensure input fields are at least 16px on mobile to avoid iOS zoom */
-    }
   }
 }

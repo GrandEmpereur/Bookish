@@ -1,17 +1,12 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.example.app',
-  appName: 'bookish',
+  appId: 'bookish.test.app',
+  appName: 'bookish-test',
   webDir: 'out',
   "server": {
-    "url": process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000",
+    "url": "http://192.168.1.138:3000",
     "cleartext": true
-  },
-  plugins: {
-    CapacitorHttp: {
-      enabled: true
-    },
   },
 };
 
