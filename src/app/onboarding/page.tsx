@@ -140,6 +140,13 @@ export default function Onboarding() {
         <div className="min-h-[100dvh] flex flex-col bg-background overflow-hidden">
             {/* Section Image avec bouton Skip */}
             <div className="h-[45vh] relative w-full bg-primary/5 overflow-hidden">
+                <Button
+                    variant="link"
+                    onClick={handleSkip}
+                    className="absolute top-[60px] right-5 z-10 text-black font-medium safe-area-pt"
+                >
+                    Skip
+                </Button>
                 <div ref={imageRef} className="w-full h-full">
                     <Image
                         src={onboardingSteps[currentStep].image}
