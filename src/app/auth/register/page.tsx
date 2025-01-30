@@ -6,12 +6,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, ChevronLeft } from "lucide-react";
 import Link from 'next/link';
-import { loginSchema, type LoginInput } from "@/lib/validations/auth";
+import { registerSchema, type RegisterInput } from "@/lib/validations/auth";
 import { useToast } from "@/hooks/use-toast";
 
-export default function Login() {
+export default function Register() {
     const router = useRouter();
     const { toast } = useToast();
     const [showPassword, setShowPassword] = useState(false);
@@ -20,41 +20,67 @@ export default function Login() {
         register,
         handleSubmit,
         formState: { errors, isSubmitting }
-    } = useForm<LoginInput>({
-        resolver: zodResolver(loginSchema)
+    } = useForm<RegisterInput>({
+        resolver: zodResolver(registerSchema)
     });
 
-    const onSubmit = async (data: LoginInput) => {
+    const onSubmit = async (data: RegisterInput) => {
         try {
-            // Ici votre logique d'authentification
-            localStorage.setItem('isLoggedIn', 'true');
-            router.push('/dashboard');
+            // Ici votre logique d'inscription
+            router.push('/auth/login');
         } catch (error) {
             toast({
                 variant: "destructive",
                 title: "Erreur",
-                description: "Une erreur est survenue lors de la connexion"
+                description: "Une erreur est survenue lors de l'inscription"
             });
         }
     };
 
     return (
-        <div className="min-h-[100dvh] flex flex-col px-5 pt-[60px] bg-background justify-center items-center">
-            {/* Titre */}
+        <div className="min-h-[100dvh] flex flex-col px-5 bg-background safe-area-pt">
+            <button
+                onClick={() => router.back()}
+                className="text-black mb-8 flex items-center gap-2 pt-[60px]"
+            >
+                <ChevronLeft size={24} />
+            </button>
+
             <h1 className="text-[32px] text-center font-heading leading-tight mb-14">
-                Connectez-vous
+                Rejoignez notre
                 <br />
-                à votre compte
+                communauté
             </h1>
 
-            {/* Formulaire */}
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 w-full max-w-[400px]">
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
                 <div className="space-y-4">
+                    <div className="space-y-2">
+                        <Input
+                            {...register('username')}
+                            placeholder="pseudonyme"
+                            className="h-14 bg-accent-100 border-0 text-base placeholder:text-muted-500"
+                        />
+                        {errors.username && (
+                            <p className="text-sm text-red-500">{errors.username.message}</p>
+                        )}
+                    </div>
+
+                    <div className="space-y-2">
+                        <Input
+                            {...register('birthdate')}
+                            placeholder="jj/mm/aaaa"
+                            className="h-14 bg-accent-100 border-0 text-base placeholder:text-muted-500"
+                        />
+                        {errors.birthdate && (
+                            <p className="text-sm text-red-500">{errors.birthdate.message}</p>
+                        )}
+                    </div>
+
                     <div className="space-y-2">
                         <Input
                             {...register('email')}
                             type="email"
-                            placeholder="www.uihut@gmail.com"
+                            placeholder="adresse email"
                             className="h-14 bg-accent-100 border-0 text-base placeholder:text-muted-500"
                         />
                         {errors.email && (
@@ -67,6 +93,7 @@ export default function Login() {
                             <Input
                                 {...register('password')}
                                 type={showPassword ? "text" : "password"}
+                                placeholder="********"
                                 className="h-14 bg-accent-100 border-0 text-base pr-12"
                             />
                             <button
@@ -81,39 +108,28 @@ export default function Login() {
                                 )}
                             </button>
                         </div>
+
                         {errors.password && (
                             <p className="text-sm text-red-500">{errors.password.message}</p>
                         )}
                     </div>
                 </div>
 
-                {/* Mot de passe oublié */}
-                <div className="flex justify-end">
-                    <Link 
-                        href="/auth/forgot-password" 
-                        className="text-secondary-500 text-base"
-                    >
-                        Mot de passe oublié ?
-                    </Link>
-                </div>
-
-                {/* Bouton de connexion */}
                 <Button 
                     type="submit" 
                     className="h-14 bg-primary-800 hover:bg-primary-900 text-white mt-4"
                     disabled={isSubmitting}
                 >
-                    {isSubmitting ? "Connexion..." : "Connexion"}
+                    S'inscrire
                 </Button>
 
-                {/* Lien d'inscription */}
                 <p className="text-center mt-4 text-base">
-                    Vous n'avez pas de compte ?{' '}
+                    Vous avez un compte ?{' '}
                     <Link 
-                        href="/auth/register" 
+                        href="/auth/login" 
                         className="text-secondary-500 font-medium"
                     >
-                        Créez un compte
+                        Connectez vous
                     </Link>
                 </p>
             </form>
