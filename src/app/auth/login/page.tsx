@@ -6,35 +6,53 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import Link from 'next/link';
 import { loginSchema, type LoginInput } from "@/lib/validations/auth";
 import { useToast } from "@/hooks/use-toast";
+import { Checkbox } from "@/components/ui/checkbox";
+import { authService } from "@/services/auth.service";
 
 export default function Login() {
     const router = useRouter();
     const { toast } = useToast();
     const [showPassword, setShowPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const {
         register,
         handleSubmit,
-        formState: { errors, isSubmitting }
+        setValue,
+        watch,
+        formState: { errors }
     } = useForm<LoginInput>({
-        resolver: zodResolver(loginSchema)
+        resolver: zodResolver(loginSchema),
+        defaultValues: {
+            rememberMe: false
+        }
     });
+
+    const rememberMe = watch('rememberMe');
 
     const onSubmit = async (data: LoginInput) => {
         try {
-            // Ici votre logique d'authentification
-            localStorage.setItem('isLoggedIn', 'true');
-            router.push('/dashboard');
-        } catch (error) {
+            setIsLoading(true);
+            const result = await authService.login(data);
+
+            toast({
+                title: "Connexion réussie",
+                description: "Bienvenue sur Bookish !",
+            });
+            
+            router.replace('/feed');
+        } catch (error: any) {
             toast({
                 variant: "destructive",
-                title: "Erreur",
-                description: "Une erreur est survenue lors de la connexion"
+                title: "Erreur de connexion",
+                description: error.message || "Vérifiez vos identifiants et réessayez"
             });
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -54,8 +72,9 @@ export default function Login() {
                         <Input
                             {...register('email')}
                             type="email"
-                            placeholder="www.uihut@gmail.com"
+                            placeholder="votre@email.com"
                             className="h-14 bg-accent-100 border-0 text-base placeholder:text-muted-500"
+                            disabled={isLoading}
                         />
                         {errors.email && (
                             <p className="text-sm text-red-500">{errors.email.message}</p>
@@ -68,11 +87,13 @@ export default function Login() {
                                 {...register('password')}
                                 type={showPassword ? "text" : "password"}
                                 className="h-14 bg-accent-100 border-0 text-base pr-12"
+                                disabled={isLoading}
                             />
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
                                 className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-500 hover:text-muted-700 transition-colors"
+                                disabled={isLoading}
                             >
                                 {showPassword ? (
                                     <EyeOff size={20} />
@@ -87,11 +108,29 @@ export default function Login() {
                     </div>
                 </div>
 
+                <div className="flex items-center space-x-2">
+                    <Checkbox
+                        id="rememberMe"
+                        checked={rememberMe}
+                        onCheckedChange={(checked) => {
+                            setValue('rememberMe', checked as boolean);
+                        }}
+                        disabled={isLoading}
+                    />
+                    <label
+                        htmlFor="rememberMe"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                        Rester connecté
+                    </label>
+                </div>
+
                 {/* Mot de passe oublié */}
                 <div className="flex justify-end">
                     <Link 
                         href="/auth/forgot-password" 
                         className="text-secondary-500 text-base"
+                        tabIndex={isLoading ? -1 : 0}
                     >
                         Mot de passe oublié ?
                     </Link>
@@ -101,9 +140,16 @@ export default function Login() {
                 <Button 
                     type="submit" 
                     className="h-14 bg-primary-800 hover:bg-primary-900 text-white mt-4"
-                    disabled={isSubmitting}
+                    disabled={isLoading}
                 >
-                    {isSubmitting ? "Connexion..." : "Connexion"}
+                    {isLoading ? (
+                        <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Connexion en cours...
+                        </>
+                    ) : (
+                        "Connexion"
+                    )}
                 </Button>
 
                 {/* Lien d'inscription */}
@@ -112,6 +158,7 @@ export default function Login() {
                     <Link 
                         href="/auth/register" 
                         className="text-secondary-500 font-medium"
+                        tabIndex={isLoading ? -1 : 0}
                     >
                         Créez un compte
                     </Link>

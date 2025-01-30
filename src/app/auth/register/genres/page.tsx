@@ -26,7 +26,7 @@ export default function Genres() {
 
     const handleValidate = () => {
         if (selectedGenres.length > 0) {
-            router.push('/dashboard');
+            router.push('/');
         }
     };
 

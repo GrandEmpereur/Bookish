@@ -25,7 +25,7 @@ export default function Register() {
     const router = useRouter();
     const { toast } = useToast();
     const [showPassword, setShowPassword] = useState(false);
-    const [currentStep, setCurrentStep] = useState<RegisterStep>('form');
+    const [currentStep, setCurrentStepState] = useState<RegisterStep>('form');
     const [showEmailDialog, setShowEmailDialog] = useState(false);
     const [verificationCode, setVerificationCode] = useState(['', '', '', '']);
 
@@ -40,7 +40,7 @@ export default function Register() {
 
     const onSubmit = async (data: RegisterInput) => {
         try {
-            setShowEmailDialog(true);
+            router.push('/auth/register/verification');
         } catch (error) {
             toast({
                 variant: "destructive",
@@ -58,7 +58,7 @@ export default function Register() {
     const handleVerificationCodeSubmit = () => {
         if (verificationCode.join('').length === 4) {
             setShowEmailDialog(false);
-            setCurrentStep('purpose');
+            setCurrentStepState('purpose');
         }
     };
 
