@@ -64,7 +64,7 @@ export default function Genres() {
                     ))}
                 </div>
 
-                <div className="mt-auto pb-[63px] safe-area-pb">
+                <div className="mt-auto pb-[63px]">
                     <Button 
                         onClick={handleValidate}
                         className="w-full h-14 bg-primary-800 hover:bg-primary-900 text-white"

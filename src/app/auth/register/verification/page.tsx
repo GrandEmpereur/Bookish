@@ -104,9 +104,9 @@ export default function Verification() {
                 </p>
             ) : (
                 <Button
-                    variant="ghost"
+                    variant="secondary"
                     onClick={handleResendCode}
-                    className="mt-4 text-sm text-primary-800 hover:text-primary-900"
+                    className="mt-4 text-sm text-white"
                 >
                     Renvoyer l'email
                 </Button>
