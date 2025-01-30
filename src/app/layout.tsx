@@ -4,6 +4,7 @@ import React from 'react';
 import { DM_Serif_Display, Inter } from 'next/font/google'; // Correct import for Google fonts
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
+import { AuthProvider } from '@/contexts/auth-context';
 
 // Configure DM Serif Display font
 const dmSerif = DM_Serif_Display({
@@ -31,12 +32,14 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       </head>
 
       <body className="font-body">
+        <AuthProvider>
           <main className="flex flex-col min-h-screen">
             <div className="flex-1 flex flex-col h-full justify-center items-center">
               {children}
             </div>
           </main>
           <Toaster />
+        </AuthProvider>
       </body>
     </html>
   );

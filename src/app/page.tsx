@@ -4,6 +4,7 @@ import React, { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import gsap from 'gsap';
 import Image from 'next/image';
+import { authService } from "@/services/auth.service";
 
 const App: React.FC = () => {
   const router = useRouter();
@@ -13,7 +14,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const tl = gsap.timeline();
     
-    // Animation optimisée pour mobile
+    // Animation du logo
     tl.from(containerRef.current, {
       scale: 0.95,
       opacity: 0,
@@ -28,19 +29,34 @@ const App: React.FC = () => {
       ease: "power3.out"
     });
 
-    // Réduire le délai pour une meilleure expérience mobile
-    setTimeout(() => {
-      const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
-      const isLoggedIn = localStorage.getItem('isLoggedIn');
+    const checkAuthAndRedirect = async () => {
+      try {
+        const userData = await authService.checkAuth();
+        const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
 
-      if (isLoggedIn) {
-        router.push('/auth/login');
-      } else if (hasSeenOnboarding) {
-        router.push('/auth/login');
-      } else {
-        router.push('/onboarding');
+        if (userData) {
+          // Si l'utilisateur est authentifié, redirection vers feed
+          router.replace('/feed');
+        } else if (hasSeenOnboarding) {
+          // Si non authentifié mais a vu l'onboarding
+          router.replace('/auth/login');
+        } else {
+          // Première visite
+          router.replace('/onboarding');
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        // En cas d'erreur, on considère l'utilisateur comme non authentifié
+        if (localStorage.getItem('hasSeenOnboarding')) {
+          router.replace('/auth/login');
+        } else {
+          router.replace('/onboarding');
+        }
       }
-    }, 2000); // Réduit à 2 secondes pour une meilleure réactivité mobile
+    };
+
+    // Attendre que l'animation soit terminée avant de vérifier l'auth
+    setTimeout(checkAuthAndRedirect, 2000);
   }, [router]);
 
   return (
@@ -48,11 +64,11 @@ const App: React.FC = () => {
       <div ref={containerRef} className="flex flex-col items-center gap-y-6 px-4">
         <Image 
           src="/bookish.svg" 
-          width={80}  // Taille réduite pour mobile
+          width={80}
           height={68} 
           alt="Logo" 
           priority
-          className="w-20 md:w-24" // Responsive
+          className="w-20 md:w-24"
         />
         <p ref={textRef} className="text-3xl md:text-4xl font-heading uppercase text-white font-bold">
           Bookish

@@ -1,27 +1,28 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { authService } from "@/services/auth.service";
+import { useRouter } from 'next/navigation';
+import { useAuth } from "@/contexts/auth-context";
 
 export default function FeedLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    const { isAuthenticated } = useAuth();
     const router = useRouter();
-    const pathname = usePathname();
 
     useEffect(() => {
-        // Utiliser requestAnimationFrame pour une navigation plus fluide
-        requestAnimationFrame(() => {
-            if (!authService.isLoggedIn()) {
-                router.replace('/auth/login'); // replace au lieu de push
-            } else if (pathname === '/') {
-                router.replace('/feed'); // replace au lieu de push
-            }
-        });
-    }, [router, pathname]);
+        // Simple vérification : si pas authentifié, redirection vers login
+        if (!isAuthenticated) {
+            router.replace('/auth/login');
+        }
+    }, [isAuthenticated, router]);
+
+    // Ne rendre les enfants que si l'utilisateur est authentifié
+    if (!isAuthenticated) {
+        return null;
+    }
 
     return children;
 } 

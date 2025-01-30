@@ -1,29 +1,15 @@
 import { LoginInput } from "@/lib/validations/auth";
-import { CapacitorHttp, HttpResponse } from '@capacitor/core';
-
-// Interface pour la réponse de l'API
-interface ApiResponse {
-    status: 'success' | 'error';
-    message: string;
-    data?: {
-        id: string;
-        username: string;
-        email: string;
-        is_verified: boolean;
-        has_logged_in: boolean;
-        created_at: string;
-        updated_at: string;
-    };
-}
-
-// Interface pour les erreurs
-interface ApiError {
-    message: string;
-    status?: number;
-    stack?: string;
-}
+import { CapacitorHttp } from '@capacitor/core';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+interface User {
+    id: string;
+    email: string;
+    username: string;
+    is_verified: boolean;
+    has_logged_in: boolean;
+}
 
 class AuthService {
     async login(data: LoginInput) {
@@ -33,46 +19,56 @@ class AuthService {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                data: data
+                data: {
+                    ...data,
+                    rememberMe: true
+                },
+                webFetchExtra: {
+                    credentials: 'include'
+                }
             });
 
             if (response.status !== 200) {
                 throw new Error(response.data.message || 'Erreur de connexion');
             }
 
-            const result = response.data as ApiResponse;
-
-            if (result.status === "success" && result.data) {
-                localStorage.setItem('user', JSON.stringify(result.data));
-                if (data.rememberMe) {
-                    localStorage.setItem('isLoggedIn', 'true');
-                }
-            }
-
-            return result;
+            return response.data;
         } catch (error: unknown) {
-            const apiError: ApiError = {
-                message: error instanceof Error ? error.message : 'Une erreur inconnue est survenue',
-                stack: error instanceof Error ? error.stack : undefined
-            };
-
-            console.log('Error details:', apiError);
-            throw apiError;
+            console.error('Login error:', error);
+            throw error;
         }
     }
 
-    logout() {
-        localStorage.removeItem('user');
-        localStorage.removeItem('isLoggedIn');
+    async checkAuth(): Promise<User | null> {
+        try {
+            const response = await CapacitorHttp.get({
+                url: `${API_URL}/users/me`,
+                webFetchExtra: {
+                    credentials: 'include'
+                }
+            });
+
+            if (response.status === 200) {
+                return response.data;
+            }
+            return null;
+        } catch (error) {
+            console.error('Check auth error:', error);
+            return null;
+        }
     }
 
-    getCurrentUser() {
-        const user = localStorage.getItem('user');
-        return user ? JSON.parse(user) : null;
-    }
-
-    isLoggedIn() {
-        return !!this.getCurrentUser();
+    async logout() {
+        try {
+            await CapacitorHttp.post({
+                url: `${API_URL}/auth/logout`,
+                webFetchExtra: {
+                    credentials: 'include'
+                }
+            });
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
     }
 }
 

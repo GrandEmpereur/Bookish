@@ -10,41 +10,32 @@ import { Eye, EyeOff, Loader2 } from "lucide-react";
 import Link from 'next/link';
 import { loginSchema, type LoginInput } from "@/lib/validations/auth";
 import { useToast } from "@/hooks/use-toast";
-import { Checkbox } from "@/components/ui/checkbox";
-import { authService } from "@/services/auth.service";
+import { useAuth } from '@/contexts/auth-context';
 
 export default function Login() {
     const router = useRouter();
     const { toast } = useToast();
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const { login } = useAuth();
 
     const {
         register,
         handleSubmit,
-        setValue,
-        watch,
         formState: { errors }
     } = useForm<LoginInput>({
-        resolver: zodResolver(loginSchema),
-        defaultValues: {
-            rememberMe: false
-        }
+        resolver: zodResolver(loginSchema)
     });
-
-    const rememberMe = watch('rememberMe');
 
     const onSubmit = async (data: LoginInput) => {
         try {
             setIsLoading(true);
-            const result = await authService.login(data);
-
+            await login(data.email, data.password, true);
+            
             toast({
                 title: "Connexion réussie",
                 description: "Bienvenue sur Bookish !",
             });
-            
-            router.replace('/feed');
         } catch (error: any) {
             toast({
                 variant: "destructive",
@@ -106,23 +97,6 @@ export default function Login() {
                             <p className="text-sm text-red-500">{errors.password.message}</p>
                         )}
                     </div>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                    <Checkbox
-                        id="rememberMe"
-                        checked={rememberMe}
-                        onCheckedChange={(checked) => {
-                            setValue('rememberMe', checked as boolean);
-                        }}
-                        disabled={isLoading}
-                    />
-                    <label
-                        htmlFor="rememberMe"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                        Rester connecté
-                    </label>
                 </div>
 
                 {/* Mot de passe oublié */}
