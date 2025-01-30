@@ -6,28 +6,41 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Eye, EyeOff, ChevronLeft } from "lucide-react";
+import { Eye, EyeOff, ChevronLeft, Mail } from "lucide-react";
 import Link from 'next/link';
 import { registerSchema, type RegisterInput } from "@/lib/validations/auth";
 import { useToast } from "@/hooks/use-toast";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+} from "@/components/ui/dialog";
+
+// Types pour les différentes étapes
+type RegisterStep = 'form' | 'verification' | 'purpose' | 'habits' | 'genres';
 
 export default function Register() {
     const router = useRouter();
     const { toast } = useToast();
     const [showPassword, setShowPassword] = useState(false);
+    const [currentStep, setCurrentStep] = useState<RegisterStep>('form');
+    const [showEmailDialog, setShowEmailDialog] = useState(false);
+    const [verificationCode, setVerificationCode] = useState(['', '', '', '']);
 
     const {
         register,
         handleSubmit,
-        formState: { errors, isSubmitting }
+        formState: { errors, isSubmitting },
+        getValues
     } = useForm<RegisterInput>({
         resolver: zodResolver(registerSchema)
     });
 
     const onSubmit = async (data: RegisterInput) => {
         try {
-            // Ici votre logique d'inscription
-            router.push('/auth/login');
+            setShowEmailDialog(true);
         } catch (error) {
             toast({
                 variant: "destructive",
@@ -37,24 +50,54 @@ export default function Register() {
         }
     };
 
+    const handleDialogClose = () => {
+        setShowEmailDialog(false);
+        router.push('/auth/register/verification');
+    };
+
+    const handleVerificationCodeSubmit = () => {
+        if (verificationCode.join('').length === 4) {
+            setShowEmailDialog(false);
+            setCurrentStep('purpose');
+        }
+    };
+
+    const renderVerificationDialog = () => (
+        <Dialog open={showEmailDialog} onOpenChange={handleDialogClose}>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle className="text-center font-heading text-2xl">
+                        Vérifiez vos emails
+                    </DialogTitle>
+                    <DialogDescription className="text-center">
+                        Nous avons envoyé des instructions de
+                        <br />récupération ou mot de passe à votre
+                        <br />adresse électronique
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="flex flex-col items-center gap-6">
+                    <div className="rounded-full bg-primary-100 p-4">
+                        <Mail className="h-6 w-6 text-primary-800" />
+                    </div>
+                    <p className="text-sm text-muted-500">
+                        {getValues('email')}
+                    </p>
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+
     return (
-        <div className="min-h-[100dvh] flex flex-col px-5 bg-background safe-area-pt">
-            <button
-                onClick={() => router.back()}
-                className="text-black mb-8 flex items-center gap-2 pt-[60px]"
-            >
-                <ChevronLeft size={24} />
-            </button>
+        <div className="min-h-[100dvh] flex flex-col px-5 bg-background">
+            <div className="flex-1 flex flex-col justify-center max-w-[400px] mx-auto w-full">
+                <h1 className="text-[32px] text-center font-heading leading-tight mb-8">
+                    Rejoignez notre
+                    <br />
+                    communauté
+                </h1>
 
-            <h1 className="text-[32px] text-center font-heading leading-tight mb-14">
-                Rejoignez notre
-                <br />
-                communauté
-            </h1>
-
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-                <div className="space-y-4">
-                    <div className="space-y-2">
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+                    <div className="space-y-4">
                         <Input
                             {...register('username')}
                             placeholder="pseudonyme"
@@ -63,9 +106,7 @@ export default function Register() {
                         {errors.username && (
                             <p className="text-sm text-red-500">{errors.username.message}</p>
                         )}
-                    </div>
 
-                    <div className="space-y-2">
                         <Input
                             {...register('birthdate')}
                             placeholder="jj/mm/aaaa"
@@ -74,9 +115,7 @@ export default function Register() {
                         {errors.birthdate && (
                             <p className="text-sm text-red-500">{errors.birthdate.message}</p>
                         )}
-                    </div>
 
-                    <div className="space-y-2">
                         <Input
                             {...register('email')}
                             type="email"
@@ -86,9 +125,7 @@ export default function Register() {
                         {errors.email && (
                             <p className="text-sm text-red-500">{errors.email.message}</p>
                         )}
-                    </div>
 
-                    <div className="space-y-2">
                         <div className="relative">
                             <Input
                                 {...register('password')}
@@ -108,31 +145,38 @@ export default function Register() {
                                 )}
                             </button>
                         </div>
-
                         {errors.password && (
                             <p className="text-sm text-red-500">{errors.password.message}</p>
                         )}
+
+                        <p className="text-sm text-success">
+                            Le mot de passe doit avoir au moins 8 caractères
+                            <br />
+                            1 caractère spécial
+                        </p>
                     </div>
-                </div>
 
-                <Button 
-                    type="submit" 
-                    className="h-14 bg-primary-800 hover:bg-primary-900 text-white mt-4"
-                    disabled={isSubmitting}
-                >
-                    S'inscrire
-                </Button>
-
-                <p className="text-center mt-4 text-base">
-                    Vous avez un compte ?{' '}
-                    <Link 
-                        href="/auth/login" 
-                        className="text-secondary-500 font-medium"
+                    <Button 
+                        type="submit" 
+                        className="h-14 bg-primary-800 hover:bg-primary-900 text-white mt-4"
+                        disabled={isSubmitting}
                     >
-                        Connectez vous
-                    </Link>
-                </p>
-            </form>
+                        S'inscrire
+                    </Button>
+
+                    <p className="text-center mt-4 text-base">
+                        Vous avez un compte ?{' '}
+                        <Link 
+                            href="/auth/login" 
+                            className="text-secondary-500 font-medium"
+                        >
+                            Connectez vous
+                        </Link>
+                    </p>
+                </form>
+            </div>
+
+            {renderVerificationDialog()}
         </div>
     );
 } 
