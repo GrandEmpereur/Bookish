@@ -29,34 +29,35 @@ const App: React.FC = () => {
       ease: "power3.out"
     });
 
-    const checkAuthAndRedirect = async () => {
+    const initializeApp = async () => {
       try {
         const userData = await authService.checkAuth();
+        const currentPath = window.location.pathname;
         const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
 
+        // Si l'utilisateur est authentifié
         if (userData) {
-          // Si l'utilisateur est authentifié, redirection vers feed
-          router.replace('/feed');
-        } else if (hasSeenOnboarding) {
-          // Si non authentifié mais a vu l'onboarding
-          router.replace('/auth/login');
-        } else {
-          // Première visite
+          // Si sur une page auth ou racine, rediriger vers feed
+          if (currentPath === '/' || currentPath.startsWith('/auth')) {
+            router.replace('/feed');
+          }
+          return; // Garder l'utilisateur sur sa page actuelle si déjà sur une page protégée
+        }
+
+        // Si l'utilisateur n'est pas authentifié
+        if (!hasSeenOnboarding) {
           router.replace('/onboarding');
+        } else if (!currentPath.startsWith('/auth')) {
+          router.replace('/auth/login');
         }
       } catch (error) {
-        console.error('Auth check failed:', error);
-        // En cas d'erreur, on considère l'utilisateur comme non authentifié
-        if (localStorage.getItem('hasSeenOnboarding')) {
-          router.replace('/auth/login');
-        } else {
-          router.replace('/onboarding');
-        }
+        console.error('Init error:', error);
+        router.replace('/auth/login');
       }
     };
 
-    // Attendre que l'animation soit terminée avant de vérifier l'auth
-    setTimeout(checkAuthAndRedirect, 2000);
+    // Attendre que l'animation soit terminée
+    setTimeout(initializeApp, 2000);
   }, [router]);
 
   return (

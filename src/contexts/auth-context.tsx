@@ -51,20 +51,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const checkAuth = async () => {
         try {
             const userData = await authService.checkAuth();
-            
             if (userData) {
                 setUser(userData);
                 setIsAuthenticated(true);
-                
-                if (window.location.pathname.startsWith('/auth')) {
-                    router.replace('/feed');
-                }
             } else {
                 setUser(null);
                 setIsAuthenticated(false);
-                if (!window.location.pathname.startsWith('/auth')) {
-                    router.replace('/auth/login');
-                }
             }
         } catch (error) {
             console.error('Auth check failed:', error);
@@ -81,7 +73,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const result = await authService.login({ email, password, rememberMe });
             
             if (result.status === 'success') {
-                await checkAuth();
+                const userData = await authService.checkAuth();
+                if (userData) {
+                    setUser(userData);
+                    setIsAuthenticated(true);
+                    router.replace('/feed');
+                }
             }
         } catch (error) {
             console.error('Login failed:', error);
@@ -91,11 +88,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     };
 
-    const logout = () => {
-        authService.logout();
-        setUser(null);
-        setIsAuthenticated(false);
-        router.replace('/auth/login');
+    const logout = async () => {
+        try {
+            await authService.logout();
+            setUser(null);
+            setIsAuthenticated(false);
+            router.replace('/auth/login');
+        } catch (error) {
+            console.error('Logout failed:', error);
+            setUser(null);
+            setIsAuthenticated(false);
+            router.replace('/auth/login');
+        }
     };
 
     return (
