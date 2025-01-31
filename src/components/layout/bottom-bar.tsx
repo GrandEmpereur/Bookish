@@ -31,6 +31,11 @@ const navigationItems = [
         href: '/profile',
         label: 'Profile',
         icon: User
+    },
+    {
+        href: '/test/toast',
+        label: 'Toast',
+        icon: User
     }
 ];
 
