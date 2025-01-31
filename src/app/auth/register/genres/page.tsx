@@ -1,77 +1,125 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { Loader2, Check } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { authService } from "@/services/auth.service";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
 
 const genres = [
-    'Développement personnel', 'Fiction', 'Sports', 'Inspirant', 'Education',
-    'Non-Fiction', 'Sci-fi', 'Aventure', 'Horror', 'Romance', 'Essais',
-    'Shōjo', 'Comics', 'Romanatasy', 'Shōnen', 'Western', 'Thriller',
-    'Young adulte', 'Biographie', 'Policier'
+    { id: 'fantasy', label: 'Fantasy' },
+    { id: 'sci-fi', label: 'Science Fiction' },
+    { id: 'romance', label: 'Romance' },
+    { id: 'thriller', label: 'Thriller' },
+    { id: 'mystery', label: 'Mystère' },
+    { id: 'horror', label: 'Horreur' },
+    { id: 'historical', label: 'Historique' },
+    { id: 'contemporary', label: 'Contemporain' },
+    { id: 'literary', label: 'Littérature' },
+    { id: 'non-fiction', label: 'Non-Fiction' },
+    { id: 'biography', label: 'Biographie' },
+    { id: 'self-help', label: 'Développement Personnel' }
 ];
 
 export default function Genres() {
-    const router = useRouter();
     const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [email, setEmail] = useState('');
+    const router = useRouter();
+    const { toast } = useToast();
 
-    const toggleGenre = (genre: string) => {
+    useEffect(() => {
+        const storedEmail = sessionStorage.getItem('verificationEmail');
+        if (!storedEmail) {
+            router.replace('/auth/register');
+            return;
+        }
+        setEmail(storedEmail);
+    }, [router]);
+
+    const toggleGenre = (genreId: string) => {
         setSelectedGenres(prev => 
-            prev.includes(genre)
-                ? prev.filter(g => g !== genre)
-                : [...prev, genre]
+            prev.includes(genreId)
+                ? prev.filter(id => id !== genreId)
+                : [...prev, genreId]
         );
     };
 
-    const handleValidate = () => {
-        if (selectedGenres.length > 0) {
-            router.push('/');
+    const handleSubmit = async () => {
+        if (selectedGenres.length === 0) {
+            toast({
+                variant: "destructive",
+                title: "Sélection requise",
+                description: "Veuillez sélectionner au moins un genre"
+            });
+            return;
+        }
+
+        try {
+            setIsLoading(true);
+            await authService.completeStep3(email, selectedGenres);
+            
+            // Nettoyage et redirection vers le feed
+            sessionStorage.removeItem('verificationEmail');
+            router.replace('/feed');
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: "Erreur",
+                description: error.message || "Une erreur est survenue"
+            });
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
-        <div className="min-h-[100dvh] flex flex-col px-5 bg-background safe-area-pt">
-            <button
-                onClick={() => router.back()}
-                className="text-black mb-8 flex items-center gap-2 pt-[60px]"
-            >
-                <ChevronLeft size={24} />
-            </button>
+        <div className="min-h-[100dvh] flex flex-col px-5 bg-background pt-[60px]">
+            <div className="flex-1 flex flex-col max-w-md mx-auto w-full">
+                <h1 className="text-2xl font-heading mb-2 text-center">
+                    Vos genres préférés
+                </h1>
+                <p className="text-muted-foreground text-center mb-8">
+                    Sélectionnez les genres qui vous intéressent
+                </p>
 
-            <h1 className="text-[32px] text-center font-heading leading-tight mb-4">
-                Quels sont les genres
-                <br />
-                de livres que vous
-                <br />
-                aimez lire ?
-            </h1>
-
-            <div className="flex-1 flex flex-col">
-                <div className="flex flex-wrap gap-2 mb-8">
+                <div className="grid grid-cols-2 gap-3 mb-8">
                     {genres.map((genre) => (
                         <button
-                            key={genre}
-                            onClick={() => toggleGenre(genre)}
-                            className={`px-4 py-2 rounded-full text-sm ${
-                                selectedGenres.includes(genre)
-                                    ? 'bg-primary-800 text-white'
-                                    : 'bg-accent-100 text-muted-700'
-                            }`}
+                            key={genre.id}
+                            onClick={() => toggleGenre(genre.id)}
+                            disabled={isLoading}
+                            className={`p-3 rounded-lg border flex items-center justify-between transition-colors
+                                ${selectedGenres.includes(genre.id)
+                                    ? 'bg-primary-50 border-primary' 
+                                    : 'bg-accent-100 border-transparent hover:border-primary/20'
+                                }
+                                ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}
+                            `}
                         >
-                            {genre}
+                            <span className="text-sm font-medium">{genre.label}</span>
+                            {selectedGenres.includes(genre.id) && (
+                                <Check className="h-4 w-4 text-primary" />
+                            )}
                         </button>
                     ))}
                 </div>
 
-                <div className="mt-auto pb-[63px]">
-                    <Button 
-                        onClick={handleValidate}
-                        className="w-full h-14 bg-primary-800 hover:bg-primary-900 text-white"
-                    >
-                        Valider
-                    </Button>
-                </div>
+                <Button
+                    className="w-full h-14"
+                    onClick={handleSubmit}
+                    disabled={selectedGenres.length === 0 || isLoading}
+                >
+                    {isLoading ? (
+                        <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Finalisation...
+                        </>
+                    ) : (
+                        "Terminer l'inscription"
+                    )}
+                </Button>
             </div>
         </div>
     );

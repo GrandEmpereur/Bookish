@@ -1,51 +1,62 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Eye, EyeOff, ChevronLeft, Mail } from "lucide-react";
 import Link from 'next/link';
+import { Eye, EyeOff, ChevronLeft, Loader2, Mail } from "lucide-react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { registerSchema, type RegisterInput } from "@/lib/validations/auth";
 import { useToast } from "@/hooks/use-toast";
+import { authService } from "@/services/auth.service";
+import { useRouter } from "next/navigation";
+
+import { Button } from "@/components/ui/button";
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogHeader,
     DialogTitle,
-    DialogDescription,
 } from "@/components/ui/dialog";
 
-// Types pour les différentes étapes
-type RegisterStep = 'form' | 'verification' | 'purpose' | 'habits' | 'genres';
-
 export default function Register() {
-    const router = useRouter();
     const { toast } = useToast();
     const [showPassword, setShowPassword] = useState(false);
-    const [currentStep, setCurrentStepState] = useState<RegisterStep>('form');
     const [showEmailDialog, setShowEmailDialog] = useState(false);
-    const [verificationCode, setVerificationCode] = useState(['', '', '', '']);
+    const router = useRouter();
 
-    const {
-        register,
-        handleSubmit,
-        formState: { errors, isSubmitting },
-        getValues
-    } = useForm<RegisterInput>({
-        resolver: zodResolver(registerSchema)
+    const form = useForm<RegisterInput>({
+        resolver: zodResolver(registerSchema),
+        defaultValues: {
+            username: "",
+            email: "",
+            password: "",
+            birthdate: ""
+        },
     });
 
     const onSubmit = async (data: RegisterInput) => {
         try {
-            router.push('/auth/register/verification');
-        } catch (error) {
+            await authService.register(data);
+            
+            // Stockage de l'email pour la vérification
+            sessionStorage.setItem('verificationEmail', data.email);
+            
+            // Afficher le dialogue au lieu du toast
+            setShowEmailDialog(true);
+        } catch (error: any) {
             toast({
                 variant: "destructive",
-                title: "Erreur",
-                description: "Une erreur est survenue lors de l'inscription"
+                title: "Erreur d'inscription",
+                description: error.message || "Une erreur est survenue lors de l'inscription"
             });
         }
     };
@@ -55,113 +66,158 @@ export default function Register() {
         router.push('/auth/register/verification');
     };
 
-    const handleVerificationCodeSubmit = () => {
-        if (verificationCode.join('').length === 4) {
-            setShowEmailDialog(false);
-            setCurrentStepState('purpose');
+    const formatBirthdate = (value: string) => {
+        // Supprime tout ce qui n'est pas un chiffre
+        const numbers = value.replace(/\D/g, '');
+        
+        // Ajoute les "/" automatiquement
+        let formatted = '';
+        for (let i = 0; i < numbers.length && i < 8; i++) {
+            if (i === 2 || i === 4) formatted += '/';
+            formatted += numbers[i];
         }
+        
+        return formatted;
     };
 
-    const renderVerificationDialog = () => (
-        <Dialog open={showEmailDialog} onOpenChange={handleDialogClose}>
-            <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                    <DialogTitle className="text-center font-heading text-2xl">
-                        Vérifiez vos emails
-                    </DialogTitle>
-                    <DialogDescription className="text-center">
-                        Nous avons envoyé des instructions de
-                        <br />récupération ou mot de passe à votre
-                        <br />adresse électronique
-                    </DialogDescription>
-                </DialogHeader>
-                <div className="flex flex-col items-center gap-6">
-                    <div className="rounded-full bg-primary-100 p-4">
-                        <Mail className="h-6 w-6 text-primary-800" />
-                    </div>
-                    <p className="text-sm text-muted-500">
-                        {getValues('email')}
-                    </p>
-                </div>
-            </DialogContent>
-        </Dialog>
-    );
+    const handleBirthdateChange = (
+        event: React.ChangeEvent<HTMLInputElement>,
+        field: { onChange: (value: string) => void }
+    ) => {
+        const formatted = formatBirthdate(event.target.value);
+        field.onChange(formatted);
+    };
 
     return (
-        <div className="min-h-[100dvh] flex flex-col px-5 bg-background">
-            <div className="flex-1 flex flex-col justify-center max-w-[400px] mx-auto w-full">
-                <h1 className="text-[32px] text-center font-heading leading-tight mb-8">
-                    Rejoignez notre
-                    <br />
-                    communauté
-                </h1>
+        <div className="min-h-[100dvh] flex flex-col px-5 bg-background safe-area-pt">
+            <Link
+                href="/auth/login"
+                className="text-black mb-8 flex items-center gap-2 pt-[60px]"
+            >
+                <ChevronLeft size={24} />
+            </Link>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+            <h1 className="text-[32px] text-center font-heading leading-tight mb-14">
+                Créez votre compte
+            </h1>
+
+            <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4 w-full max-w-[400px] mx-auto">
                     <div className="space-y-4">
-                        <Input
-                            {...register('username')}
-                            placeholder="pseudonyme"
-                            className="h-14 bg-accent-100 border-0 text-base placeholder:text-muted-500"
+                        <FormField
+                            control={form.control}
+                            name="username"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormControl>
+                                        <Input
+                                            {...field}
+                                            placeholder="Nom d'utilisateur"
+                                            className="h-14 bg-accent-100 border-0 text-base placeholder:text-muted-500"
+                                            disabled={form.formState.isSubmitting}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
                         />
-                        {errors.username && (
-                            <p className="text-sm text-red-500">{errors.username.message}</p>
-                        )}
 
-                        <Input
-                            {...register('birthdate')}
-                            placeholder="jj/mm/aaaa"
-                            className="h-14 bg-accent-100 border-0 text-base placeholder:text-muted-500"
+                        <FormField
+                            control={form.control}
+                            name="email"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormControl>
+                                        <Input
+                                            {...field}
+                                            type="email"
+                                            placeholder="votre@email.com"
+                                            className="h-14 bg-accent-100 border-0 text-base placeholder:text-muted-500"
+                                            disabled={form.formState.isSubmitting}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
                         />
-                        {errors.birthdate && (
-                            <p className="text-sm text-red-500">{errors.birthdate.message}</p>
-                        )}
-
-                        <Input
-                            {...register('email')}
-                            type="email"
-                            placeholder="adresse email"
-                            className="h-14 bg-accent-100 border-0 text-base placeholder:text-muted-500"
+                        
+                        <FormField
+                            control={form.control}
+                            name="birthdate"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormControl>
+                                        <div className="relative">
+                                            <Input
+                                                {...field}
+                                                type="text"
+                                                placeholder="JJ/MM/AAAA"
+                                                maxLength={10}
+                                                value={field.value}
+                                                onChange={(e) => handleBirthdateChange(e, field)}
+                                                className="h-14 bg-accent-100 border-0 text-base placeholder:text-muted-500"
+                                                disabled={form.formState.isSubmitting}
+                                            />
+                                        </div>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
                         />
-                        {errors.email && (
-                            <p className="text-sm text-red-500">{errors.email.message}</p>
-                        )}
 
-                        <div className="relative">
-                            <Input
-                                {...register('password')}
-                                type={showPassword ? "text" : "password"}
-                                placeholder="********"
-                                className="h-14 bg-accent-100 border-0 text-base pr-12"
-                            />
-                            <button
-                                type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-500 hover:text-muted-700 transition-colors"
-                            >
-                                {showPassword ? (
-                                    <EyeOff size={20} />
-                                ) : (
-                                    <Eye size={20} />
-                                )}
-                            </button>
-                        </div>
-                        {errors.password && (
-                            <p className="text-sm text-red-500">{errors.password.message}</p>
-                        )}
+                        <FormField
+                            control={form.control}
+                            name="password"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormControl>
+                                        <div className="relative">
+                                            <Input
+                                                {...field}
+                                                type={showPassword ? "text" : "password"}
+                                                placeholder="Mot de passe"
+                                                className="h-14 bg-accent-100 border-0 text-base pr-12"
+                                                disabled={form.formState.isSubmitting}
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-500 hover:text-muted-700 transition-colors"
+                                                disabled={form.formState.isSubmitting}
+                                            >
+                                                {showPassword ? (
+                                                    <EyeOff size={20} />
+                                                ) : (
+                                                    <Eye size={20} />
+                                                )}
+                                            </button>
+                                        </div>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
-                        <p className="text-sm text-success">
+                        <p className="text-sm text-muted-foreground">
                             Le mot de passe doit avoir au moins 8 caractères
                             <br />
-                            1 caractère spécial
+                            et 1 caractère spécial
                         </p>
                     </div>
 
                     <Button 
                         type="submit" 
                         className="h-14 bg-primary-800 hover:bg-primary-900 text-white mt-4"
-                        disabled={isSubmitting}
+                        disabled={form.formState.isSubmitting}
                     >
-                        S'inscrire
+                        {form.formState.isSubmitting ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Inscription en cours...
+                            </>
+                        ) : (
+                            "S'inscrire"
+                        )}
                     </Button>
 
                     <p className="text-center mt-4 text-base">
@@ -169,14 +225,32 @@ export default function Register() {
                         <Link 
                             href="/auth/login" 
                             className="text-secondary-500 font-medium"
+                            tabIndex={form.formState.isSubmitting ? -1 : 0}
                         >
                             Connectez vous
                         </Link>
                     </p>
                 </form>
-            </div>
+            </Form>
 
-            {renderVerificationDialog()}
+            {/* Dialog de vérification d'email */}
+            <Dialog open={showEmailDialog} onOpenChange={handleDialogClose}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <div className="mx-auto bg-primary-100 w-12 h-12 rounded-full flex items-center justify-center mb-4">
+                            <Mail className="w-6 h-6 text-primary-800" />
+                        </div>
+                        <DialogTitle className="text-center font-heading text-2xl">
+                            Vérifiez vos emails
+                        </DialogTitle>
+                        <DialogDescription className="text-center">
+                            Nous avons envoyé un code de vérification à votre adresse email.
+                            <br />
+                            Veuillez vérifier votre boîte de réception.
+                        </DialogDescription>
+                    </DialogHeader>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 } 

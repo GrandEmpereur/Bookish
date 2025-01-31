@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { authService } from "@/services/auth.service";
 import {
     InputOTP,
     InputOTPGroup,
@@ -13,104 +14,169 @@ import {
 } from "@/components/ui/input-otp";
 
 export default function Verification() {
+    const [code, setCode] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [isVerifying, setIsVerifying] = useState(false);
+    const [email, setEmail] = useState('');
+    const [timeLeft, setTimeLeft] = useState(30);
     const router = useRouter();
     const { toast } = useToast();
-    const [code, setCode] = useState('');
-    const [timeLeft, setTimeLeft] = useState(60); // Changé à 60 secondes (1 minute)
-    const [resendAttempts, setResendAttempts] = useState(0);
 
     useEffect(() => {
-        const timer = setInterval(() => {
-            setTimeLeft((prev) => {
-                if (prev <= 1) {
-                    clearInterval(timer);
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
+        const storedEmail = sessionStorage.getItem('verificationEmail');
+        if (!storedEmail) {
+            router.replace('/auth/register');
+            return;
+        }
+        setEmail(storedEmail);
+    }, [router]);
 
+    useEffect(() => {
+        let timer: NodeJS.Timeout;
+        if (timeLeft > 0) {
+            timer = setInterval(() => {
+                setTimeLeft((prev) => prev - 1);
+            }, 1000);
+        }
         return () => clearInterval(timer);
-    }, [resendAttempts]);
+    }, [timeLeft]);
 
-    const formatTime = (seconds: number) => {
-        const minutes = Math.floor(seconds / 60);
-        const remainingSeconds = seconds % 60;
-        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    const handleVerification = async () => {
+        if (code.length !== 6) {
+            toast({
+                variant: "destructive",
+                title: "Code invalide",
+                description: "Le code doit contenir 6 chiffres"
+            });
+            return;
+        }
+
+        try {
+            setIsVerifying(true);
+            const response = await authService.verifyEmail(email, code);
+            
+            if (response.status === 'success') {
+                // Nettoyage et redirection uniquement si la vérification est réussie
+                sessionStorage.removeItem('verificationEmail');
+                router.replace('/auth/register/purpose');
+            } else {
+                toast({
+                    variant: "destructive",
+                    title: "Code incorrect",
+                    description: "Le code de vérification est invalide"
+                });
+                setCode(''); // Reset du code
+            }
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: "Erreur de vérification",
+                description: error.message || "Code invalide, veuillez réessayer"
+            });
+            setCode(''); // Reset du code en cas d'erreur
+        } finally {
+            setIsVerifying(false);
+        }
     };
 
-    const handleResendCode = () => {
-        setResendAttempts(prev => prev + 1);
-        setTimeLeft(60); // Toujours réinitialiser à 60 secondes
-        toast({
-            title: "Code renvoyé",
-            description: "Un nouveau code a été envoyé à votre adresse email"
-        });
-    };
+    const handleResendCode = async () => {
+        if (timeLeft > 0) return;
 
-    const handleComplete = (value: string) => {
-        if (value.length === 6) {
-            router.push('/auth/register/purpose');
+        try {
+            setIsLoading(true);
+            await authService.resendVerification(email);
+            setTimeLeft(30);
+            
+            toast({
+                title: "Code renvoyé",
+                description: "Un nouveau code a été envoyé à votre email"
+            });
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: "Erreur",
+                description: "Impossible de renvoyer le code"
+            });
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
-        <div className="min-h-[100dvh] flex flex-col px-5 bg-background safe-area-pt">
-            <button
+        <div className="min-h-[100dvh] flex flex-col px-5 bg-background">
+            <Button
+                variant="ghost"
+                className="w-fit p-0 mb-8 pt-[60px]"
                 onClick={() => router.back()}
-                className="text-black mb-8 flex items-center gap-2 pt-[60px]"
+                disabled={isVerifying}
             >
                 <ChevronLeft size={24} />
-            </button>
-
-            <h1 className="text-[32px] text-center font-heading leading-tight mb-4">
-                Authentification
-            </h1>
-
-            <p className="text-center text-muted-foreground mb-8">
-                Veuillez vérifier votre mail
-                <br />www.uihut@gmail.com pour voir le code de
-                <br />vérification
-            </p>
-
-            <div className="flex justify-center mb-8">
-                <InputOTP maxLength={6}
-                    value={code}
-                    onChange={setCode}>
-                    <InputOTPGroup>
-                        <InputOTPSlot index={0} />
-                        <InputOTPSlot index={1} />
-                        <InputOTPSlot index={2} />
-                    </InputOTPGroup>
-                    <InputOTPSeparator />
-                    <InputOTPGroup>
-                        <InputOTPSlot index={3} />
-                        <InputOTPSlot index={4} />
-                        <InputOTPSlot index={5} />
-                    </InputOTPGroup>
-                </InputOTP>
-            </div>
-
-            <Button
-                onClick={() => handleComplete(code)}
-                className="h-14 bg-primary-800 hover:bg-primary-900 text-white"
-            >
-                Valider
             </Button>
 
-            {timeLeft > 0 ? (
-                <p className="text-center mt-4 text-sm text-muted-500">
-                    Renvoie du code dans {formatTime(timeLeft)}
-                </p>
-            ) : (
-                <Button
-                    variant="secondary"
-                    onClick={handleResendCode}
-                    className="mt-4 text-sm text-white"
-                >
-                    Renvoyer l'email
-                </Button>
-            )}
+            <div className="flex-1 flex flex-col items-center justify-center max-w-md mx-auto w-full -mt-20">
+                {isVerifying ? (
+                    <div className="flex flex-col items-center gap-4">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                        <p className="text-muted-foreground">Vérification en cours...</p>
+                    </div>
+                ) : (
+                    <>
+                        <h1 className="text-2xl font-heading mb-2 text-center">
+                            Vérification de votre email
+                        </h1>
+                        <p className="text-muted-foreground text-center mb-8">
+                            Entrez le code à 6 chiffres envoyé à
+                            <br />
+                            {email}
+                        </p>
+
+                        <div className="flex justify-center mb-8">
+                            <InputOTP 
+                                maxLength={6} 
+                                value={code} 
+                                onChange={setCode}
+                                disabled={isVerifying || isLoading}
+                            >
+                                <InputOTPGroup>
+                                    <InputOTPSlot index={0} />
+                                    <InputOTPSlot index={1} />
+                                    <InputOTPSlot index={2} />
+                                </InputOTPGroup>
+                                <InputOTPSeparator />
+                                <InputOTPGroup>
+                                    <InputOTPSlot index={3} />
+                                    <InputOTPSlot index={4} />
+                                    <InputOTPSlot index={5} />
+                                </InputOTPGroup>
+                            </InputOTP>
+                        </div>
+
+                        <Button
+                            className="w-full h-14"
+                            onClick={handleVerification}
+                            disabled={code.length !== 6 || isVerifying || isLoading}
+                        >
+                            {isLoading ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Vérification...
+                                </>
+                            ) : (
+                                "Vérifier"
+                            )}
+                        </Button>
+
+                        <Button
+                            variant="ghost"
+                            className="mt-4 text-sm text-muted-foreground"
+                            disabled={timeLeft > 0 || isVerifying || isLoading}
+                            onClick={handleResendCode}
+                        >
+                            {timeLeft > 0 ? `Renvoyer dans ${timeLeft}s` : "Renvoyer le code"}
+                        </Button>
+                    </>
+                )}
+            </div>
         </div>
     );
 } 

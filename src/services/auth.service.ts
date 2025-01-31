@@ -28,6 +28,8 @@ class AuthService {
                 }
             });
 
+            console.log(response);
+
             if (response.status !== 200) {
                 throw new Error(response.data.message || 'Erreur de connexion');
             }
@@ -78,6 +80,10 @@ class AuthService {
 
     async register(data: RegisterInput) {
         try {
+            // Formatage de la date au format YYYY-MM-DD
+            const [day, month, year] = data.birthdate.split('/');
+            const formattedBirthDate = `${year}-${month}-${day}`;
+
             const response = await CapacitorHttp.post({
                 url: `${API_URL}/auth/register`,
                 headers: {
@@ -87,17 +93,21 @@ class AuthService {
                     username: data.username,
                     email: data.email,
                     password: data.password,
-                    birthDate: data.birthdate // Conversion du format de date
+                    birthDate: formattedBirthDate // Utilisation du format correct pour l'API
                 },
                 webFetchExtra: {
                     credentials: 'include'
                 }
             });
 
+            if (response.status !== 201) {
+                throw new Error(response.data.message || 'Erreur lors de l\'inscription');
+            }
+
             return response.data;
-        } catch (error) {
+        } catch (error: any) {
             console.error('Register error:', error);
-            throw error;
+            throw new Error(error.response?.data?.message || 'Erreur lors de l\'inscription');
         }
     }
 
@@ -125,13 +135,20 @@ class AuthService {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                data: { email }
+                data: { email },
+                webFetchExtra: {
+                    credentials: 'include'
+                }
             });
 
+            if (response.status !== 200) {
+                throw new Error(response.data.message || 'Erreur lors du renvoi du code');
+            }
+
             return response.data;
-        } catch (error) {
+        } catch (error: any) {
             console.error('Resend verification error:', error);
-            throw error;
+            throw new Error(error.response?.data?.message || 'Erreur lors du renvoi du code');
         }
     }
 
@@ -193,13 +210,21 @@ class AuthService {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                data: { email }
+                data: { email },
+                webFetchExtra: {
+                    credentials: 'include'
+                }
             });
+            console.log(response);
+
+            if (response.status !== 200) {
+                throw new Error(response.data.message || 'Erreur lors de l\'envoi du code');
+            }
 
             return response.data;
-        } catch (error) {
+        } catch (error: any) {
             console.error('Forgot password error:', error);
-            throw error;
+            throw new Error(error.response?.data?.message || 'Erreur lors de l\'envoi du code');
         }
     }
 
@@ -210,13 +235,21 @@ class AuthService {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                data: { email, code }
+                data: { email, code },
+                webFetchExtra: {
+                    credentials: 'include'
+                }
             });
+            console.log(response);
+
+            if (response.status !== 200) {
+                throw new Error(response.data.message || 'Code invalide');
+            }
 
             return response.data;
-        } catch (error) {
+        } catch (error: any) {
             console.error('Verify reset code error:', error);
-            throw error;
+            throw new Error(error.response?.data?.message || 'Code invalide');
         }
     }
 
@@ -227,13 +260,22 @@ class AuthService {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                data: { email, newPassword }
+                data: { email, newPassword },
+                webFetchExtra: {
+                    credentials: 'include'
+                }
             });
 
+            console.log(response);
+
+            if (response.status !== 200) {
+                throw new Error(response.data.message || 'Erreur lors de la réinitialisation');
+            }
+
             return response.data;
-        } catch (error) {
+        } catch (error: any) {
             console.error('Reset password error:', error);
-            throw error;
+            throw new Error(error.response?.data?.message || 'Erreur lors de la réinitialisation');
         }
     }
 }
