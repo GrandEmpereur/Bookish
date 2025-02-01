@@ -40,4 +40,12 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Package lock
 bun.lockb
+yarn.lock
+pnpm-lock.yaml
+package-lock.json
+
+# mobile
+ios
+android/*
