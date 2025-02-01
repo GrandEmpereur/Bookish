@@ -1,7 +1,53 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState, ChangeEvent, FormEvent } from "react";
+import axios from "axios";
+import options from "@/lib/api";
+
+import { Plus } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 
 const ListsPage = () => {
+  const [communities, setCommunities] = useState<[]>([]);
+  const [filteredCommunities, setFilteredCommunities] = useState<[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [newCommunity, setNewCommunity] = useState({
+    name: "",
+    description: "",
+  });
+  const [showDialog, setShowDialog] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [filter, setFilter] = useState<"all" | "my">("all");
+
+  useEffect(() => {
+    const fetchCommunities = async () => {
+      try {
+        const response = await axios.get(
+          "https://dev-bookish-api-62a3a4e0be02.herokuapp.com/book-lists?page=1&limit=20&sort=created_at&order=desc",
+          options
+        );
+        const userResponse = await axios.get(
+          "https://dev-bookish-api-62a3a4e0be02.herokuapp.com/auth/me",
+          options
+        );
+        setUser(userResponse.data);
+
+        if (Array.isArray(response.data)) {
+          setCommunities(response.data);
+          setFilteredCommunities(response.data);
+        } else {
+          setError("Invalid data format for communities");
+        }
+      } catch (error: any) {
+        setError("Error fetching the community data");
+        console.error("Error fetching the community data:", error);
+      }
+    };
+
+    fetchCommunities();
+  }, []);
+
   const lists = [
     {
       id: 1,
@@ -34,6 +80,16 @@ const ListsPage = () => {
           </p>
           <Button className="mt-4">Créer une collection</Button>
         </div>
+      </div>
+
+      <div className="flex gap-2  items-center ">
+        <p>Créer une nouvelle liste </p>
+        <Plus
+          className="h-5 w-5"
+          onClick={() => {
+            setShowDialog(true);
+          }}
+        />
       </div>
 
       {/* Faire une condition pour l'affichage des images quand ya un ou plusieurs livres dans la liste @remind */}
