@@ -32,11 +32,6 @@ const navigationItems = [
         label: 'Profile',
         icon: User
     },
-    {
-        href: '/test/toast',
-        label: 'Toast',
-        icon: User
-    }
 ];
 
 export function BottomBar() {
