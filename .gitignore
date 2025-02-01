@@ -47,5 +47,5 @@ pnpm-lock.yaml
 package-lock.json
 
 # mobile
-ios
-android/*
+ios/
+android/
