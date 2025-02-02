@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { ChevronLeft, Loader2, Mail } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Loader2, Mail } from "lucide-react";
+import { forgotPasswordSchema, type ForgotPasswordInput } from "@/lib/validations/auth";
 import { useToast } from "@/hooks/use-toast";
 import { authService } from "@/services/auth.service";
-import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -26,31 +27,34 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 
-const formSchema = z.object({
-    email: z.string().email("L'email est invalide"),
-});
-
 export default function ForgotPassword() {
-    const [showDialog, setShowDialog] = useState(false);
+    const [showEmailDialog, setShowEmailDialog] = useState(false);
+    const [emailToReset, setEmailToReset] = useState('');
     const router = useRouter();
     const { toast } = useToast();
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+    const form = useForm<ForgotPasswordInput>({
+        resolver: zodResolver(forgotPasswordSchema),
         defaultValues: {
             email: "",
         },
     });
 
-    const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const onSubmit = async (data: ForgotPasswordInput) => {
         try {
-            await authService.forgotPassword(values.email);
+            await authService.forgotPassword(data);
             
-            // Stockage de l'email pour les étapes suivantes
-            sessionStorage.setItem('resetPasswordEmail', values.email);
-            
+            // Stocker l'email pour la vérification
+            setEmailToReset(data.email);
+            sessionStorage.setItem('resetPasswordEmail', data.email);
+
+            // Retour haptique sur mobile
+            if (navigator.vibrate) {
+                navigator.vibrate(100);
+            }
+
             // Afficher le dialogue de confirmation
-            setShowDialog(true);
+            setShowEmailDialog(true);
         } catch (error: any) {
             toast({
                 variant: "destructive",
@@ -60,19 +64,27 @@ export default function ForgotPassword() {
         }
     };
 
-    const handleDialogClose = () => {
-        setShowDialog(false);
-        router.push('/auth/forgot-password/verify');
+    const handleDialogClose = (open: boolean) => {
+        setShowEmailDialog(open);
+        if (!open) {
+            router.push('/auth/forgot-password/verify');
+        }
     };
 
     return (
-        <div className="min-h-[100dvh] flex flex-col px-5 bg-background">
-            <div className="flex-1 flex flex-col max-w-md mx-auto w-full justify-center -mt-20">
-                <h1 className="text-2xl font-heading mb-2 text-center">
+        <div className="min-h-[100dvh] flex flex-col px-5 bg-background safe-area-pt">
+            <div className="flex-1 flex flex-col max-w-md mx-auto w-full justify-center">
+            <Link
+                href="/auth/login"
+                className="text-black mb-8 flex items-center gap-2 pt-[60px]"
+            >
+                <ChevronLeft size={24} />
+            </Link>
+                <h1 className="text-[32px] font-heading leading-tight mb-4">
                     Mot de passe oublié ?
                 </h1>
-                <p className="text-muted-foreground text-center mb-8">
-                    Entrez votre email pour réinitialiser votre mot de passe
+                <p className="text-muted-foreground mb-8">
+                    Entrez votre email pour recevoir un lien de réinitialisation
                 </p>
 
                 <Form {...form}>
@@ -86,7 +98,7 @@ export default function ForgotPassword() {
                                         <Input
                                             {...field}
                                             type="email"
-                                            placeholder="votre@email.com"
+                                            placeholder="Email"
                                             className="h-14 bg-accent-100 border-0 text-base placeholder:text-muted-500"
                                             disabled={form.formState.isSubmitting}
                                         />
@@ -96,9 +108,9 @@ export default function ForgotPassword() {
                             )}
                         />
 
-                        <Button 
-                            type="submit" 
-                            className="w-full h-14"
+                        <Button
+                            type="submit"
+                            className="w-full h-14 bg-primary-800 hover:bg-primary-900 text-white"
                             disabled={form.formState.isSubmitting}
                         >
                             {form.formState.isSubmitting ? (
@@ -107,14 +119,14 @@ export default function ForgotPassword() {
                                     Envoi en cours...
                                 </>
                             ) : (
-                                "Réinitialiser le mot de passe"
+                                "Envoyer le lien"
                             )}
                         </Button>
                     </form>
                 </Form>
             </div>
 
-            <Dialog open={showDialog} onOpenChange={handleDialogClose}>
+            <Dialog open={showEmailDialog} onOpenChange={handleDialogClose}>
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>
                         <div className="mx-auto bg-primary-100 w-12 h-12 rounded-full flex items-center justify-center mb-4">
@@ -124,7 +136,7 @@ export default function ForgotPassword() {
                             Vérifiez vos emails
                         </DialogTitle>
                         <DialogDescription className="text-center">
-                            Nous avons envoyé un code de réinitialisation à votre adresse email.
+                            Si un compte existe avec cet email, vous recevrez un lien de réinitialisation.
                             <br />
                             Veuillez vérifier votre boîte de réception.
                         </DialogDescription>

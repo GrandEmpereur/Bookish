@@ -47,4 +47,21 @@ export const habitsSchema = z.object({
 
 export const genresSchema = z.object({
     preferredGenres: z.array(z.string()).min(1),
-}) 
+})
+
+export const forgotPasswordSchema = z.object({
+    email: z.string()
+        .email("L'email est invalide")
+        .min(1, "L'email est requis"),
+});
+
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+
+export const resetPasswordSchema = z.object({
+    email: z.string().email("L'email est invalide"),
+    newPassword: z.string()
+        .min(8, "Le mot de passe doit contenir au moins 8 caractères")
+        .regex(/[!@#$%^&*(),.?":{}|<>]/, "Le mot de passe doit contenir au moins un caractère spécial"),
+});
+
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>; 

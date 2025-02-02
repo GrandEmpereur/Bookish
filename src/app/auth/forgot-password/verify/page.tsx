@@ -30,7 +30,7 @@ export default function VerifyResetCode() {
         setEmail(storedEmail);
     }, [router]);
 
-    const handleVerification = async () => {
+    const handleVerification = async (data: VerifyResetCodeInput) => {
         if (code.length !== 6) {
             toast({
                 variant: "destructive",
@@ -42,10 +42,6 @@ export default function VerifyResetCode() {
 
         try {
             setIsLoading(true);
-            const data: VerifyResetCodeInput = {
-                email,
-                code
-            };
             await authService.verifyResetCode(data);
             router.push('/auth/forgot-password/reset');
         } catch (error: any) {
@@ -90,7 +86,7 @@ export default function VerifyResetCode() {
 
                 <Button
                     className="w-full h-14"
-                    onClick={handleVerification}
+                    onClick={() => handleVerification({ email, code })}
                     disabled={code.length !== 6 || isLoading}
                 >
                     {isLoading ? (

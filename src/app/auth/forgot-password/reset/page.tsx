@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { Loader2, Eye, EyeOff } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { resetPasswordSchema, type ResetPasswordInput } from "@/lib/validations/auth";
 import { useToast } from "@/hooks/use-toast";
 import { authService } from "@/services/auth.service";
-import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -19,63 +19,66 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-const formSchema = z.object({
-    password: z.string()
-        .min(8, "Le mot de passe doit contenir au moins 8 caractères")
-        .regex(/[!@#$%^&*(),.?":{}|<>]/, "Le mot de passe doit contenir au moins un caractère spécial"),
-});
-
 export default function ResetPassword() {
     const [showPassword, setShowPassword] = useState(false);
-    const [email, setEmail] = useState('');
     const router = useRouter();
     const { toast } = useToast();
 
+    const form = useForm<ResetPasswordInput>({
+        resolver: zodResolver(resetPasswordSchema),
+        defaultValues: {
+            email: "",
+            newPassword: ""
+        },
+    });
+
+    // Récupérer et définir l'email au chargement
     useEffect(() => {
         const storedEmail = sessionStorage.getItem('resetPasswordEmail');
         if (!storedEmail) {
             router.replace('/auth/forgot-password');
             return;
         }
-        setEmail(storedEmail);
-    }, [router]);
+        // Définir l'email dans le formulaire
+        form.setValue('email', storedEmail);
+    }, [router, form]);
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-            password: "",
-        },
-    });
-
-    const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const onSubmit = async (data: ResetPasswordInput) => {
         try {
-            await authService.resetPassword(email, values.password);
-            
+            console.log('Submitting reset password:', data); // Debug log
+            await authService.resetPassword(data);
+
+            // Retour haptique sur mobile
+            if (navigator.vibrate) {
+                navigator.vibrate(100);
+            }
+
             // Nettoyage et redirection
             sessionStorage.removeItem('resetPasswordEmail');
             
             toast({
                 title: "Mot de passe réinitialisé",
-                description: "Vous pouvez maintenant vous connecter avec votre nouveau mot de passe"
+                description: "Vous pouvez maintenant vous connecter avec votre nouveau mot de passe",
             });
-            
-            router.push('/auth/login');
+
+            router.replace('/auth/login');
         } catch (error: any) {
+            console.error('Reset password error:', error); // Debug log
             toast({
                 variant: "destructive",
                 title: "Erreur",
-                description: error.message || "Une erreur est survenue"
+                description: error.message || "Une erreur est survenue lors de la réinitialisation"
             });
         }
     };
 
     return (
-        <div className="min-h-[100dvh] flex flex-col px-5 bg-background pt-[60px]">
+        <div className="min-h-[100dvh] flex flex-col px-5 bg-background safe-area-pt">
             <div className="flex-1 flex flex-col max-w-md mx-auto w-full justify-center">
-                <h1 className="text-2xl font-heading mb-2 text-center">
+                <h1 className="text-[32px] font-heading leading-tight mb-4">
                     Nouveau mot de passe
                 </h1>
-                <p className="text-muted-foreground text-center mb-8">
+                <p className="text-muted-foreground mb-8">
                     Choisissez un nouveau mot de passe sécurisé
                 </p>
 
@@ -83,7 +86,7 @@ export default function ResetPassword() {
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                         <FormField
                             control={form.control}
-                            name="password"
+                            name="newPassword"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormControl>
@@ -92,21 +95,22 @@ export default function ResetPassword() {
                                                 {...field}
                                                 type={showPassword ? "text" : "password"}
                                                 placeholder="Nouveau mot de passe"
-                                                className="h-14 bg-accent-100 border-0 text-base pr-12"
+                                                className="h-14 bg-accent-100 border-0 text-base placeholder:text-muted-500 pr-12"
                                                 disabled={form.formState.isSubmitting}
                                             />
-                                            <button
+                                            <Button
                                                 type="button"
+                                                variant="ghost"
+                                                size="sm"
+                                                className="absolute right-0 top-0 h-14 px-3 py-2 hover:bg-transparent"
                                                 onClick={() => setShowPassword(!showPassword)}
-                                                className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-500 hover:text-muted-700 transition-colors"
-                                                disabled={form.formState.isSubmitting}
                                             >
                                                 {showPassword ? (
-                                                    <EyeOff size={20} />
+                                                    <EyeOff className="h-5 w-5 text-muted-foreground" />
                                                 ) : (
-                                                    <Eye size={20} />
+                                                    <Eye className="h-5 w-5 text-muted-foreground" />
                                                 )}
-                                            </button>
+                                            </Button>
                                         </div>
                                     </FormControl>
                                     <FormMessage />
@@ -114,15 +118,9 @@ export default function ResetPassword() {
                             )}
                         />
 
-                        <p className="text-sm text-muted-foreground">
-                            Le mot de passe doit avoir au moins 8 caractères
-                            <br />
-                            et 1 caractère spécial
-                        </p>
-
-                        <Button 
-                            type="submit" 
-                            className="w-full h-14"
+                        <Button
+                            type="submit"
+                            className="w-full h-14 bg-primary-800 hover:bg-primary-900 text-white"
                             disabled={form.formState.isSubmitting}
                         >
                             {form.formState.isSubmitting ? (
