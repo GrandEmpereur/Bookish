@@ -46,12 +46,10 @@ export default function Register() {
     const onSubmit = async (data: RegisterInput) => {
         try {
             const response = await authService.register(data);
-            console.log('Register response:', response);
             
             // S'assurer que l'email est stocké avant d'afficher le dialogue
             if (data.email) {
                 sessionStorage.setItem('verificationEmail', data.email);
-                console.log('Email stored:', data.email); // Debug log
             }
 
             // Retour haptique sur mobile

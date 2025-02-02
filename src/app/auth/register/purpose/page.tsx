@@ -46,7 +46,6 @@ export default function Purpose() {
     }, [router]);
 
     const handlePurposeSelection = async (data: RegisterStepOneInput) => {
-        console.log('data', data);
         try {
             setIsLoading(true);
             setSelectedPurpose(data.usagePurpose);

@@ -100,7 +100,6 @@ export default function Feed() {
     const handleBookmark = async (postId: string) => {
         try {
             const response = await favoriteService.toggleFavorite({ postId });
-            console.log(response);
 
             if (response.status === 'success') {
                 const newBookmarkedPosts = new Set(bookmarkedPosts);
@@ -110,7 +109,7 @@ export default function Feed() {
                 } else {
                     newBookmarkedPosts.add(postId);
                 }
-                
+
                 setBookmarkedPosts(newBookmarkedPosts);
                 sessionStorage.setItem('bookmarkedPosts', JSON.stringify([...newBookmarkedPosts]));
             }

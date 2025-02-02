@@ -45,7 +45,6 @@ export default function ResetPassword() {
 
     const onSubmit = async (data: ResetPasswordInput) => {
         try {
-            console.log('Submitting reset password:', data); // Debug log
             await authService.resetPassword(data);
 
             // Retour haptique sur mobile
