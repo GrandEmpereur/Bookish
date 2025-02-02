@@ -6,25 +6,26 @@ import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { authService } from "@/services/auth.service";
 import Image from "next/image";
+import { RegisterStepOneInput } from '@/types/auth';
 
 const purposes = [
     {
         id: 'find_books',
         label: 'Découvrir de nouveaux livres',
         description: 'Trouvez des recommandations personnalisées',
-        icon: '/icons/discover.svg'
+        icon: '/img/onbordingRegisterSetp/Book_Lover.png'
     },
     {
         id: 'find_community',
         label: 'Rejoindre une communauté',
         description: 'Partagez et échangez avec d\'autres lecteurs',
-        icon: '/icons/community.svg'
+        icon: '/img/onbordingRegisterSetp/Notebook_Design.png'
     },
     {
         id: 'both',
         label: 'Les deux',
         description: 'Découvrez et partagez en même temps',
-        icon: '/icons/both.svg'
+        icon: '/img/onbordingRegisterSetp/Bookshelves_design.png'
     }
 ];
 
@@ -44,14 +45,13 @@ export default function Purpose() {
         setEmail(storedEmail);
     }, [router]);
 
-    const handlePurposeSelection = async (purposeId: string) => {
+    const handlePurposeSelection = async (data: RegisterStepOneInput) => {
+        console.log('data', data);
         try {
             setIsLoading(true);
-            setSelectedPurpose(purposeId);
+            setSelectedPurpose(data.usagePurpose);
 
-            await authService.completeStep1(email, purposeId);
-            
-            // Si succès, passer à l'étape suivante
+            await authService.registerStepOne(data);
             router.push('/auth/register/habits');
         } catch (error: any) {
             toast({
@@ -67,7 +67,7 @@ export default function Purpose() {
 
     return (
         <div className="min-h-[100dvh] flex flex-col px-5 bg-background pt-[60px]">
-            <div className="flex-1 flex flex-col max-w-md mx-auto w-full">
+            <div className="flex-1 flex flex-col max-w-md mx-auto w-full justify-center items-center">
                 <h1 className="text-2xl font-heading mb-2 text-center">
                     Pourquoi rejoignez-vous Bookish ?
                 </h1>
@@ -79,7 +79,10 @@ export default function Purpose() {
                     {purposes.map((purpose) => (
                         <button
                             key={purpose.id}
-                            onClick={() => handlePurposeSelection(purpose.id)}
+                            onClick={() => handlePurposeSelection({
+                                email,
+                                usagePurpose: purpose.id as RegisterStepOneInput['usagePurpose']
+                            })}
                             disabled={isLoading}
                             className={`w-full p-4 rounded-lg border flex items-center gap-4 transition-colors
                                 ${selectedPurpose === purpose.id 

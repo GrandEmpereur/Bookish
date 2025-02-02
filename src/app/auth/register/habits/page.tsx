@@ -6,25 +6,26 @@ import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { authService } from "@/services/auth.service";
 import Image from "next/image";
+import { RegisterStepTwoInput } from '@/types/auth';
 
 const readingHabits = [
     {
         id: 'library_rat',
         label: 'Grand lecteur',
         description: 'Je lis plus de 20 livres par an',
-        icon: '/icons/bookworm.svg'
+        icon: '/img/onbordingRegisterSetp/Book_Lover.png'
     },
     {
         id: 'occasional_reader',
         label: 'Lecteur régulier',
         description: 'Je lis entre 5 et 20 livres par an',
-        icon: '/icons/casual.svg'
+        icon: '/img/onbordingRegisterSetp/Notebook_Design.png'
     },
     {
         id: 'beginner_reader',
         label: 'Lecteur débutant',
         description: 'Je lis moins de 5 livres par an',
-        icon: '/icons/beginner.svg'
+        icon: '/img/onbordingRegisterSetp/Bookshelves_design.png'
     }
 ];
 
@@ -44,12 +45,12 @@ export default function Habits() {
         setEmail(storedEmail);
     }, [router]);
 
-    const handleHabitSelection = async (habitId: string) => {
+    const handleHabitSelection = async (data: RegisterStepTwoInput) => {
         try {
             setIsLoading(true);
-            setSelectedHabit(habitId);
+            setSelectedHabit(data.readingHabit);
 
-            await authService.completeStep2(email, habitId);
+            await authService.registerStepTwo(data);
             
             // Si succès, passer à l'étape suivante
             router.push('/auth/register/genres');
@@ -67,7 +68,7 @@ export default function Habits() {
 
     return (
         <div className="min-h-[100dvh] flex flex-col px-5 bg-background pt-[60px]">
-            <div className="flex-1 flex flex-col max-w-md mx-auto w-full">
+            <div className="flex-1 flex flex-col max-w-md mx-auto w-full justify-center items-center">
                 <h1 className="text-2xl font-heading mb-2 text-center">
                     Vos habitudes de lecture
                 </h1>
@@ -79,7 +80,10 @@ export default function Habits() {
                     {readingHabits.map((habit) => (
                         <button
                             key={habit.id}
-                            onClick={() => handleHabitSelection(habit.id)}
+                            onClick={() => handleHabitSelection({
+                                email,
+                                readingHabit: habit.id as RegisterStepTwoInput['readingHabit']
+                            })}
                             disabled={isLoading}
                             className={`w-full p-4 rounded-lg border flex items-center gap-4 transition-colors
                                 ${selectedHabit === habit.id 

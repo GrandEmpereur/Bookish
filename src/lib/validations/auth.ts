@@ -7,7 +7,7 @@ export const loginSchema = z.object({
     password: z.string()
         .min(8, "Le mot de passe doit contenir au moins 8 caractères")
         .regex(/[!@#$%^&*(),.?":{}|<>]/, "Le mot de passe doit contenir au moins un caractère spécial"),
-    rememberMe: z.boolean().optional().default(false)
+    rememberMe: z.boolean().optional().default(true)
 });
 
 export const registerSchema = z.object({
@@ -19,19 +19,21 @@ export const registerSchema = z.object({
     password: z.string()
         .min(8, "Le mot de passe doit contenir au moins 8 caractères")
         .regex(/[!@#$%^&*(),.?":{}|<>]/, "Le mot de passe doit contenir au moins un caractère spécial"),
-    birthdate: z.string()
-        .regex(/^(\d{2})\/(\d{2})\/(\d{4})$/, "La date doit être au format JJ/MM/AAAA")
-        .refine((val) => {
-            const [day, month, year] = val.split('/').map(Number);
-            const date = new Date(year, month - 1, day);
-            return date instanceof Date && !isNaN(date.getTime());
-        }, "Date invalide")
+    birthDate: z.string()
+        .regex(/^\d{2}\/\d{2}\/\d{4}$/, "La date doit être au format DD/MM/YYYY")
+        .transform((date) => {
+            const [day, month, year] = date.split('/');
+            const formattedDay = day.padStart(2, '0');
+            const formattedMonth = month.padStart(2, '0');
+            return `${year}-${formattedMonth}-${formattedDay}`;
+        })
 });
 
 export type LoginInput = z.infer<typeof loginSchema>
 export type RegisterInput = z.infer<typeof registerSchema>
 
 export const verificationSchema = z.object({
+    email: z.string().email(),
     code: z.string().length(6),
 })
 

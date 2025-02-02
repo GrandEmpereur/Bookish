@@ -18,17 +18,13 @@ interface CommentsProps {
     postId: string;
 }
 
-interface CommentWithLike extends Comment {
-    isLiked?: boolean;
-}
-
 interface ReplyingTo {
     commentId: string;
     username: string;
 }
 
 export function CommentsSection({ postId }: CommentsProps) {
-    const [comments, setComments] = useState<CommentWithLike[]>([]);
+    const [comments, setComments] = useState<Comment[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [newComment, setNewComment] = useState('');
     const [replyingTo, setReplyingTo] = useState<ReplyingTo | null>(null);
@@ -42,7 +38,7 @@ export function CommentsSection({ postId }: CommentsProps) {
         try {
             setIsLoading(true);
             const response = await commentService.getComments(postId);
-            setComments(response.data.items as CommentWithLike[]);
+            setComments(response.data);
         } catch (error) {
             toast({
                 variant: "destructive",
@@ -53,7 +49,7 @@ export function CommentsSection({ postId }: CommentsProps) {
             setIsLoading(false);
         }
     };
-
+    
     const handleSubmitComment = async () => {
         if (!newComment.trim()) return;
 

@@ -49,3 +49,6 @@ package-lock.json
 # mobile
 ios/
 android/
+
+# Postman
+postman/

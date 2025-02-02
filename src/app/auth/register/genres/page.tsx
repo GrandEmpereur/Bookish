@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, Check } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { authService } from "@/services/auth.service";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { RegisterStepThreeInput } from '@/types/auth';
 
 const genres = [
     { id: 'fantasy', label: 'Fantasy' },
@@ -23,7 +25,7 @@ const genres = [
 ];
 
 export default function Genres() {
-    const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
+    const [preferredGenres, setPreferredGenres] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [email, setEmail] = useState('');
     const router = useRouter();
@@ -39,7 +41,7 @@ export default function Genres() {
     }, [router]);
 
     const toggleGenre = (genreId: string) => {
-        setSelectedGenres(prev => 
+        setPreferredGenres(prev => 
             prev.includes(genreId)
                 ? prev.filter(id => id !== genreId)
                 : [...prev, genreId]
@@ -47,7 +49,7 @@ export default function Genres() {
     };
 
     const handleSubmit = async () => {
-        if (selectedGenres.length === 0) {
+        if (preferredGenres.length === 0) {
             toast({
                 variant: "destructive",
                 title: "Sélection requise",
@@ -58,7 +60,10 @@ export default function Genres() {
 
         try {
             setIsLoading(true);
-            await authService.completeStep3(email, selectedGenres);
+            await authService.registerStepThree({
+                email,
+                preferredGenres
+            });
             
             // Nettoyage et redirection vers le feed
             sessionStorage.removeItem('verificationEmail');
@@ -76,7 +81,7 @@ export default function Genres() {
 
     return (
         <div className="min-h-[100dvh] flex flex-col px-5 bg-background pt-[60px]">
-            <div className="flex-1 flex flex-col max-w-md mx-auto w-full">
+            <div className="flex-1 flex flex-col max-w-md mx-auto w-full justify-center items-center">
                 <h1 className="text-2xl font-heading mb-2 text-center">
                     Vos genres préférés
                 </h1>
@@ -84,32 +89,29 @@ export default function Genres() {
                     Sélectionnez les genres qui vous intéressent
                 </p>
 
-                <div className="grid grid-cols-2 gap-3 mb-8">
+                <div className="flex flex-wrap gap-2 mb-8 justify-center">
                     {genres.map((genre) => (
-                        <button
+                        <Badge
                             key={genre.id}
-                            onClick={() => toggleGenre(genre.id)}
-                            disabled={isLoading}
-                            className={`p-3 rounded-lg border flex items-center justify-between transition-colors
-                                ${selectedGenres.includes(genre.id)
-                                    ? 'bg-primary-50 border-primary' 
-                                    : 'bg-accent-100 border-transparent hover:border-primary/20'
+                            variant={preferredGenres.includes(genre.id) ? "default" : "outline"}
+                            className={`cursor-pointer text-sm py-2 px-4
+                                ${preferredGenres.includes(genre.id)
+                                    ? 'bg-primary hover:bg-primary/90' 
+                                    : 'hover:bg-accent'
                                 }
                                 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}
                             `}
+                            onClick={() => !isLoading && toggleGenre(genre.id)}
                         >
-                            <span className="text-sm font-medium">{genre.label}</span>
-                            {selectedGenres.includes(genre.id) && (
-                                <Check className="h-4 w-4 text-primary" />
-                            )}
-                        </button>
+                            {genre.label}
+                        </Badge>
                     ))}
                 </div>
 
                 <Button
-                    className="w-full h-14"
+                    className="w-full h-14 bg-primary-800 hover:bg-primary-900 text-white"
                     onClick={handleSubmit}
-                    disabled={selectedGenres.length === 0 || isLoading}
+                    disabled={preferredGenres.length === 0 || isLoading}
                 >
                     {isLoading ? (
                         <>

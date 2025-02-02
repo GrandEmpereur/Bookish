@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { postService } from "@/services/post.service";
-import { ApiResponse, Post } from "@/types/post";
+import { ApiResponse } from "@/types/api";
+import { Post } from "@/types/post";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';

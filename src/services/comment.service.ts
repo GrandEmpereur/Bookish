@@ -1,18 +1,12 @@
 import { CapacitorHttp } from '@capacitor/core';
-import {
-    Comment,
-    CreateCommentData,
-    CommentFilters,
-    PaginatedComments,
-    ApiResponse
-} from "@/types/comment";
+import { Comment, CommentFilters, PaginatedComments } from '@/types/comment';
+import { CreateCommentInput, UpdateCommentInput } from '@/lib/validations/comment';
+import { ApiResponse } from '@/types/api';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 class CommentService {
-    /**
-     * Récupère les commentaires d'un post
-     */
+    // Récupérer les commentaires d'un post
     async getComments(
         postId: string,
         filters: CommentFilters = {}
@@ -27,9 +21,7 @@ class CommentService {
 
             const response = await CapacitorHttp.get({
                 url: `${API_URL}/posts/${postId}/comments?${queryParams.toString()}`,
-                webFetchExtra: {
-                    credentials: 'include'
-                }
+                webFetchExtra: { credentials: 'include' }
             });
 
             if (response.status !== 200) {
@@ -39,24 +31,18 @@ class CommentService {
             return response.data;
         } catch (error: any) {
             console.error('Get comments error:', error);
-            throw new Error(error.response?.data?.message || 'Erreur lors de la récupération des commentaires');
+            throw error;
         }
     }
 
-    /**
-     * Crée un nouveau commentaire
-     */
-    async createComment(postId: string, data: CreateCommentData): Promise<ApiResponse<Comment>> {
+    // Créer un commentaire
+    async createComment(postId: string, data: CreateCommentInput): Promise<ApiResponse<Comment>> {
         try {
             const response = await CapacitorHttp.post({
                 url: `${API_URL}/posts/${postId}/comments`,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 data,
-                webFetchExtra: {
-                    credentials: 'include'
-                }
+                webFetchExtra: { credentials: 'include' }
             });
 
             if (response.status !== 201) {
@@ -66,24 +52,22 @@ class CommentService {
             return response.data;
         } catch (error: any) {
             console.error('Create comment error:', error);
-            throw new Error(error.response?.data?.message || 'Erreur lors de la création du commentaire');
+            throw error;
         }
     }
 
-    /**
-     * Répond à un commentaire
-     */
-    async replyToComment(postId: string, commentId: string, data: CreateCommentData): Promise<ApiResponse<Comment>> {
+    // Répondre à un commentaire
+    async replyToComment(
+        postId: string,
+        commentId: string,
+        data: CreateCommentInput
+    ): Promise<ApiResponse<Comment>> {
         try {
             const response = await CapacitorHttp.post({
                 url: `${API_URL}/posts/${postId}/comments/${commentId}/reply`,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 data,
-                webFetchExtra: {
-                    credentials: 'include'
-                }
+                webFetchExtra: { credentials: 'include' }
             });
 
             if (response.status !== 201) {
@@ -93,24 +77,21 @@ class CommentService {
             return response.data;
         } catch (error: any) {
             console.error('Reply to comment error:', error);
-            throw new Error(error.response?.data?.message || 'Erreur lors de la création de la réponse');
+            throw error;
         }
     }
 
-    /**
-     * Modifie un commentaire
-     */
-    async updateComment(commentId: string, data: CreateCommentData): Promise<ApiResponse<Comment>> {
+    // Modifier un commentaire
+    async updateComment(
+        commentId: string,
+        data: UpdateCommentInput
+    ): Promise<ApiResponse<Comment>> {
         try {
             const response = await CapacitorHttp.put({
                 url: `${API_URL}/posts/comments/${commentId}`,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 data,
-                webFetchExtra: {
-                    credentials: 'include'
-                }
+                webFetchExtra: { credentials: 'include' }
             });
 
             if (response.status !== 200) {
@@ -120,20 +101,16 @@ class CommentService {
             return response.data;
         } catch (error: any) {
             console.error('Update comment error:', error);
-            throw new Error(error.response?.data?.message || 'Erreur lors de la modification du commentaire');
+            throw error;
         }
     }
 
-    /**
-     * Supprime un commentaire
-     */
+    // Supprimer un commentaire
     async deleteComment(commentId: string): Promise<void> {
         try {
             const response = await CapacitorHttp.delete({
                 url: `${API_URL}/posts/comments/${commentId}`,
-                webFetchExtra: {
-                    credentials: 'include'
-                }
+                webFetchExtra: { credentials: 'include' }
             });
 
             if (response.status !== 200) {
@@ -141,7 +118,7 @@ class CommentService {
             }
         } catch (error: any) {
             console.error('Delete comment error:', error);
-            throw new Error(error.response?.data?.message || 'Erreur lors de la suppression du commentaire');
+            throw error;
         }
     }
 }

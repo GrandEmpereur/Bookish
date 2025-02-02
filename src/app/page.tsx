@@ -4,12 +4,14 @@ import React, { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import gsap from 'gsap';
 import Image from 'next/image';
-import { authService } from "@/services/auth.service";
+import { userService } from "@/services/user.service";
+import { useToast } from "@/hooks/use-toast";
 
 const App: React.FC = () => {
   const router = useRouter();
   const containerRef = useRef(null);
   const textRef = useRef(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     const tl = gsap.timeline();
@@ -31,34 +33,45 @@ const App: React.FC = () => {
 
     const initializeApp = async () => {
       try {
-        const userData = await authService.checkAuth();
+        const response = await userService.getProfile();
         const currentPath = window.location.pathname;
         const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
+        console.log('hasSeenOnboarding', response);
 
         // Si l'utilisateur est authentifié
-        if (userData) {
-          // Si sur une page auth ou racine, rediriger vers feed
+        if (response.data) {
           if (currentPath === '/' || currentPath.startsWith('/auth')) {
             router.replace('/feed');
           }
-          return; // Garder l'utilisateur sur sa page actuelle si déjà sur une page protégée
+          return;
         }
 
-        // Si l'utilisateur n'est pas authentifié
-        if (!hasSeenOnboarding) {
-          router.replace('/onboarding');
-        } else if (!currentPath.startsWith('/auth')) {
-          router.replace('/auth/login');
+        // Si on arrive ici, l'utilisateur n'est pas authentifié
+        handleUnauthenticatedUser(hasSeenOnboarding);
+
+      } catch (error: any) {
+        // Si c'est une erreur 401, c'est normal - l'utilisateur n'est pas connecté
+        if (error.status === 401) {
+          const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
+          handleUnauthenticatedUser(hasSeenOnboarding);
+          return;
         }
-      } catch (error) {
-        console.error('Init error:', error);
+
+        router.replace('/auth/login');
+      }
+    };
+
+    const handleUnauthenticatedUser = (hasSeenOnboarding: string | null) => {
+      if (!hasSeenOnboarding) {
+        router.replace('/onboarding');
+      } else if (!window.location.pathname.startsWith('/auth')) {
         router.replace('/auth/login');
       }
     };
 
     // Attendre que l'animation soit terminée
     setTimeout(initializeApp, 2000);
-  }, [router]);
+  }, [router, toast]);
 
   return (
     <div className="flex items-center justify-center w-full h-[100dvh] bg-primary safe-area-p">

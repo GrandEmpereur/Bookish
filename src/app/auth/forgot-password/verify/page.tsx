@@ -12,6 +12,7 @@ import {
     InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { Button } from "@/components/ui/button";
+import { VerifyResetCodeInput } from '@/types/auth';
 
 export default function VerifyResetCode() {
     const [code, setCode] = useState('');
@@ -41,7 +42,11 @@ export default function VerifyResetCode() {
 
         try {
             setIsLoading(true);
-            await authService.verifyResetCode(email, code);
+            const data: VerifyResetCodeInput = {
+                email,
+                code
+            };
+            await authService.verifyResetCode(data);
             router.push('/auth/forgot-password/reset');
         } catch (error: any) {
             toast({

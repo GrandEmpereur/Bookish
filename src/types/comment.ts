@@ -2,19 +2,24 @@ export interface Comment {
     id: string;
     content: string;
     spoilerAlert: boolean;
-    createdAt: string;
-    updatedAt: string;
-    likesCount: number;
     user: {
         id: string;
         username: string;
+        avatarUrl?: string;
+    };
+    post: {
+        id: string;
+        title: string;
+    };
+    stats: {
+        likesCount: number;
+        isLiked: boolean;
     };
     replies?: Comment[];
-}
-
-export interface CreateCommentData {
-    content: string;
-    spoilerAlert?: boolean;
+    parentId?: string;
+    isEdited: boolean;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface CommentFilters {
@@ -30,10 +35,4 @@ export interface PaginatedComments {
     page: number;
     limit: number;
     totalPages: number;
-}
-
-export interface ApiResponse<T> {
-    data: T;
-    message: string;
-    status: string;
 } 

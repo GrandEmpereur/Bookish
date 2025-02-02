@@ -53,11 +53,10 @@ export default function Verification() {
 
         try {
             setIsVerifying(true);
-            const response = await authService.verifyEmail(email, code);
+            const data = {email, code};
+            const response = await authService.verifyEmail(data);
             
             if (response.status === 'success') {
-                // Nettoyage et redirection uniquement si la vérification est réussie
-                sessionStorage.removeItem('verificationEmail');
                 router.replace('/auth/register/purpose');
             } else {
                 toast({
@@ -65,7 +64,7 @@ export default function Verification() {
                     title: "Code incorrect",
                     description: "Le code de vérification est invalide"
                 });
-                setCode(''); // Reset du code
+                setCode('');
             }
         } catch (error: any) {
             toast({
@@ -73,7 +72,7 @@ export default function Verification() {
                 title: "Erreur de vérification",
                 description: error.message || "Code invalide, veuillez réessayer"
             });
-            setCode(''); // Reset du code en cas d'erreur
+            setCode('');
         } finally {
             setIsVerifying(false);
         }
@@ -104,15 +103,6 @@ export default function Verification() {
 
     return (
         <div className="min-h-[100dvh] flex flex-col px-5 bg-background">
-            <Button
-                variant="ghost"
-                className="w-fit p-0 mb-8 pt-[60px]"
-                onClick={() => router.back()}
-                disabled={isVerifying}
-            >
-                <ChevronLeft size={24} />
-            </Button>
-
             <div className="flex-1 flex flex-col items-center justify-center max-w-md mx-auto w-full -mt-20">
                 {isVerifying ? (
                     <div className="flex flex-col items-center gap-4">

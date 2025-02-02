@@ -31,7 +31,6 @@ export default function Feed() {
         try {
             setIsLoading(true);
             const response = await postService.getPosts();
-            console.log('Posts response:', response);
             setPosts(response.data || []);
         } catch (error: any) {
             toast({
@@ -63,7 +62,6 @@ export default function Feed() {
 
             // Appel à l'API
             const response = await likeService.togglePostLike(postId);
-            console.log('Like response:', response);
 
             // Mise à jour avec la réponse réelle de l'API
             setPosts(currentPosts => 
@@ -108,7 +106,6 @@ export default function Feed() {
     };
 
     const handleComment = (postId: string) => {
-        console.log(postId);
         router.push(`/feed/${postId}/`);
     };
 
@@ -133,7 +130,6 @@ export default function Feed() {
 
             // Appel à l'API
             const response = await favoriteService.toggleFavorite(postId);
-            console.log('Favorite response:', response);
 
             // Vérifier si l'action a réussi
             const isSuccess = response.status === 'success';

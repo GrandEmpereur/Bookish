@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -30,23 +29,30 @@ export default function Login() {
         defaultValues: {
             email: "",
             password: "",
+            rememberMe: true
         },
     });
 
     const onSubmit = async (data: LoginInput) => {
         try {
-            await login(data.email, data.password, true);
+            await login(data);
             
             toast({
                 title: "Connexion réussie",
                 description: "Bienvenue sur Bookish !",
             });
+
+            // Retour haptique sur mobile
+            if (navigator.vibrate) {
+                navigator.vibrate(100);
+            }
         } catch (error: any) {
             toast({
                 variant: "destructive",
                 title: "Erreur de connexion",
                 description: error.message || "Vérifiez vos identifiants et réessayez"
             });
+            console.error('Login error:', error);
         }
     };
 

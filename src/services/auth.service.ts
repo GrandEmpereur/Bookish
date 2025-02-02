@@ -1,103 +1,29 @@
-import { LoginInput, RegisterInput } from "@/lib/validations/auth";
 import { CapacitorHttp } from '@capacitor/core';
+import { LoginInput, RegisterInput } from "@/lib/validations/auth";
+import {
+    AuthResponse,
+    RegisterStepOneInput,
+    RegisterStepTwoInput,
+    RegisterStepThreeInput,
+    VerifyEmailInput,
+    ForgotPasswordInput,
+    ResetPasswordInput,
+    VerifyResetCodeInput,
+    SessionResponse
+} from '@/types/auth';
+import { ApiResponse } from '@/types/api';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-interface User {
-    id: string;
-    email: string;
-    username: string;
-    is_verified: boolean;
-    has_logged_in: boolean;
-}
-
 class AuthService {
-    async login(data: LoginInput) {
+    // Inscription initiale
+    async register(data: RegisterInput): Promise<ApiResponse<AuthResponse>> {
         try {
-            const response = await CapacitorHttp.post({
-                url: `${API_URL}/auth/login`,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                data: {
-                    ...data,
-                    rememberMe: true
-                },
-                webFetchExtra: {
-                    credentials: 'include'
-                }
-            });
-
-            console.log(response);
-
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur de connexion');
-            }
-
-            return response.data;
-        } catch (error: unknown) {
-            console.error('Login error:', error);
-            throw error;
-        }
-    }
-
-    async checkAuth(): Promise<User | null> {
-        try {
-            const response = await CapacitorHttp.get({
-                url: `${API_URL}/users/me`,
-                webFetchExtra: {
-                    credentials: 'include'
-                }
-            });
-
-            if (response.status === 200) {
-                return response.data;
-            }
-            return null;
-        } catch (error) {
-            console.error('Check auth error:', error);
-            return null;
-        }
-    }
-
-    async logout() {
-        try {
-            await CapacitorHttp.post({
-                url: `${API_URL}/auth/logout`,
-                webFetchExtra: {
-                    credentials: 'include'
-                }
-            });
-
-            // Nettoyage complet du localStorage
-            localStorage.removeItem('hasSeenOnboarding');
-            // Ajout d'autres removeItem si nécessaire
-        } catch (error) {
-            console.error('Logout error:', error);
-            throw error; // Important de propager l'erreur
-        }
-    }
-
-    async register(data: RegisterInput) {
-        try {
-            // Formatage de la date au format YYYY-MM-DD
-            const [day, month, year] = data.birthdate.split('/');
-            const formattedBirthDate = `${year}-${month}-${day}`;
-
             const response = await CapacitorHttp.post({
                 url: `${API_URL}/auth/register`,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                data: {
-                    username: data.username,
-                    email: data.email,
-                    password: data.password,
-                    birthDate: formattedBirthDate // Utilisation du format correct pour l'API
-                },
-                webFetchExtra: {
-                    credentials: 'include'
-                }
+                headers: { 'Content-Type': 'application/json' },
+                data,
+                webFetchExtra: { credentials: 'include' }
             });
 
             if (response.status !== 201) {
@@ -107,140 +33,179 @@ class AuthService {
             return response.data;
         } catch (error: any) {
             console.error('Register error:', error);
-            throw new Error(error.response?.data?.message || 'Erreur lors de l\'inscription');
-        }
-    }
-
-    async verifyEmail(email: string, code: string) {
-        try {
-            const response = await CapacitorHttp.post({
-                url: `${API_URL}/auth/verify-email`,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                data: { email, code }
-            });
-
-            return response.data;
-        } catch (error) {
-            console.error('Email verification error:', error);
             throw error;
         }
     }
 
-    async resendVerification(email: string) {
+    // Étape 1 - Objectif d'utilisation
+    async registerStepOne(data: RegisterStepOneInput): Promise<ApiResponse<void>> {
         try {
             const response = await CapacitorHttp.post({
-                url: `${API_URL}/auth/resend-verification`,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                data: { email },
-                webFetchExtra: {
-                    credentials: 'include'
-                }
+                url: `${API_URL}/auth/register/step1`,
+                headers: { 'Content-Type': 'application/json' },
+                data,
+                webFetchExtra: { credentials: 'include' }
             });
 
             if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors du renvoi du code');
+                throw new Error(response.data.message || 'Erreur lors de l\'étape 1');
+            }
+
+            return response.data;
+        } catch (error: any) {
+            console.error('Register step 1 error:', error);
+            throw error;
+        }
+    }
+
+    // Étape 2 - Habitudes de lecture
+    async registerStepTwo(data: RegisterStepTwoInput): Promise<ApiResponse<void>> {
+        try {
+            const response = await CapacitorHttp.post({
+                url: `${API_URL}/auth/register/step2`,
+                headers: { 'Content-Type': 'application/json' },
+                data,
+                webFetchExtra: { credentials: 'include' }
+            });
+
+            if (response.status !== 200) {
+                throw new Error(response.data.message || 'Erreur lors de l\'étape 2');
+            }
+
+            return response.data;
+        } catch (error: any) {
+            console.error('Register step 2 error:', error);
+            throw error;
+        }
+    }
+
+    // Étape 3 - Genres préférés
+    async registerStepThree(data: RegisterStepThreeInput): Promise<ApiResponse<void>> {
+        try {
+            const response = await CapacitorHttp.post({
+                url: `${API_URL}/auth/register/step3`,
+                headers: { 'Content-Type': 'application/json' },
+                data,
+                webFetchExtra: { credentials: 'include' }
+            });
+
+            if (response.status !== 200) {
+                throw new Error(response.data.message || 'Erreur lors de l\'étape 3');
+            }
+
+            return response.data;
+        } catch (error: any) {
+            console.error('Register step 3 error:', error);
+            throw error;
+        }
+    }
+
+    // Connexion
+    async login(data: LoginInput): Promise<ApiResponse<AuthResponse>> {
+        try {
+            const response = await CapacitorHttp.post({
+                url: `${API_URL}/auth/login`,
+                headers: { 'Content-Type': 'application/json' },
+                data,
+                webFetchExtra: { credentials: 'include' }
+            });
+
+            if (response.status !== 200) {
+                throw new Error(response.data.message || 'Erreur de connexion');
+            }
+
+            return response.data;
+        } catch (error: any) {
+            console.error('Login error:', error);
+            throw error;
+        }
+    }
+
+    // Déconnexion
+    async logout(): Promise<void> {
+        try {
+            await CapacitorHttp.post({
+                url: `${API_URL}/auth/logout`,
+                webFetchExtra: { credentials: 'include' }
+            });
+        } catch (error) {
+            console.error('Logout error:', error);
+            throw error;
+        }
+    }
+
+    // Vérification Email
+    async verifyEmail(data: VerifyEmailInput): Promise<ApiResponse<void>> {
+        try {
+            const response = await CapacitorHttp.post({
+                url: `${API_URL}/auth/verify-email`,
+                headers: { 'Content-Type': 'application/json' },
+                data,
+                webFetchExtra: { credentials: 'include' }
+            });
+
+            if (response.status !== 200) {
+                throw new Error(response.data.message || 'Code de vérification invalide');
+            }
+
+            return response.data;
+        } catch (error: any) {
+            console.error('Verify email error:', error);
+            throw error;
+        }
+    }
+
+    // Renvoyer Email de Vérification
+    async resendVerification(email: string): Promise<ApiResponse<void>> {
+        try {
+            const response = await CapacitorHttp.post({
+                url: `${API_URL}/auth/resend-verification`,
+                headers: { 'Content-Type': 'application/json' },
+                data: { email },
+                webFetchExtra: { credentials: 'include' }
+            });
+
+            if (response.status !== 200) {
+                throw new Error(response.data.message || 'Erreur lors du renvoi');
             }
 
             return response.data;
         } catch (error: any) {
             console.error('Resend verification error:', error);
-            throw new Error(error.response?.data?.message || 'Erreur lors du renvoi du code');
-        }
-    }
-
-    async completeStep1(email: string, usagePurpose: string) {
-        try {
-            const response = await CapacitorHttp.post({
-                url: `${API_URL}/auth/register/step1`,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                data: { email, usagePurpose }
-            });
-
-            return response.data;
-        } catch (error) {
-            console.error('Step 1 error:', error);
             throw error;
         }
     }
 
-    async completeStep2(email: string, readingHabit: string) {
-        try {
-            const response = await CapacitorHttp.post({
-                url: `${API_URL}/auth/register/step2`,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                data: { email, readingHabit }
-            });
-
-            return response.data;
-        } catch (error) {
-            console.error('Step 2 error:', error);
-            throw error;
-        }
-    }
-
-    async completeStep3(email: string, preferredGenres: string[]) {
-        try {
-            const response = await CapacitorHttp.post({
-                url: `${API_URL}/auth/register/step3`,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                data: { email, preferredGenres }
-            });
-
-            return response.data;
-        } catch (error) {
-            console.error('Step 3 error:', error);
-            throw error;
-        }
-    }
-
-    async forgotPassword(email: string) {
+    // Mot de passe oublié
+    async forgotPassword(data: ForgotPasswordInput): Promise<ApiResponse<void>> {
         try {
             const response = await CapacitorHttp.post({
                 url: `${API_URL}/auth/forgot-password`,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                data: { email },
-                webFetchExtra: {
-                    credentials: 'include'
-                }
+                headers: { 'Content-Type': 'application/json' },
+                data,
+                webFetchExtra: { credentials: 'include' }
             });
-            console.log(response);
 
             if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de l\'envoi du code');
+                throw new Error(response.data.message || 'Erreur lors de la demande');
             }
 
             return response.data;
         } catch (error: any) {
             console.error('Forgot password error:', error);
-            throw new Error(error.response?.data?.message || 'Erreur lors de l\'envoi du code');
+            throw error;
         }
     }
 
-    async verifyResetCode(email: string, code: string) {
+    // Vérifier Code de Réinitialisation
+    async verifyResetCode(data: VerifyResetCodeInput): Promise<ApiResponse<void>> {
         try {
             const response = await CapacitorHttp.post({
                 url: `${API_URL}/auth/verify-reset-code`,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                data: { email, code },
-                webFetchExtra: {
-                    credentials: 'include'
-                }
+                headers: { 'Content-Type': 'application/json' },
+                data,
+                webFetchExtra: { credentials: 'include' }
             });
-            console.log(response);
 
             if (response.status !== 200) {
                 throw new Error(response.data.message || 'Code invalide');
@@ -249,24 +214,19 @@ class AuthService {
             return response.data;
         } catch (error: any) {
             console.error('Verify reset code error:', error);
-            throw new Error(error.response?.data?.message || 'Code invalide');
+            throw error;
         }
     }
 
-    async resetPassword(email: string, newPassword: string) {
+    // Réinitialisation Mot de passe
+    async resetPassword(data: ResetPasswordInput): Promise<ApiResponse<void>> {
         try {
             const response = await CapacitorHttp.post({
                 url: `${API_URL}/auth/reset-password`,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                data: { email, newPassword },
-                webFetchExtra: {
-                    credentials: 'include'
-                }
+                headers: { 'Content-Type': 'application/json' },
+                data,
+                webFetchExtra: { credentials: 'include' }
             });
-
-            console.log(response);
 
             if (response.status !== 200) {
                 throw new Error(response.data.message || 'Erreur lors de la réinitialisation');
@@ -275,7 +235,26 @@ class AuthService {
             return response.data;
         } catch (error: any) {
             console.error('Reset password error:', error);
-            throw new Error(error.response?.data?.message || 'Erreur lors de la réinitialisation');
+            throw error;
+        }
+    }
+
+    // Vérifier la session
+    async checkSession(): Promise<ApiResponse<SessionResponse>> {
+        try {
+            const response = await CapacitorHttp.get({
+                url: `${API_URL}/auth/check-session`,
+                webFetchExtra: { credentials: 'include' }
+            });
+
+            if (response.status !== 200) {
+                throw new Error('Session non valide ou expirée');
+            }
+
+            return response.data;
+        } catch (error: any) {
+            console.error('Check session error:', error);
+            throw error;
         }
     }
 }

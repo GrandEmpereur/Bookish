@@ -39,18 +39,27 @@ export default function Register() {
             username: "",
             email: "",
             password: "",
-            birthdate: ""
+            birthDate: ""
         },
     });
 
     const onSubmit = async (data: RegisterInput) => {
         try {
-            await authService.register(data);
+            const response = await authService.register(data);
+            console.log('Register response:', response);
             
-            // Stockage de l'email pour la vérification
-            sessionStorage.setItem('verificationEmail', data.email);
-            
-            // Afficher le dialogue au lieu du toast
+            // S'assurer que l'email est stocké avant d'afficher le dialogue
+            if (data.email) {
+                sessionStorage.setItem('verificationEmail', data.email);
+                console.log('Email stored:', data.email); // Debug log
+            }
+
+            // Retour haptique sur mobile
+            if (navigator.vibrate) {
+                navigator.vibrate(100);
+            }
+
+            // Afficher le dialogue
             setShowEmailDialog(true);
         } catch (error: any) {
             toast({
@@ -58,10 +67,23 @@ export default function Register() {
                 title: "Erreur d'inscription",
                 description: error.message || "Une erreur est survenue lors de l'inscription"
             });
+            console.error('Register error:', error);
         }
     };
 
     const handleDialogClose = () => {
+        // Vérifier que l'email est bien stocké avant la redirection
+        const storedEmail = sessionStorage.getItem('verificationEmail');
+        if (!storedEmail) {
+            console.error('No email stored in session');
+            toast({
+                variant: "destructive",
+                title: "Erreur",
+                description: "Une erreur est survenue, veuillez réessayer"
+            });
+            return;
+        }
+
         setShowEmailDialog(false);
         router.push('/auth/register/verification');
     };
@@ -89,14 +111,7 @@ export default function Register() {
     };
 
     return (
-        <div className="min-h-[100dvh] flex flex-col px-5 bg-background safe-area-pt">
-            <Link
-                href="/auth/login"
-                className="text-black mb-8 flex items-center gap-2 pt-[60px]"
-            >
-                <ChevronLeft size={24} />
-            </Link>
-
+        <div className="min-h-[100dvh] flex flex-col px-5 bg-background safe-area-pt justify-center items-center">
             <h1 className="text-[32px] text-center font-heading leading-tight mb-14">
                 Créez votre compte
             </h1>
@@ -143,7 +158,7 @@ export default function Register() {
                         
                         <FormField
                             control={form.control}
-                            name="birthdate"
+                            name="birthDate"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormControl>

@@ -3,21 +3,19 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { authService } from "@/services/auth.service";
-
-interface User {
-    id: string;
-    email: string;
-    username: string;
-    is_verified: boolean;
-    has_logged_in: boolean;
-}
+import { userService } from "@/services/user.service";
+import type { User } from "@/types/user";
+import type { LoginInput, RegisterInput } from "@/lib/validations/auth";
+import { useToast } from "@/hooks/use-toast";
 
 interface AuthContextType {
     user: User | null;
     isLoading: boolean;
     isAuthenticated: boolean;
-    login: (email: string, password: string, rememberMe: boolean) => Promise<void>;
-    logout: () => void;
+    login: (data: LoginInput) => Promise<void>;
+    register: (data: RegisterInput) => Promise<void>;
+    logout: () => Promise<void>;
+    refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,8 +23,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const router = useRouter();
+    const { toast } = useToast();
 
     useEffect(() => {
         let inactivityTimer: NodeJS.Timeout;
@@ -50,41 +48,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const checkAuth = async () => {
         try {
-            const userData = await authService.checkAuth();
-            if (userData) {
-                setUser(userData);
-                setIsAuthenticated(true);
-            } else {
-                setUser(null);
-                setIsAuthenticated(false);
-            }
+            const response = await userService.getProfile();
+            setUser(response.data);
         } catch (error) {
-            console.error('Auth check failed:', error);
             setUser(null);
-            setIsAuthenticated(false);
         } finally {
             setIsLoading(false);
         }
     };
 
-    const login = async (email: string, password: string, rememberMe: boolean) => {
+    const login = async (data: LoginInput) => {
         try {
-            setIsLoading(true);
-            const result = await authService.login({ email, password, rememberMe });
+            const authResponse = await authService.login(data);
+            const userResponse = await userService.getProfile();
+            setUser(userResponse.data);
             
-            if (result.status === 'success') {
-                const userData = await authService.checkAuth();
-                if (userData) {
-                    setUser(userData);
-                    setIsAuthenticated(true);
-                    router.replace('/feed');
-                }
-            }
-        } catch (error) {
-            console.error('Login failed:', error);
+            toast({
+                title: "Connexion réussie",
+                description: "Bienvenue sur Bookish !",
+            });
+
+            router.push("/feed");
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: "Erreur de connexion",
+                description: error.message || "Une erreur est survenue lors de la connexion",
+            });
             throw error;
-        } finally {
-            setIsLoading(false);
+        }
+    };
+
+    const register = async (data: RegisterInput) => {
+        try {
+            await authService.register(data);
+            toast({
+                title: "Inscription réussie",
+                description: "Veuillez vérifier votre email pour continuer",
+            });
+            router.push("/auth/register/verification");
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: "Erreur d'inscription",
+                description: error.message || "Une erreur est survenue lors de l'inscription",
+            });
+            throw error;
         }
     };
 
@@ -92,18 +101,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             await authService.logout();
             setUser(null);
-            setIsAuthenticated(false);
-            router.replace('/auth/login');
+            router.push("/auth/login");
+            toast({
+                title: "Déconnexion réussie",
+                description: "À bientôt !",
+            });
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: "Erreur de déconnexion",
+                description: error.message || "Une erreur est survenue lors de la déconnexion",
+            });
+        }
+    };
+
+    const refreshUser = async () => {
+        try {
+            const response = await userService.getProfile();
+            setUser(response.data);
         } catch (error) {
-            console.error('Logout failed:', error);
             setUser(null);
-            setIsAuthenticated(false);
-            router.replace('/auth/login');
         }
     };
 
     return (
-        <AuthContext.Provider value={{ user, isLoading, isAuthenticated, login, logout }}>
+        <AuthContext.Provider
+            value={{
+                user,
+                isLoading,
+                isAuthenticated: !!user,
+                login,
+                register,
+                logout,
+                refreshUser,
+            }}
+        >
             {children}
         </AuthContext.Provider>
     );
@@ -112,7 +144,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
     const context = useContext(AuthContext);
     if (context === undefined) {
-        throw new Error('useAuth must be used within an AuthProvider');
+        throw new Error("useAuth must be used within an AuthProvider");
     }
     return context;
 } 
