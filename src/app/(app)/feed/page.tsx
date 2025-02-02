@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import Image from 'next/image';
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Share } from '@capacitor/share';
 import { likeService } from "@/services/like.service";
 import { favoriteService } from "@/services/favorite.service";
@@ -19,12 +19,20 @@ import { Post } from "@/types/post";
 
 export default function Feed() {
     const [posts, setPosts] = useState<Post[]>([]);
+    const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
+    const [bookmarkedPosts, setBookmarkedPosts] = useState<Set<string>>(new Set());
     const [isLoading, setIsLoading] = useState(true);
     const { toast } = useToast();
     const router = useRouter();
 
     useEffect(() => {
         loadPosts();
+        // Charger les états depuis le sessionStorage
+        const savedLikes = sessionStorage.getItem('likedPosts');
+        const savedBookmarks = sessionStorage.getItem('bookmarkedPosts');
+
+        if (savedLikes) setLikedPosts(new Set(JSON.parse(savedLikes)));
+        if (savedBookmarks) setBookmarkedPosts(new Set(JSON.parse(savedBookmarks)));
     }, []);
 
     const loadPosts = async () => {
@@ -46,61 +54,41 @@ export default function Feed() {
 
     const handleLike = async (postId: string) => {
         try {
-            // Mise à jour optimiste de l'UI
-            setPosts(currentPosts => 
-                currentPosts.map(post => {
-                    if (post.id === postId) {
-                        return {
-                            ...post,
-                            isLiked: !post.isLiked,
-                            likesCount: post.isLiked ? post.likesCount - 1 : post.likesCount + 1
-                        };
-                    }
-                    return post;
-                })
-            );
+            const response = await likeService.togglePostLike({ postId });
 
-            // Appel à l'API
-            const response = await likeService.togglePostLike(postId);
+            if (response.status === 'success') {
+                const isLiked = response.message === 'Post liked successfully';
+                const newLikedPosts = new Set(likedPosts);
 
-            // Mise à jour avec la réponse réelle de l'API
-            setPosts(currentPosts => 
-                currentPosts.map(post => {
-                    if (post.id === postId) {
-                        // Vérification plus précise de l'état liked/unliked
-                        const isNowLiked = response.message === 'Post liked successfully';
-                        const newLikesCount = isNowLiked 
-                            ? (response.data as any).post?.likesCount 
-                            : (response.data as any).likesCount;
+                if (isLiked) {
+                    newLikedPosts.add(postId);
+                    setPosts(currentPosts =>
+                        currentPosts.map(post =>
+                            post.id === postId
+                                ? { ...post, likesCount: post.likesCount + 1 }
+                                : post
+                        )
+                    );
+                } else {
+                    newLikedPosts.delete(postId);
+                    setPosts(currentPosts =>
+                        currentPosts.map(post =>
+                            post.id === postId
+                                ? { ...post, likesCount: post.likesCount - 1 }
+                                : post
+                        )
+                    );
+                }
 
-                        return {
-                            ...post,
-                            isLiked: isNowLiked,
-                            likesCount: newLikesCount !== undefined ? newLikesCount : post.likesCount
-                        };
-                    }
-                    return post;
-                })
-            );
-        } catch (error: any) {
-            // En cas d'erreur, on revient à l'état précédent
-            setPosts(currentPosts => 
-                currentPosts.map(post => {
-                    if (post.id === postId) {
-                        return {
-                            ...post,
-                            isLiked: !post.isLiked,
-                            likesCount: post.isLiked ? post.likesCount - 1 : post.likesCount + 1
-                        };
-                    }
-                    return post;
-                })
-            );
-
+                setLikedPosts(newLikedPosts);
+                sessionStorage.setItem('likedPosts', JSON.stringify([...newLikedPosts]));
+            }
+        } catch (error) {
+            console.error('Like error:', error);
             toast({
                 variant: "destructive",
                 title: "Erreur",
-                description: "Impossible de liker ce post"
+                description: "Impossible de mettre à jour le like"
             });
         }
     };
@@ -111,63 +99,27 @@ export default function Feed() {
 
     const handleBookmark = async (postId: string) => {
         try {
-            // Récupérer le post actuel
-            const currentPost = posts.find(p => p.id === postId);
-            const newFavoriteState = !currentPost?.isFavorite;
+            const response = await favoriteService.toggleFavorite({ postId });
+            console.log(response);
 
-            // Mise à jour optimiste de l'UI
-            setPosts(currentPosts => 
-                currentPosts.map(post => {
-                    if (post.id === postId) {
-                        return {
-                            ...post,
-                            isFavorite: newFavoriteState
-                        };
-                    }
-                    return post;
-                })
-            );
+            if (response.status === 'success') {
+                const newBookmarkedPosts = new Set(bookmarkedPosts);
 
-            // Appel à l'API
-            const response = await favoriteService.toggleFavorite(postId);
-
-            // Vérifier si l'action a réussi
-            const isSuccess = response.status === 'success';
-            const isAddedToFavorites = response.message === 'Added to favorites';
-
-            if (!isSuccess) {
-                // Si l'action a échoué, revenir à l'état précédent
-                setPosts(currentPosts => 
-                    currentPosts.map(post => {
-                        if (post.id === postId) {
-                            return {
-                                ...post,
-                                isFavorite: !newFavoriteState
-                            };
-                        }
-                        return post;
-                    })
-                );
-                throw new Error(response.message);
+                if (newBookmarkedPosts.has(postId)) {
+                    newBookmarkedPosts.delete(postId);
+                } else {
+                    newBookmarkedPosts.add(postId);
+                }
+                
+                setBookmarkedPosts(newBookmarkedPosts);
+                sessionStorage.setItem('bookmarkedPosts', JSON.stringify([...newBookmarkedPosts]));
             }
-
-            // Maintenir l'état optimiste si l'action a réussi
-            // Pas besoin de mettre à jour l'état car il correspond déjà à la réponse
-
-            // Afficher le toast de confirmation
-            toast({
-                title: isAddedToFavorites ? "Ajouté aux favoris" : "Retiré des favoris",
-                description: isAddedToFavorites 
-                    ? "Le post a été ajouté à vos favoris" 
-                    : "Le post a été retiré de vos favoris"
-            });
-
-        } catch (error: any) {
+        } catch (error) {
             console.error('Bookmark error:', error);
             toast({
                 variant: "destructive",
                 title: "Erreur",
-                description: "Impossible de modifier les favoris"
+                description: "Impossible de mettre à jour le favori"
             });
         }
     };
@@ -194,10 +146,6 @@ export default function Feed() {
         }
     };
 
-    const handleCreatePost = () => {
-        router.push('/posts/create');
-    };
-
     if (isLoading) {
         return (
             <div className="flex-1 flex items-center justify-center">
@@ -209,11 +157,11 @@ export default function Feed() {
     return (
         <>
             <div className="flex-1 px-5 pb-[20px] pt-[100px]">
-                <div className="max-w-md mx-auto space-y-6">
+                <div className="space-y-6">
                     {posts && posts.length > 0 ? (
                         posts.map((post) => (
-                            <article 
-                                key={post.id} 
+                            <article
+                                key={post.id}
                                 className="bg-card rounded-lg p-4 shadow-sm space-y-4"
                             >
                                 <div className="flex gap-3">
@@ -228,9 +176,9 @@ export default function Feed() {
                                                 {post.user.username}
                                             </span>
                                             <span className="text-sm text-muted-foreground">
-                                                {formatDistanceToNow(new Date(post.createdAt), { 
+                                                {formatDistanceToNow(new Date(post.createdAt), {
                                                     addSuffix: false,
-                                                    locale: fr 
+                                                    locale: fr
                                                 })}
                                             </span>
                                         </div>
@@ -262,18 +210,22 @@ export default function Feed() {
                                         variant="ghost"
                                         size="sm"
                                         className={cn(
-                                            "text-muted-foreground hover:text-primary flex items-center gap-1.5",
-                                            post.isLiked && "text-primary"
+                                            "text-muted-foreground hover:text-primary flex items-center gap-1.5 group",
+                                            likedPosts.has(post.id) && "text-primary"
                                         )}
                                         onClick={() => handleLike(post.id)}
                                     >
-                                        <Heart 
-                                            className="h-5 w-5" 
-                                            fill={post.isLiked ? "currentColor" : "none"} 
+                                        <Heart
+                                            className={cn(
+                                                "h-5 w-5 transition-all duration-300",
+                                                likedPosts.has(post.id)
+                                                    ? "scale-110 fill-current"
+                                                    : "scale-100 fill-none"
+                                            )}
                                             strokeWidth={2}
                                         />
-                                        <span className="text-sm">
-                                            {post.likesCount >= 0 ? post.likesCount : 0}
+                                        <span className="text-sm transition-all duration-300">
+                                            {post.likesCount}
                                         </span>
                                     </Button>
 
@@ -291,14 +243,19 @@ export default function Feed() {
                                         variant="ghost"
                                         size="sm"
                                         className={cn(
-                                            "text-muted-foreground hover:text-primary",
-                                            post.isFavorite && "text-primary"
+                                            "text-muted-foreground hover:text-primary flex items-center gap-1.5 group",
+                                            bookmarkedPosts.has(post.id) && "text-primary"
                                         )}
                                         onClick={() => handleBookmark(post.id)}
                                     >
-                                        <Bookmark 
-                                            className="h-5 w-5" 
-                                            fill={post.isFavorite ? "currentColor" : "none"} 
+                                        <Bookmark
+                                            className={cn(
+                                                "h-5 w-5 transition-all duration-300",
+                                                bookmarkedPosts.has(post.id)
+                                                    ? "scale-110 fill-current"
+                                                    : "scale-100 fill-none"
+                                            )}
+                                            strokeWidth={2}
                                         />
                                     </Button>
 
@@ -320,9 +277,9 @@ export default function Feed() {
                     )}
                 </div>
             </div>
-            
-            <FloatingActionButton 
-                onClick={handleCreatePost}
+
+            <FloatingActionButton
+                onClick={() => router.push('/posts/create')}
                 className="bottom-[110px]"
             />
         </>

@@ -1,16 +1,45 @@
-export interface LikeStats {
-    totalLikes: number;
-    isLikedByUser: boolean;
-    recentLikers: {
-        id: string;
-        username: string;
-        avatarUrl?: string;
-    }[];
+export interface LikePostResponse {
+    status: string;
+    message: string;
+    data: {
+        like: {
+            id: string;
+            createdAt: string;
+        },
+        post: {
+            id: string;
+            title: string;
+            likesCount: number;
+        },
+        user: {
+            id: string;
+            username: string;
+        }
+    }
 }
 
-export interface LikeResponse {
-    action: 'liked' | 'unliked';
-    stats: LikeStats;
+export interface UnLikePostResponse {
+    status: string;
+    message: string;
+    data: {
+        postId: string;
+        likesCount: number;
+        user: {
+            id: string;
+            username: string;
+        }
+    }
 }
 
-export type LikeableType = 'post' | 'comment' 
+export interface LikeCommentResponse {
+    status: string;
+    message: string;
+    data: {
+        commentId: string;
+        likesCount: number;
+        user: {
+            id: string;
+            username: string;
+        }
+    }
+}

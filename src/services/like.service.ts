@@ -1,5 +1,5 @@
 import { CapacitorHttp } from '@capacitor/core';
-import { LikeStats, LikeResponse, LikeableType } from '@/types/like';
+import { LikeCommentResponse, LikePostResponse, UnLikePostResponse } from '@/types/like';
 import { LikePostInput, LikeCommentInput } from '@/lib/validations/like';
 import { ApiResponse } from '@/types/api';
 
@@ -7,7 +7,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 class LikeService {
     // Like/Unlike un post
-    async togglePostLike(data: LikePostInput): Promise<ApiResponse<LikeResponse>> {
+    async togglePostLike(data: LikePostInput): Promise<ApiResponse<LikePostResponse | UnLikePostResponse>> {
         try {
             const response = await CapacitorHttp.post({
                 url: `${API_URL}/like/post`,
@@ -16,11 +16,22 @@ class LikeService {
                 webFetchExtra: { credentials: 'include' }
             });
 
-            if (response.status !== 200) {
+            // 201 = Like créé, 200 = Like supprimé
+            if (response.status !== 201 && response.status !== 200) {
                 throw new Error(response.data.message || 'Erreur lors du like du post');
             }
 
-            return response.data;
+            // Mise à jour du compteur de likes selon la réponse
+            if (response.status === 201) {
+                // Like créé
+                const likeResponse = response.data as ApiResponse<LikePostResponse>;
+                return likeResponse;
+            } else {
+                // Like supprimé
+                const unlikeResponse = response.data as ApiResponse<UnLikePostResponse>;
+                return unlikeResponse;
+            }
+
         } catch (error: any) {
             console.error('Toggle post like error:', error);
             throw error;
@@ -28,7 +39,7 @@ class LikeService {
     }
 
     // Like/Unlike un commentaire
-    async toggleCommentLike(data: LikeCommentInput): Promise<ApiResponse<LikeResponse>> {
+    async toggleCommentLike(data: LikeCommentInput): Promise<ApiResponse<LikeCommentResponse>> {
         try {
             const response = await CapacitorHttp.post({
                 url: `${API_URL}/like/comment`,
@@ -44,25 +55,6 @@ class LikeService {
             return response.data;
         } catch (error: any) {
             console.error('Toggle comment like error:', error);
-            throw error;
-        }
-    }
-
-    // Récupérer les statistiques de likes
-    async getLikeStats(type: LikeableType, id: string): Promise<ApiResponse<LikeStats>> {
-        try {
-            const response = await CapacitorHttp.get({
-                url: `${API_URL}/like/stats/${type}/${id}`,
-                webFetchExtra: { credentials: 'include' }
-            });
-
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de la récupération des statistiques');
-            }
-
-            return response.data;
-        } catch (error: any) {
-            console.error('Get like stats error:', error);
             throw error;
         }
     }
