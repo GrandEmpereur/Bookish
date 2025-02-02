@@ -26,40 +26,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const router = useRouter();
     const { toast } = useToast();
 
+    // Vérification initiale de l'authentification
     useEffect(() => {
-        let inactivityTimer: NodeJS.Timeout;
-
-        const resetInactivityTimer = () => {
-            clearTimeout(inactivityTimer);
-            inactivityTimer = setTimeout(checkAuth, 30 * 60 * 1000); // 30 minutes
+        const initAuth = async () => {
+            try {
+                const response = await userService.getProfile();
+                setUser(response.data);
+            } catch (error: any) {
+                // Si l'erreur est 401, c'est normal - l'utilisateur n'est pas connecté
+                if (error.status === 401) {
+                    setUser(null);
+                } else {
+                    console.error('Auth init error:', error);
+                }
+            } finally {
+                setIsLoading(false);
+            }
         };
 
-        document.addEventListener('mousemove', resetInactivityTimer);
-        document.addEventListener('keypress', resetInactivityTimer);
-
-        checkAuth();
-
-        return () => {
-            document.removeEventListener('mousemove', resetInactivityTimer);
-            document.removeEventListener('keypress', resetInactivityTimer);
-            clearTimeout(inactivityTimer);
-        };
+        initAuth();
     }, []);
-
-    const checkAuth = async () => {
-        try {
-            const response = await userService.getProfile();
-            setUser(response.data);
-        } catch (error) {
-            setUser(null);
-        } finally {
-            setIsLoading(false);
-        }
-    };
 
     const login = async (data: LoginInput) => {
         try {
-            const authResponse = await authService.login(data);
+            setIsLoading(true);
+            await authService.login(data);
+            
+            // Attendre un peu pour s'assurer que les cookies sont bien définis
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
             const userResponse = await userService.getProfile();
             setUser(userResponse.data);
             
@@ -68,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 description: "Bienvenue sur Bookish !",
             });
 
-            router.push("/feed");
+            router.replace("/feed");
         } catch (error: any) {
             toast({
                 variant: "destructive",
@@ -76,6 +71,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 description: error.message || "Une erreur est survenue lors de la connexion",
             });
             throw error;
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -99,9 +96,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const logout = async () => {
         try {
+            setIsLoading(true);
             await authService.logout();
             setUser(null);
-            router.push("/auth/login");
+            router.replace("/auth/login");
             toast({
                 title: "Déconnexion réussie",
                 description: "À bientôt !",
@@ -112,6 +110,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 title: "Erreur de déconnexion",
                 description: error.message || "Une erreur est survenue lors de la déconnexion",
             });
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -119,8 +119,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             const response = await userService.getProfile();
             setUser(response.data);
-        } catch (error) {
-            setUser(null);
+        } catch (error: any) {
+            if (error.status === 401) {
+                setUser(null);
+                router.replace('/auth/login');
+            }
         }
     };
 

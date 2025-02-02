@@ -34,42 +34,30 @@ const App: React.FC = () => {
     const initializeApp = async () => {
       try {
         const response = await userService.getProfile();
-        const currentPath = window.location.pathname;
-        const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
-        console.log('hasSeenOnboarding', response);
 
-        // Si l'utilisateur est authentifié
         if (response.data) {
-          if (currentPath === '/' || currentPath.startsWith('/auth')) {
-            router.replace('/feed');
-          }
+          router.replace('/feed');
           return;
         }
-
-        // Si on arrive ici, l'utilisateur n'est pas authentifié
-        handleUnauthenticatedUser(hasSeenOnboarding);
-
       } catch (error: any) {
         // Si c'est une erreur 401, c'est normal - l'utilisateur n'est pas connecté
         if (error.status === 401) {
           const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
-          handleUnauthenticatedUser(hasSeenOnboarding);
+          if (!hasSeenOnboarding) {
+            router.replace('/onboarding');
+          } else {
+            router.replace('/auth/login');
+          }
           return;
         }
 
+        // Pour les autres erreurs, on redirige vers login
+        console.error('Init error:', error);
         router.replace('/auth/login');
       }
     };
 
-    const handleUnauthenticatedUser = (hasSeenOnboarding: string | null) => {
-      if (!hasSeenOnboarding) {
-        router.replace('/onboarding');
-      } else if (!window.location.pathname.startsWith('/auth')) {
-        router.replace('/auth/login');
-      }
-    };
-
-    // Attendre que l'animation soit terminée
+    // Attendre que l'animation soit terminée avant de vérifier l'auth
     setTimeout(initializeApp, 2000);
   }, [router, toast]);
 
