@@ -7,11 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Loader2, Heart, MessageCircle } from "lucide-react";
+import { Loader2, Heart } from "lucide-react";
 import { commentService } from "@/services/comment.service";
+import { likeService } from "@/services/like.service";
 import { Comment } from "@/types/comment";
 import { Separator } from "@/components/ui/separator";
-import { commentLikeService } from "@/services/comment-like.service";
 import { cn } from "@/lib/utils";
 
 interface CommentsProps {
@@ -25,6 +25,7 @@ interface ReplyingTo {
 
 export function CommentsSection({ postId }: CommentsProps) {
     const [comments, setComments] = useState<Comment[]>([]);
+    const [likedComments, setLikedComments] = useState<Set<string>>(new Set());
     const [isLoading, setIsLoading] = useState(true);
     const [newComment, setNewComment] = useState('');
     const [replyingTo, setReplyingTo] = useState<ReplyingTo | null>(null);
@@ -32,12 +33,16 @@ export function CommentsSection({ postId }: CommentsProps) {
 
     useEffect(() => {
         loadComments();
+        // Charger les likes depuis le sessionStorage
+        const savedLikes = sessionStorage.getItem('likedComments');
+        if (savedLikes) setLikedComments(new Set(JSON.parse(savedLikes)));
     }, [postId]);
 
     const loadComments = async () => {
         try {
             setIsLoading(true);
             const response = await commentService.getComments(postId);
+            console.log(response.data);
             setComments(response.data);
         } catch (error) {
             toast({
@@ -85,21 +90,27 @@ export function CommentsSection({ postId }: CommentsProps) {
 
     const handleLike = async (commentId: string) => {
         try {
-            const response = await commentLikeService.toggleLike(commentId);
+            const response = await likeService.toggleCommentLike({ commentId });
             
-            // Mise à jour optimiste de l'état
-            setComments(prevComments => 
-                prevComments.map(comment => {
-                    if (comment.id === commentId) {
-                        return {
-                            ...comment,
-                            likesCount: response.data.likesCount,
-                            isLiked: response.data.isLiked
-                        };
-                    }
-                    return comment;
-                })
-            );
+            if (response.status === 'success') {
+                const newLikedComments = new Set(likedComments);
+                const isLiked = response.message === 'Comment liked successfully';
+
+                if (isLiked) {
+                    newLikedComments.add(commentId);
+                } else {
+                    newLikedComments.delete(commentId);
+                }
+
+                setLikedComments(newLikedComments);
+                sessionStorage.setItem('likedComments', JSON.stringify([...newLikedComments]));
+
+                // Mise à jour du compteur avec la bonne structure de réponse
+                const updatedComment = comments.map(comment => 
+                    comment.id === commentId ? { ...comment, likesCount: comment.likesCount + (isLiked ? 1 : -1) } : comment
+                );
+                setComments(updatedComment);
+            }
         } catch (error) {
             toast({
                 variant: "destructive",
@@ -201,14 +212,14 @@ export function CommentsSection({ postId }: CommentsProps) {
                                         size="sm" 
                                         className={cn(
                                             "h-auto p-0 hover:text-primary",
-                                            comment.isLiked ? "text-primary" : "text-muted-foreground"
+                                            likedComments.has(comment.id) ? "text-primary" : "text-muted-foreground"
                                         )}
                                         onClick={() => handleLike(comment.id)}
                                     >
                                         <Heart 
                                             className="h-4 w-4 mr-1"
-                                            fill={comment.isLiked ? "currentColor" : "none"}
-                                            stroke={comment.isLiked ? "currentColor" : "currentColor"}
+                                            fill={likedComments.has(comment.id) ? "currentColor" : "none"}
+                                            stroke="currentColor"
                                         />
                                         <span className="text-xs">{comment.likesCount}</span>
                                     </Button>

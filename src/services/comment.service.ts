@@ -10,7 +10,7 @@ class CommentService {
     async getComments(
         postId: string,
         filters: CommentFilters = {}
-    ): Promise<ApiResponse<PaginatedComments>> {
+    ): Promise<ApiResponse<Comment[]>> {
         try {
             const queryParams = new URLSearchParams({
                 page: (filters.page || 1).toString(),
