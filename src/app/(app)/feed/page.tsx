@@ -39,7 +39,11 @@ export default function Feed() {
         try {
             setIsLoading(true);
             const response = await postService.getPosts();
-            setPosts(response.data || []);
+            // Trier les posts par date de création (du plus récent au plus ancien)
+            const sortedPosts = response.data.sort((a, b) => 
+                new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
+            setPosts(sortedPosts);
         } catch (error: any) {
             toast({
                 variant: "destructive",
@@ -155,7 +159,7 @@ export default function Feed() {
 
     return (
         <>
-            <div className="flex-1 px-5 pb-[20px] pt-[100px]">
+            <div className="flex-1 px-5 pb-[120px] pt-[100px]">
                 <div className="space-y-6">
                     {posts && posts.length > 0 ? (
                         posts.map((post) => (
@@ -278,7 +282,7 @@ export default function Feed() {
             </div>
 
             <FloatingActionButton
-                onClick={() => router.push('/posts/create')}
+                onClick={() => router.push('/feed/create')}
                 className="bottom-[110px]"
             />
         </>

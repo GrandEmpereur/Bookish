@@ -1,20 +1,19 @@
 export interface Post {
     id: string;
     title: string;
-    subject: string;
+    subject: 'book_review' | 'book_recommendation';
     content: string;
+    userId: string;
+    clubId: string | null;
     likesCount: number;
     commentsCount: number;
-    user_id: string;
-    clubId: string;
     createdAt: string;
     updatedAt: string;
-    user: User;
-    media: Media[];
-    stats: {
-        isLiked: boolean;
-        isBookmarked: boolean;
+    user: {
+        id: string;
+        username: string;
     };
+    media?: Media[];
 }
 
 export interface User {
@@ -33,28 +32,18 @@ export interface User {
 
 export interface Media {
     id: string;
-    userId: string;
-    postId: string;
-    type: string;
-    mimeType: string;
-    originalName: string;
-    size: string;
-    folder: string;
-    disk: string;
-    visibility: string;
-    quality: string | null;
-    maxWidth: number | null;
-    maxHeight: number | null;
-    aspectRatio: number | null;
-    expiresIn: number | null;
+    type: 'image' | 'video';
     url: string;
-    key: string;
-    signedUrl: string | null;
-    width: number;
-    height: number;
-    duration: number | null;
-    thumbnailUrl: string | null;
-    thumbnailKey: string | null;
-    createdAt: string;
-    updatedAt: string;
+    thumbnailUrl?: string;
+}
+
+export interface CreatePostResponse {
+    status: string;
+    message: string;
+    data: Post;
+}
+
+export interface DeletePostResponse {
+    status: string;
+    message: string;
 }

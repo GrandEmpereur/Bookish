@@ -20,7 +20,7 @@ export function TopBar({ config, className }: TopBarProps) {
     const renderLeftSide = () => {
         if (currentConfig.showBack) {
             return (
-                <Button 
+                <Button
                     variant="ghost"
                     onClick={() => router.back()}
                     className="w-8 h-8 flex items-center justify-center"
@@ -33,15 +33,13 @@ export function TopBar({ config, className }: TopBarProps) {
         if (currentConfig.showLogo) {
             return (
                 <div className="flex items-center gap-2">
-                    <div className="w-8 h-8">
-                        <Image 
-                            src="/Bookish2.svg" 
-                            alt="Bookish" 
-                            width={32}
-                            height={32}
-                            className="w-full h-full object-contain"
-                        />
-                    </div>
+                    <Image
+                        src="/Bookish2.svg"
+                        alt="Bookish"
+                        width={32}
+                        height={32}
+                        className="w-full h-full object-contain"
+                    />
                     <span className="text-lg font-medium">Bookish</span>
                 </div>
             );

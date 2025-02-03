@@ -6,7 +6,7 @@ const config: CapacitorConfig = {
   webDir: 'src/app',
   server: {
     androidScheme: 'http',
-    url: 'http://10.2.163.81:3000',
+    url: 'http://192.168.1.194:3000',
     cleartext: true
   },
   plugins: {

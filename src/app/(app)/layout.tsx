@@ -14,10 +14,7 @@ export default function FeedLayout({
 }) {
     const { isLoading } = useAuthGuard();
     const pathname = usePathname();
-    const topBarConfig = {
-        ...getTopBarConfig(pathname),
-        showLogo: true
-    };
+    const topBarConfig = getTopBarConfig(pathname);
 
     if (isLoading) {
         return (
@@ -28,9 +25,9 @@ export default function FeedLayout({
     }
 
     return (
-        <div className="min-h-[100dvh] flex flex-col bg-background">
+        <div className="min-h-[100dvh] flex flex-col bg-background w-full">
             <TopBar config={topBarConfig} />
-            <main className="flex-1 safe-area-pt pb-[80px]">
+            <main className="">
                 {children}
             </main>
             <BottomBar />
