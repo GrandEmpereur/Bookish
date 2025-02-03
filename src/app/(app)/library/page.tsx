@@ -1,9 +1,103 @@
-import React from 'react'
+'use client';
 
-export default function page() {
-  return (
-    <div>
-      
-    </div>
-  )
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useToast } from "@/hooks/use-toast";
+import { Loader2, Book, Lock, Users } from "lucide-react";
+import { bookListService } from "@/services/book-list.service";
+import { BookList } from "@/types/book-list";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { FloatingActionButton } from "@/components/ui/floating-action-button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+export default function Library() {
+    const [bookLists, setBookLists] = useState<BookList[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const { toast } = useToast();
+    const router = useRouter();
+
+    useEffect(() => {
+        loadBookLists();
+    }, []);
+
+    const loadBookLists = async () => {
+        try {
+            setIsLoading(true);
+            const response = await bookListService.getBookLists();
+            // Trier les listes par date de création (du plus récent au plus ancien)
+            const sortedLists = response.sort((a, b) => 
+                new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
+            setBookLists(sortedLists);
+        } catch (error) {
+            toast({
+                variant: "destructive",
+                title: "Erreur",
+                description: "Impossible de charger les listes de lecture"
+            });
+            setBookLists([]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    if (isLoading) {
+        return (
+            <div className="flex-1 flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
+    }
+
+    return (
+        <>
+            <ScrollArea className="flex-1 px-5 pb-[120px] pt-[120px]">
+                <div className="space-y-4">
+                    {bookLists && bookLists.length > 0 ? (
+                        bookLists.map((list) => (
+                            <Card
+                                key={list.id}
+                                className="p-4 space-y-3 cursor-pointer hover:shadow-md transition-shadow"
+                                onClick={() => router.push(`/library/${list.id}`)}
+                            >
+                                <div className="flex items-start justify-between">
+                                    <div className="space-y-1">
+                                        <h3 className="font-semibold">{list.name}</h3>
+                                        {list.description && (
+                                            <p className="text-sm text-muted-foreground">
+                                                {list.description}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <Book className="h-4 w-4 text-muted-foreground" />
+                                        <span className="text-sm text-muted-foreground">
+                                        </span>
+                                    </div>
+                                    {list.visibility === 'public' && (
+                                        <Badge variant="secondary" className="text-xs">
+                                            Public
+                                        </Badge>
+                                    )}
+                                </div>
+                            </Card>
+                        ))
+                    ) : (
+                        <div className="text-center text-muted-foreground py-8">
+                            Vous n'avez pas encore de liste de lecture
+                        </div>
+                    )}
+                </div>
+            </ScrollArea>
+
+            <FloatingActionButton
+                onClick={() => router.push('/library/create')}
+                className="bottom-[110px]"
+            />
+        </>
+    );
 }

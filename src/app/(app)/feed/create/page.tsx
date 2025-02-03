@@ -65,10 +65,7 @@ export default function CreatePost() {
     const onSubmit = async (data: CreatePostInput) => {
         try {
             setIsLoading(true);
-            console.log("Submitting data:", data);
-
             const response = await postService.createPost(data);
-            console.log("API response:", response);
 
             if (response.status === 'success') {
                 toast({

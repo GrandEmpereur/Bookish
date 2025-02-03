@@ -2,13 +2,15 @@ import { CapacitorHttp } from '@capacitor/core';
 import {
     BookList,
     BookListFilters,
-    PaginatedBookLists
+    PaginatedBookLists,
+    UpdateBookListResponse,
+    CreateBookListResponse,
+
 } from '@/types/book-list';
 import {
     CreateBookListInput,
     AddBookToListInput,
-    UpdateBookStatusInput,
-    ShareBookListInput
+    ShareBookListInput,
 } from '@/lib/validations/book-list';
 import { ApiResponse } from '@/types/api';
 
@@ -16,17 +18,10 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 class BookListService {
     // Récupérer les listes de lecture
-    async getBookLists(filters: BookListFilters = {}): Promise<ApiResponse<PaginatedBookLists>> {
+    async getBookLists(): Promise<BookList[]> {
         try {
-            const queryParams = new URLSearchParams({
-                page: (filters.page || 1).toString(),
-                limit: (filters.limit || 20).toString(),
-                ...(filters.sort && { sort: filters.sort }),
-                ...(filters.order && { order: filters.order })
-            });
-
             const response = await CapacitorHttp.get({
-                url: `${API_URL}/book-lists?${queryParams.toString()}`,
+                url: `${API_URL}/book-lists`,
                 webFetchExtra: { credentials: 'include' }
             });
 
@@ -42,7 +37,7 @@ class BookListService {
     }
 
     // Créer une liste de lecture
-    async createBookList(data: CreateBookListInput): Promise<ApiResponse<BookList>> {
+    async createBookList(data: CreateBookListInput): Promise<ApiResponse<CreateBookListResponse>> {
         try {
             const response = await CapacitorHttp.post({
                 url: `${API_URL}/book-lists`,
@@ -63,7 +58,7 @@ class BookListService {
     }
 
     // Récupérer une liste de lecture
-    async getBookList(id: string): Promise<ApiResponse<BookList>> {
+    async getBookList(id: string): Promise<BookList> {
         try {
             const response = await CapacitorHttp.get({
                 url: `${API_URL}/book-lists/${id}`,
@@ -161,7 +156,7 @@ class BookListService {
     async updateBookStatus(
         listId: string,
         bookId: string,
-        data: UpdateBookStatusInput
+        data: UpdateBookListResponse
     ): Promise<ApiResponse<BookList>> {
         try {
             const response = await CapacitorHttp.put({

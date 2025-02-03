@@ -1,14 +1,42 @@
+export type ReadingStatus = 'to_read' | 'reading' | 'finished';
+
+export interface Book {
+    id: string;
+    title: string;
+    author: string;
+    reading_status: ReadingStatus;
+}
+
 export interface BookList {
+    createdAt: string;
+    description: string;
     id: string;
     name: string;
-    description?: string;
-    isPublic: boolean;
-    tags?: string[];
-    coverImage?: string;
-    userId: string;
-    books: BookInList[];
-    createdAt: string;
     updatedAt: string;
+    userId: string;
+    visibility: string;
+    books: Book[];
+}
+
+export interface CreateBookListResponse {
+    status: string;
+    data: BookList;
+}
+
+export interface UpdateBookListResponse {
+    status: string;
+    data: BookList;
+}
+
+export interface ShareBookListResponse {
+    status: string;
+    message: string;
+    shareUrl: string;
+}
+
+export interface BookListActionResponse {
+    status: string;
+    message: string;
 }
 
 export interface BookInList {

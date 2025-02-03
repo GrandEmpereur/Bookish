@@ -1,4 +1,4 @@
-import { Bell, Send } from "lucide-react";
+import { Bell, Send, Settings } from "lucide-react";
 
 export type TopBarConfig = {
     variant: 'standard' | 'back';
@@ -34,6 +34,14 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
         showBack: true,
         rightIcons: [
             { icon: Bell }
+        ]
+    },
+    '/profile/': {
+        variant: 'back',
+        title: 'Profil',
+        showBack: true,
+        rightIcons: [
+            { icon: Settings }
         ]
     },
     // Configuration par défaut

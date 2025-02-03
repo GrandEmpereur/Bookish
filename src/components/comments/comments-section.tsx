@@ -42,7 +42,6 @@ export function CommentsSection({ postId }: CommentsProps) {
         try {
             setIsLoading(true);
             const response = await commentService.getComments(postId);
-            console.log(response.data);
             setComments(response.data);
         } catch (error) {
             toast({
