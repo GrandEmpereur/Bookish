@@ -14,7 +14,10 @@ export default function FeedLayout({
 }) {
     const { isLoading } = useAuthGuard();
     const pathname = usePathname();
-    const topBarConfig = getTopBarConfig(pathname);
+    const topBarConfig = {
+        ...getTopBarConfig(pathname),
+        showLogo: true
+    };
 
     if (isLoading) {
         return (
