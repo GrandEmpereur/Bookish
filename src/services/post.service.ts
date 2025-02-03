@@ -1,5 +1,5 @@
 import { CapacitorHttp } from '@capacitor/core';
-import { Post, PostFilters, PaginatedPosts } from '@/types/post';
+import { Post } from '@/types/post';
 import { CreatePostInput, UpdatePostInput } from '@/lib/validations/post';
 import { ApiResponse } from '@/types/api';
 
@@ -7,18 +7,10 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 class PostService {
     // Récupérer la liste des posts
-    async getPosts(filters: PostFilters = {}): Promise<ApiResponse<PaginatedPosts>> {
+    async getPosts(): Promise<ApiResponse<Post[]>> {
         try {
-            const queryParams = new URLSearchParams({
-                page: (filters.page || 1).toString(),
-                limit: (filters.limit || 20).toString(),
-                ...(filters.sort && { sort: filters.sort }),
-                ...(filters.order && { order: filters.order }),
-                ...(filters.bookId && { bookId: filters.bookId })
-            });
-
             const response = await CapacitorHttp.get({
-                url: `${API_URL}/posts?${queryParams.toString()}`,
+                url: `${API_URL}/posts`,
                 webFetchExtra: { credentials: 'include' }
             });
 
