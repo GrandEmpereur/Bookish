@@ -1,5 +1,5 @@
 import { CapacitorHttp } from '@capacitor/core';
-import { Comment, CommentFilters, PaginatedComments } from '@/types/comment';
+import { Comment } from '@/types/comment';
 import { CreateCommentInput, UpdateCommentInput } from '@/lib/validations/comment';
 import { ApiResponse } from '@/types/api';
 
@@ -9,18 +9,10 @@ class CommentService {
     // Récupérer les commentaires d'un post
     async getComments(
         postId: string,
-        filters: CommentFilters = {}
     ): Promise<ApiResponse<Comment[]>> {
         try {
-            const queryParams = new URLSearchParams({
-                page: (filters.page || 1).toString(),
-                limit: (filters.limit || 20).toString(),
-                ...(filters.sort && { sort: filters.sort }),
-                ...(filters.order && { order: filters.order })
-            });
-
             const response = await CapacitorHttp.get({
-                url: `${API_URL}/posts/${postId}/comments?${queryParams.toString()}`,
+                url: `${API_URL}/posts/${postId}/comments`,
                 webFetchExtra: { credentials: 'include' }
             });
 
