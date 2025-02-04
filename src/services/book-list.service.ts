@@ -1,24 +1,27 @@
 import { CapacitorHttp } from '@capacitor/core';
 import {
     BookList,
+    BookListResponse,
     CreateBookListResponse,
     UpdateBookListResponse,
-    BookListActionResponse,
     ShareBookListResponse,
-    Genre
+    Genre,
+    AddBooksToListResponse,
+    RemoveBookFromListResponse,
+    UpdateReadingStatusResponse
 } from '@/types/book-list';
 import {
     CreateBookListInput,
     UpdateBookListInput,
-    AddBookToListInput,
-    UpdateReadingStatusInput
+    AddBooksToListInput,
+    UpdateReadingStatusInput,
 } from '@/lib/validations/book-list';
-
+import { ApiResponse } from '@/types/api';
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 class BookListService {
     // Récupérer les listes de lecture
-    async getBookLists(): Promise<BookList[]> {
+    async getBookLists(): Promise<ApiResponse<BookList[]>> {
         try {
             const response = await CapacitorHttp.get({
                 url: `${API_URL}/book-lists`,
@@ -56,7 +59,7 @@ class BookListService {
     }
 
     // Créer une liste de lecture
-    async createBookList(data: CreateBookListInput): Promise<CreateBookListResponse> {
+    async createBookList(data: CreateBookListInput): Promise<ApiResponse<CreateBookListResponse>> {
         try {
             const formData = new FormData();
             formData.append('name', data.name);
@@ -86,19 +89,18 @@ class BookListService {
     }
 
     // Récupérer une liste de lecture
-    async getBookList(id: string): Promise<BookList> {
+    async getBookList(id: string): Promise<ApiResponse<BookListResponse>> {
         try {
             const response = await CapacitorHttp.get({
                 url: `${API_URL}/book-lists/${id}`,
                 webFetchExtra: { credentials: 'include' }
             });
-            console.log("response", response);
 
             if (response.status !== 200) {
                 throw new Error(response.data.message || 'Erreur lors de la récupération de la liste');
             }
 
-            return response.data.data;
+            return response.data;
         } catch (error: any) {
             console.error('Get book list error:', error);
             throw error;
@@ -106,14 +108,9 @@ class BookListService {
     }
 
     // Mettre à jour une liste de lecture
-    async updateBookList(id: string, data: UpdateBookListInput): Promise<UpdateBookListResponse> {
+    async updateBookList(id: string, data: UpdateBookListInput): Promise<ApiResponse<UpdateBookListResponse>> {
         try {
             const formData = new FormData();
-            if (data.name) formData.append('name', data.name);
-            if (data.description) formData.append('description', data.description);
-            if (data.visibility) formData.append('visibility', data.visibility);
-            if (data.coverImage) formData.append('coverImage', data.coverImage);
-
             const response = await CapacitorHttp.put({
                 url: `${API_URL}/book-lists/${id}`,
                 data: formData,
@@ -152,7 +149,7 @@ class BookListService {
     }
 
     // Ajouter un livre à la liste
-    async addBookToList(listId: string, data: AddBookToListInput): Promise<BookListActionResponse> {
+    async addBooksToList(listId: string, data: AddBooksToListInput): Promise<ApiResponse<AddBooksToListResponse>> {
         try {
             const response = await CapacitorHttp.post({
                 url: `${API_URL}/book-lists/${listId}/books`,
@@ -161,19 +158,19 @@ class BookListService {
                 webFetchExtra: { credentials: 'include' }
             });
 
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de l\'ajout du livre');
+            if (response.status === 200) {
+                return response.data;
             }
 
-            return response.data;
+            throw new Error(response.data.message || 'Erreur lors de l\'ajout des livres');
         } catch (error: any) {
-            console.error('Add book to list error:', error);
+            console.error('Add books to list error:', error);
             throw error;
         }
     }
 
     // Retirer un livre de la liste
-    async removeBookFromList(listId: string, bookId: string): Promise<BookListActionResponse> {
+    async removeBookFromList(listId: string, bookId: string): Promise<ApiResponse<RemoveBookFromListResponse>> {
         try {
             const response = await CapacitorHttp.delete({
                 url: `${API_URL}/book-lists/${listId}/books/${bookId}`,
@@ -181,7 +178,7 @@ class BookListService {
             });
 
             if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors du retrait du livre');
+                throw new Error(response.data.message || 'Erreur lors de la suppression du livre');
             }
 
             return response.data;
@@ -192,11 +189,11 @@ class BookListService {
     }
 
     // Mettre à jour le statut de lecture
-    async updateBookStatus(
+    async updateReadingStatus(
         listId: string,
         bookId: string,
         data: UpdateReadingStatusInput
-    ): Promise<BookListActionResponse> {
+    ): Promise<ApiResponse<UpdateReadingStatusResponse>> {
         try {
             const response = await CapacitorHttp.put({
                 url: `${API_URL}/book-lists/${listId}/books/${bookId}/status`,
@@ -211,13 +208,13 @@ class BookListService {
 
             return response.data;
         } catch (error: any) {
-            console.error('Update book status error:', error);
+            console.error('Update reading status error:', error);
             throw error;
         }
     }
 
     // Partager une liste
-    async shareBookList(id: string): Promise<ShareBookListResponse> {
+    async shareBookList(id: string): Promise<ApiResponse<ShareBookListResponse>> {
         try {
             const response = await CapacitorHttp.post({
                 url: `${API_URL}/book-lists/${id}/share`,
@@ -231,6 +228,24 @@ class BookListService {
             return response.data;
         } catch (error: any) {
             console.error('Share book list error:', error);
+            throw error;
+        }
+    }
+
+    async getListsByGenre(genre: Genre): Promise<ApiResponse<BookListResponse[]>> {
+        try {
+            const response = await CapacitorHttp.get({
+                url: `${API_URL}/book-lists/genre/${genre}`,
+                webFetchExtra: { credentials: 'include' }
+            });
+
+            if (response.status !== 200) {
+                throw new Error(response.data.message || 'Erreur lors de la récupération des listes');
+            }
+
+            return response.data;
+        } catch (error: any) {
+            console.error('Get lists by genre error:', error);
             throw error;
         }
     }
