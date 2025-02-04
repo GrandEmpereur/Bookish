@@ -84,7 +84,6 @@ export default function AddBookToList({ params }: PageProps) {
             const response = await bookListService.addBooksToList(id, { 
                 bookIds: selectedBooks.map(book => book.id) 
             });
-            console.log(response);
 
             const { status, message } = response;
 
