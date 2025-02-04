@@ -110,6 +110,24 @@ class BookService {
             throw error;
         }
     }
+
+    async searchBooks(query: string): Promise<ApiResponse<Book[]>> {
+        try {
+            const response = await CapacitorHttp.get({
+                url: `${API_URL}/books/search?q=${encodeURIComponent(query)}`,
+                webFetchExtra: { credentials: 'include' }
+            });
+
+            if (response.status !== 200) {
+                throw new Error(response.data.message || 'Erreur lors de la recherche des livres');
+            }
+
+            return response.data;
+        } catch (error: any) {
+            console.error('Search books error:', error);
+            throw error;
+        }
+    }
 }
 
 export const bookService = new BookService(); 

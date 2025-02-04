@@ -3,13 +3,14 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Book, Lock, Users } from "lucide-react";
+import { Loader2, Book, Lock, Globe, BookOpen } from "lucide-react";
 import { bookListService } from "@/services/book-list.service";
 import { BookList } from "@/types/book-list";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FloatingActionButton } from "@/components/ui/floating-action-button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import Image from 'next/image';
 
 export default function Library() {
     const [bookLists, setBookLists] = useState<BookList[]>([]);
@@ -25,7 +26,6 @@ export default function Library() {
         try {
             setIsLoading(true);
             const response = await bookListService.getBookLists();
-            // Trier les listes par date de création (du plus récent au plus ancien)
             const sortedLists = response.sort((a, b) => 
                 new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
             );
@@ -58,31 +58,60 @@ export default function Library() {
                         bookLists.map((list) => (
                             <Card
                                 key={list.id}
-                                className="p-4 space-y-3 cursor-pointer hover:shadow-md transition-shadow"
+                                className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
                                 onClick={() => router.push(`/library/${list.id}`)}
                             >
-                                <div className="flex items-start justify-between">
-                                    <div className="space-y-1">
-                                        <h3 className="font-semibold">{list.name}</h3>
-                                        {list.description && (
-                                            <p className="text-sm text-muted-foreground">
-                                                {list.description}
-                                            </p>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <Book className="h-4 w-4 text-muted-foreground" />
-                                        <span className="text-sm text-muted-foreground">
-                                        </span>
-                                    </div>
-                                    {list.visibility === 'public' && (
-                                        <Badge variant="secondary" className="text-xs">
-                                            Public
-                                        </Badge>
+                                <div className="flex">
+                                    {list.coverImage ? (
+                                        <div className="relative w-24 h-32 flex-shrink-0">
+                                            <Image
+                                                src={list.coverImage}
+                                                alt={list.name}
+                                                fill
+                                                className="object-cover"
+                                            />
+                                        </div>
+                                    ) : (
+                                        <div className="w-24 h-32 flex-shrink-0 bg-muted flex items-center justify-center">
+                                            <Book className="h-8 w-8 text-muted-foreground" />
+                                        </div>
                                     )}
+                                    
+                                    <div className="flex-1 p-4 space-y-3">
+                                        <div className="flex items-start justify-between">
+                                            <div className="space-y-1">
+                                                <h3 className="font-semibold">{list.name}</h3>
+                                                {list.description && (
+                                                    <p className="text-sm text-muted-foreground line-clamp-2">
+                                                        {list.description}
+                                                    </p>
+                                                )}
+                                            </div>
+                                            {list.visibility === 'private' ? (
+                                                <Lock className="h-4 w-4 text-muted-foreground" />
+                                            ) : (
+                                                <Globe className="h-4 w-4 text-muted-foreground" />
+                                            )}
+                                        </div>
+
+                                        <div className="flex flex-wrap gap-2">
+                                            <Badge variant="outline" className="text-xs">
+                                                {list.genre.charAt(0).toUpperCase() + list.genre.slice(1)}
+                                            </Badge>
+                                            <Badge 
+                                                variant="secondary" 
+                                                className="text-xs flex items-center gap-1"
+                                            >
+                                                <BookOpen className="h-3 w-3" />
+                                                {list.bookCount} {list.bookCount > 1 ? 'livres' : 'livre'}
+                                            </Badge>
+                                            {list.visibility === 'public' && (
+                                                <Badge variant="secondary" className="text-xs">
+                                                    Public
+                                                </Badge>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
                             </Card>
                         ))

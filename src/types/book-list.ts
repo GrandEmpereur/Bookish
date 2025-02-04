@@ -1,4 +1,21 @@
 export type ReadingStatus = 'to_read' | 'reading' | 'finished';
+export type Visibility = 'public' | 'private';
+export type Genre =
+    | 'fantasy'
+    | 'science-fiction'
+    | 'romance'
+    | 'thriller'
+    | 'mystery'
+    | 'horror'
+    | 'historical'
+    | 'contemporary'
+    | 'literary'
+    | 'young-adult'
+    | 'non-fiction'
+    | 'biography'
+    | 'poetry'
+    | 'comics'
+    | 'mixed';
 
 export interface Book {
     id: string;
@@ -7,50 +24,63 @@ export interface Book {
     reading_status: ReadingStatus;
 }
 
+export interface BookInList {
+    id: string;
+    title: string;
+    author: string;
+    coverImage?: string;
+    genre: Genre;
+    reading_status?: ReadingStatus;
+}
+
 export interface BookList {
-    createdAt: string;
-    description: string;
     id: string;
     name: string;
-    updatedAt: string;
+    description?: string;
+    coverImage?: string;
+    visibility: Visibility;
+    genre: Genre;
+    bookCount: number;
     userId: string;
-    visibility: string;
-    books: Book[];
+    createdAt: string;
+    updatedAt: string;
+    books?: BookInList[];
+    user?: {
+        id: string;
+        username: string;
+    };
 }
 
 export interface CreateBookListResponse {
-    status: string;
-    data: BookList;
+    id: string;
+    name: string;
+    description?: string;
+    coverImage?: string;
+    visibility: Visibility;
+    genre: Genre;
+    bookCount: number;
+    userId: string;
 }
 
 export interface UpdateBookListResponse {
-    status: string;
-    data: BookList;
-}
-
-export interface ShareBookListResponse {
-    status: string;
-    message: string;
-    shareUrl: string;
+    id: string;
+    name: string;
+    description?: string;
+    coverImage?: string;
+    visibility: Visibility;
+    genre: Genre;
+    bookCount: number;
+    userId: string;
 }
 
 export interface BookListActionResponse {
-    status: string;
     message: string;
+    bookCount?: number;
 }
 
-export interface BookInList {
-    id: string;
-    bookId: string;
-    status: 'to_read' | 'reading' | 'finished';
-    currentPage?: number;
-    notes?: string;
-    addedAt: string;
-    book: {
-        title: string;
-        author: string;
-        coverImage?: string;
-    };
+export interface ShareBookListResponse {
+    message: string;
+    shareUrl: string;
 }
 
 export interface BookListFilters {
