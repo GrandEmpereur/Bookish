@@ -59,7 +59,7 @@ export default function Habits() {
 
             const data: RegisterStepTwoRequest = {
                 email,
-                reading_habit: habit
+                readingHabit: habit
             };
 
             await completeStepTwo(data);

@@ -6,6 +6,7 @@ import { Eye, EyeOff, ChevronLeft, Loader2, Mail } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { registerSchema, type RegisterInput } from "@/lib/validations/auth";
+import type { RegisterRequest } from "@/types/authTypes";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
@@ -28,11 +29,12 @@ import {
 } from "@/components/ui/dialog";
 
 export default function Register() {
-    const { toast } = useToast();
-    const { register } = useAuth();
+    const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showEmailDialog, setShowEmailDialog] = useState(false);
+    const { toast } = useToast();
     const router = useRouter();
+    const { register } = useAuth();
 
     const form = useForm<RegisterInput>({
         resolver: zodResolver(registerSchema),
@@ -41,94 +43,66 @@ export default function Register() {
             email: "",
             password: "",
             birthDate: ""
-        },
+        }
     });
 
-    const onSubmit = async (data: RegisterInput) => {
-        try {
-            await register(data);
-            
-            // S'assurer que l'email est stocké avant d'afficher le dialogue
-            if (data.email) {
-                sessionStorage.setItem('verificationEmail', data.email);
-            }
-
-            // Retour haptique sur mobile
-            if (navigator.vibrate) {
-                navigator.vibrate(100);
-            }
-
-            // Afficher le dialogue
-            setShowEmailDialog(true);
-        } catch (error: any) {
-            toast({
-                variant: "destructive",
-                title: "Erreur d'inscription",
-                description: error.message || "Une erreur est survenue lors de l'inscription"
-            });
-            console.error('Register error:', error);
-        }
-    };
-
     const handleDialogClose = () => {
-        // Vérifier que l'email est bien stocké avant la redirection
-        const storedEmail = sessionStorage.getItem('verificationEmail');
-        if (!storedEmail) {
-            console.error('No email stored in session');
-            toast({
-                variant: "destructive",
-                title: "Erreur",
-                description: "Une erreur est survenue, veuillez réessayer"
-            });
-            return;
-        }
-
         setShowEmailDialog(false);
         router.push('/auth/register/verification');
     };
 
-    const formatBirthdate = (value: string) => {
-        // Supprime tout ce qui n'est pas un chiffre
-        const numbers = value.replace(/\D/g, '');
-        
-        // Ajoute les "/" automatiquement
-        let formatted = '';
-        for (let i = 0; i < numbers.length && i < 8; i++) {
-            if (i === 2 || i === 4) formatted += '/';
-            formatted += numbers[i];
-        }
-        
-        return formatted;
-    };
+    const onSubmit = async (data: RegisterInput) => {
+        try {
+            const isValid = await form.trigger();
+            if (!isValid) return;
 
-    const handleBirthdateChange = (
-        event: React.ChangeEvent<HTMLInputElement>,
-        field: { onChange: (value: string) => void }
-    ) => {
-        const formatted = formatBirthdate(event.target.value);
-        field.onChange(formatted);
+            setIsLoading(true);
+            
+            const [day, month, year] = data.birthDate.split('/');
+            const formattedDate = `${year}-${month}-${day}`;
+
+            const requestData: RegisterRequest = {
+                username: data.username,
+                email: data.email,
+                password: data.password,
+                birthDate: formattedDate
+            };
+
+            const response = await register(requestData);
+            console.log("Register response:", response);
+            sessionStorage.setItem('verificationEmail', data.email);
+            setShowEmailDialog(true);
+
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: "Erreur",
+                description: error.message || "Une erreur est survenue"
+            });
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
-        <div className="min-h-[100dvh] flex flex-col px-5 bg-background safe-area-pt justify-center items-center">
-            <h1 className="text-[32px] text-center font-heading leading-tight mb-14">
-                Créez votre compte
-            </h1>
+        <div className="min-h-[100dvh] flex flex-col px-5 bg-background">
+            <div className="flex-1 flex flex-col max-w-md mx-auto w-full justify-center">
+                <h1 className="text-[32px] text-center font-heading leading-tight mb-14">
+                    Créez votre compte
+                </h1>
 
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4 w-full max-w-[400px] mx-auto">
-                    <div className="space-y-4">
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                         <FormField
                             control={form.control}
                             name="username"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormControl>
-                                        <Input
+                                        <Input 
+                                            placeholder="Nom d'utilisateur" 
+                                            className="h-14 bg-accent-100 border-0 text-base"
                                             {...field}
-                                            placeholder="Nom d'utilisateur"
-                                            className="h-14 bg-accent-100 border-0 text-base placeholder:text-muted-500"
-                                            disabled={form.formState.isSubmitting}
                                         />
                                     </FormControl>
                                     <FormMessage />
@@ -142,37 +116,36 @@ export default function Register() {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormControl>
-                                        <Input
+                                        <Input 
+                                            type="email" 
+                                            placeholder="Email" 
+                                            className="h-14 bg-accent-100 border-0 text-base"
                                             {...field}
-                                            type="email"
-                                            placeholder="votre@email.com"
-                                            className="h-14 bg-accent-100 border-0 text-base placeholder:text-muted-500"
-                                            disabled={form.formState.isSubmitting}
                                         />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-                        
+
                         <FormField
                             control={form.control}
                             name="birthDate"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormControl>
-                                        <div className="relative">
-                                            <Input
-                                                {...field}
-                                                type="text"
-                                                placeholder="JJ/MM/AAAA"
-                                                maxLength={10}
-                                                value={field.value}
-                                                onChange={(e) => handleBirthdateChange(e, field)}
-                                                className="h-14 bg-accent-100 border-0 text-base placeholder:text-muted-500"
-                                                disabled={form.formState.isSubmitting}
-                                            />
-                                        </div>
+                                        <Input 
+                                            placeholder="Date de naissance (JJ/MM/AAAA)" 
+                                            className="h-14 bg-accent-100 border-0 text-base"
+                                            {...field}
+                                            onChange={(e) => {
+                                                let value = e.target.value.replace(/\D/g, '');
+                                                if (value.length >= 2) value = value.slice(0, 2) + '/' + value.slice(2);
+                                                if (value.length >= 5) value = value.slice(0, 5) + '/' + value.slice(5);
+                                                if (value.length > 10) value = value.slice(0, 10);
+                                                field.onChange(value);
+                                            }}
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -187,17 +160,15 @@ export default function Register() {
                                     <FormControl>
                                         <div className="relative">
                                             <Input
-                                                {...field}
                                                 type={showPassword ? "text" : "password"}
                                                 placeholder="Mot de passe"
                                                 className="h-14 bg-accent-100 border-0 text-base pr-12"
-                                                disabled={form.formState.isSubmitting}
+                                                {...field}
                                             />
                                             <button
                                                 type="button"
                                                 onClick={() => setShowPassword(!showPassword)}
                                                 className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-500 hover:text-muted-700 transition-colors"
-                                                disabled={form.formState.isSubmitting}
                                             >
                                                 {showPassword ? (
                                                     <EyeOff size={20} />
@@ -214,40 +185,36 @@ export default function Register() {
 
                         <p className="text-sm text-muted-foreground">
                             Le mot de passe doit avoir au moins 8 caractères
-                            <br />
-                            et 1 caractère spécial
                         </p>
-                    </div>
 
-                    <Button 
-                        type="submit" 
-                        className="h-14 bg-primary-800 hover:bg-primary-900 text-white mt-4"
-                        disabled={form.formState.isSubmitting}
-                    >
-                        {form.formState.isSubmitting ? (
-                            <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Inscription en cours...
-                            </>
-                        ) : (
-                            "S'inscrire"
-                        )}
-                    </Button>
-
-                    <p className="text-center mt-4 text-base">
-                        Vous avez un compte ?{' '}
-                        <Link 
-                            href="/auth/login" 
-                            className="text-secondary-500 font-medium"
-                            tabIndex={form.formState.isSubmitting ? -1 : 0}
+                        <Button 
+                            type="submit" 
+                            className="w-full h-14 bg-primary-800 hover:bg-primary-900 text-white"
                         >
-                            Connectez vous
-                        </Link>
-                    </p>
-                </form>
-            </Form>
+                            {isLoading ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Inscription en cours...
+                                </>
+                            ) : (
+                                "S'inscrire"
+                            )}
+                        </Button>
+                    </form>
+                </Form>
 
-            {/* Dialog de vérification d'email */}
+                <p className="text-center mt-4 text-base">
+                    Vous avez un compte ?{' '}
+                    <Link 
+                        href="/auth/login" 
+                        className="text-secondary-500 font-medium"
+                        tabIndex={form.formState.isSubmitting ? -1 : 0}
+                    >
+                        Connectez vous
+                    </Link>
+                </p>
+            </div>
+
             <Dialog open={showEmailDialog} onOpenChange={handleDialogClose}>
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>

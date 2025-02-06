@@ -54,17 +54,17 @@ export interface VerifyResetCodeRequest {
 
 export interface RegisterStepOneRequest {
     email: string;
-    usage_purpose: UsagePurpose;
+    usagePurpose: UsagePurpose;
 }
 
 export interface RegisterStepTwoRequest {
     email: string;
-    reading_habit: ReadingHabit;
+    readingHabit: ReadingHabit;
 }
 
 export interface RegisterStepThreeRequest {
     email: string;
-    preferred_genres: string[];
+    preferredGenres: string[];
 }
 
 // Types pour les réponses

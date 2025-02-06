@@ -18,7 +18,11 @@ class UserService {
             url: `${API_URL}/users/me`,
             webFetchExtra: { credentials: 'include' }
         });
-        console.log(response);
+
+        // Si 401, ce n'est pas une erreur mais juste un utilisateur non authentifié
+        if (response.status === 401) {
+            throw { status: 401 }; // On renvoie juste le status pour le gérer proprement
+        }
 
         if (response.status !== 200) {
             throw new Error(response.data.message || 'Erreur lors de la récupération du profil');

@@ -66,7 +66,7 @@ export default function Genres() {
             setIsLoading(true);
             const data: RegisterStepThreeRequest = {
                 email,
-                preferred_genres: preferredGenres
+                preferredGenres: preferredGenres
             };
 
             await completeStepThree(data);

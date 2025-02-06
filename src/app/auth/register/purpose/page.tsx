@@ -59,7 +59,7 @@ export default function Purpose() {
 
             const data: RegisterStepOneRequest = {
                 email,
-                usage_purpose: purpose
+                usagePurpose: purpose
             };
 
             await completeStepOne(data);

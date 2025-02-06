@@ -7,21 +7,13 @@ export const registerSchema = z.object({
     email: z.string()
         .email("Email invalide"),
     password: z.string()
-        .min(8, "Le mot de passe doit faire au moins 8 caractères")
-        .regex(
-            /^(?=.*[!@#$%^&*])/,
-            "Le mot de passe doit contenir au moins un caractère spécial"
-        ),
+        .min(8, "Le mot de passe doit faire au moins 8 caractères"),
     birthDate: z.string()
         .regex(
             /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/,
             "Format de date invalide (JJ/MM/AAAA)"
         ),
-    password_confirmation: z.string()
-}).refine((data) => data.password === data.password_confirmation, {
-    message: "Les mots de passe ne correspondent pas",
-    path: ["password_confirmation"],
-});
+})
 
 export type RegisterInput = z.infer<typeof registerSchema>;
 

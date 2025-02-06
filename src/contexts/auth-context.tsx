@@ -5,7 +5,20 @@ import { useRouter } from 'next/navigation';
 import { authService } from "@/services/auth.service";
 import { userService } from "@/services/user.service";
 import type { UserProfile as User } from "@/types/userTypes";
-import type { LoginRequest, RegisterRequest, VerifyEmailRequest, ResendVerificationRequest, RegisterStepOneRequest, RegisterStepTwoRequest, RegisterStepThreeRequest, ForgotPasswordRequest, VerifyResetCodeRequest, ResetPasswordRequest } from "@/types/authTypes";
+import type { 
+    LoginRequest, 
+    RegisterRequest, 
+    VerifyEmailRequest, 
+    ResendVerificationRequest, 
+    RegisterStepOneRequest, 
+    RegisterStepTwoRequest, 
+    RegisterStepThreeRequest, 
+    ForgotPasswordRequest, 
+    VerifyResetCodeRequest, 
+    ResetPasswordRequest,
+    RegisterResponse,
+    AuthResponse 
+} from "@/types/authTypes";
 import { useToast } from "@/hooks/use-toast";
 
 interface AuthContextType {
@@ -13,7 +26,7 @@ interface AuthContextType {
     isLoading: boolean;
     isAuthenticated: boolean;
     login: (data: LoginRequest) => Promise<void>;
-    register: (data: RegisterRequest) => Promise<void>;
+    register: (data: RegisterRequest) => Promise<AuthResponse<RegisterResponse>>;
     logout: () => Promise<void>;
     refreshUser: () => Promise<void>;
     verifyEmail: (data: VerifyEmailRequest) => Promise<void>;
@@ -41,11 +54,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 const response = await userService.getAuthenticatedProfile();
                 setUser(response.data);
             } catch (error: any) {
-                // Si l'erreur est 401, c'est normal - l'utilisateur n'est pas connecté
+                // Si erreur 401, c'est normal - l'utilisateur n'est pas connecté
                 if (error.status === 401) {
                     setUser(null);
                 } else {
-                    console.error('Auth init error:', error);
+                    // Pour les autres erreurs, on les log
+                    console.error('Erreur lors de l\'initialisation de l\'auth:', error);
+                    setUser(null);
                 }
             } finally {
                 setIsLoading(false);
@@ -86,12 +101,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const register = async (data: RegisterRequest) => {
         try {
-            await authService.register(data);
-            toast({
-                title: "Inscription réussie",
-                description: "Veuillez vérifier votre email pour continuer",
-            });
-            router.push("/auth/register/verification");
+            const response = await authService.register(data);
+            return response;
         } catch (error: any) {
             toast({
                 variant: "destructive",
