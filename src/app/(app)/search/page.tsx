@@ -6,6 +6,7 @@ import { searchUsers } from "@/services/searchService";
 import { searchBooks } from "@/services/bookService";
 import { User } from "@/types/user";
 import { Book } from "@/types/book";
+import { sendFriendRequest } from "@/services/userService";
 
 const SearchPage: React.FC = () => {
   const [query, setQuery] = useState<string>("");
@@ -14,8 +15,9 @@ const SearchPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [debouncedQuery, setDebouncedQuery] = useState<string>("");
+  const [message, setMessage] = useState<string | null>(null);
+  const [messageType, setMessageType] = useState<"success" | "error" | null>(null);
 
-  // Gestion du délai de debounce
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedQuery(query);
@@ -24,7 +26,6 @@ const SearchPage: React.FC = () => {
     return () => clearTimeout(timer);
   }, [query]);
 
-  // Récupérer les résultats dès que la recherche est effectuée
   useEffect(() => {
     if (debouncedQuery.length >= 2) {
       fetchResults(debouncedQuery);
@@ -34,13 +35,11 @@ const SearchPage: React.FC = () => {
     }
   }, [debouncedQuery]);
 
-  // Fonction pour récupérer les résultats (utilisateurs et livres)
   const fetchResults = async (searchValue: string) => {
     setLoading(true);
     setError(null);
 
     try {
-      // Recherche des utilisateurs
       const userResponse = await searchUsers();
       const usersData = userResponse.data?.users || [];
       setUsers(
@@ -52,7 +51,6 @@ const SearchPage: React.FC = () => {
         )
       );
 
-      // Recherche des livres
       const allBooksResponse = await searchBooks();
       const allBooks = allBooksResponse.data || [];
       setBooks(
@@ -71,42 +69,30 @@ const SearchPage: React.FC = () => {
     }
   };
 
-  // Fonction de rendu du profil utilisateur
-  const renderUserProfile = (profile: UserProfile) => {
-    if (profile.profileVisibility === "private") {
-      return <p>Ce profil est privé.</p>;
+  const handleSendFriendRequest = async (userId: string) => {
+    console.log("Envoi de la demande d'ami pour l'ID utilisateur:", userId);
+    try {
+      await sendFriendRequest(userId);
+      console.log("Demande d'ami envoyée avec succès.");
+      setMessage("Demande d'ami envoyée avec succès.");
+      setMessageType("success");
+    } catch (error) {
+      console.error("Erreur lors de l'envoi de la demande d'ami:", error);
+      setMessage("Vous avez déjà envoyé une demande d'ami à cet utilisateur.");
+      setMessageType("error");
     }
-
-    return (
-      <>
-        <p>Nom complet: {profile.fullName}</p>
-        <p>Bio: {profile.bio}</p>
-        <p>Lieu: {profile.location}</p>
-        {profile.profilePicturePath && (
-          <img
-            src={profile.profilePicturePath}
-            alt="Profile Picture"
-            className="w-10 h-10 rounded-full"
-          />
-        )}
-        <p>Rôle: {profile.role}</p>
-      </>
-    );
   };
 
   return (
     <div className="relative flex flex-col gap-6 px-4">
-      {/* Barre de recherche */}
       <div className="flex gap-4 relative">
         <Input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Rechercher un utilisateur, un livre par nom , autheur ou genre"
+          placeholder="Rechercher un utilisateur, un livre par nom, auteur ou genre"
         />
       </div>
-
-      {/* Message d'erreur */}
       {error && <p className="text-error text-center">{error}</p>}
 
       {loading ? (
@@ -118,20 +104,48 @@ const SearchPage: React.FC = () => {
         </div>
       ) : (
         <div className="flex flex-col gap-y-6">
-          {/* Affichage des utilisateurs uniquement si la recherche concerne des utilisateurs */}
           {users.length > 0 && books.length === 0 ? (
             <div className="flex flex-col gap-4">
               <h2 className="font-bold">Utilisateurs trouvés:</h2>
-              {users.map((user) => (
-                <div key={user.id} className="flex flex-col gap-2 p-4 border rounded-md">
-                  <h3 className="font-semibold">{user.username}</h3>
-                  {renderUserProfile(user.profile)}
-                </div>
-              ))}
+              {users.map((user) => {
+                console.log("Utilisateur affiché:", user);
+                return (
+                  <div key={user.id} className="flex flex-row gap-6 p-4 border rounded-md items-center">
+                    {user.profile?.profilePicturePath && (
+                      <img
+                        src={user.profile.profilePicturePath}
+                        alt="Profile Picture"
+                        className="w-16 h-16 rounded-full object-cover"
+                      />
+                    )}
+                    <div className="flex flex-col">
+                    <h3 className="font-semibold">{user.username}</h3>
+                    {user.profile?.fullName && <p>{user.profile.fullName}</p>}
+                    </div>
+                    {/* Bouton pour envoyer une demande d'ami */}
+                    <button
+                      onClick={() => handleSendFriendRequest(user.id)}
+                      className="mt-4 py-2 px-4 w-40 bg-blue-500 text-white rounded hover:bg-blue-700"
+                    >
+                      Envoyer une demande d'ami
+                    </button>
+
+                    {/* Message de statut (succès/erreur) */}
+                    {message && (
+                      <p
+                        className={`mt-2 ${
+                          messageType === "success" ? "text-green-500" : "text-red-500"
+                        }`}
+                      >
+                        {message}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           ) : null}
 
-          {/* Affichage des livres uniquement si la recherche concerne des livres */}
           {books.length > 0 && users.length === 0 ? (
             <div className="flex flex-col gap-4">
               <h2 className="font-bold">Livres trouvés:</h2>
@@ -145,15 +159,14 @@ const SearchPage: React.FC = () => {
                     />
                   )}
                   <h3 className="font-semibold">{book.title}</h3>
-                  <p>Auteur: {book.author}</p>
-                  <p>Genre: {book.genre}</p>
-                  <p>Année de publication: {book.publicationYear}</p>
+                  <p>{book.author}</p>
+                  <p>{book.genre}</p>
+                  <p>{book.publicationYear}</p>
                 </div>
               ))}
             </div>
           ) : null}
 
-          {/* Affichage du message "Aucun livre trouvé" ou "Aucun utilisateur trouvé" */}
           {users.length === 0 && books.length === 0 && query && (
             <p>Aucun résultat trouvé pour "{query}".</p>
           )}

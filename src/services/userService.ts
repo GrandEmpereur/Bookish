@@ -5,7 +5,7 @@ import { ProfileSchema } from "@/schemas/profileSchema";
 
 export const getCurrentUser = async (): Promise<UserResponse> => {
     try {
-        const response = await apiClient.get<UserResponse>('/users/profile');
+        const response = await apiClient.get<UserResponse>('/users/me');
         return response.data;
     } catch (error) {
         handleApiError(error);
@@ -34,4 +34,15 @@ export const updateProfile = async (data: ProfileSchema) => {
 export const deleteUser = async () => {
     const response = await axios.delete("/api/profile");
     return response.data;
+};
+
+
+export const sendFriendRequest = async (userId: string): Promise<void> => {
+  try {
+    const response = await apiClient.post(`/users/friend-request/${userId}`);
+    console.log('Demande d\'ami envoyée avec succès:', response.data);
+  } catch (error) {
+    handleApiError(error);
+    console.error('Erreur lors de l\'envoi de la demande d\'ami:', error);
+  }
 };
