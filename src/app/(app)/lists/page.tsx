@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/services/userService";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getLists } from "@/services/listsService";
+import Link from "next/link";
 
 const ListsPage = () => {
   const [communities, setCommunities] = useState<[]>([]);
@@ -17,7 +18,6 @@ const ListsPage = () => {
     description: "",
   });
   const [showDialog, setShowDialog] = useState(false);
-  // const [user, setUser] = useState<User | null>(null);
   const [filter, setFilter] = useState<"all" | "my">("all");
 
   const [user, setUser] = useState<any | null>(null);
@@ -81,11 +81,6 @@ const ListsPage = () => {
     return (
       <div className="flex flex-col items-center justify-center h-[50vh] text-center bg-gray-50">
         <div>
-          {/* <img
-        src="/img/illustrations/books_list.jpg"
-        alt="No books illustration"
-        className="w-40 h-40 mx-auto mb-6"
-      /> */}
           <h2 className="text-2xl font-semibold text-gray-700 mb-2">
             Votre bibliothèque est vide
           </h2>
@@ -118,25 +113,26 @@ const ListsPage = () => {
             key={list.id}
             className="flex flex-col gap-2 p-4 shadow-md rounded-xl"
           >
-            <p></p>
-            <img
-              src="/img/illustrations/books_list_cat.jpg"
-              className="bg-red-400 rounded-md  object-cover max-h-40 "
-            />
-            <div>
-              <h3>{list.name}</h3>
-              <div className="flex justify-between ">
-                <div className="flex gap-1 items-center">
-                  <Book className="w-3 h-3 text-gray-400" />
-                  <p className="text-xs text-gray-400">{list.books.length}</p>
+            <Link href={`/lists/${list.id}`}>
+              <img
+                src="/img/illustrations/books_list_cat.jpg"
+                className="bg-red-400 rounded-md  object-cover w-full max-h-40 "
+              />
+              <div>
+                <h3>{list.name}</h3>
+                <div className="flex justify-between ">
+                  <div className="flex gap-1 items-center">
+                    <Book className="w-3 h-3 text-gray-400" />
+                    <p className="text-xs text-gray-400">{list.books.length}</p>
+                  </div>
+                  {list.visibility === "public" ? (
+                    <Eye className="w-3 h-3 text-gray-400" />
+                  ) : (
+                    <Lock className="w-3 h-3 text-gray-400" />
+                  )}
                 </div>
-                {list.visibility === "public" ? (
-                  <Eye className="w-3 h-3 text-gray-400" />
-                ) : (
-                  <Lock className="w-3 h-3 text-gray-400" />
-                )}
               </div>
-            </div>
+            </Link>
           </div>
         ))}
       </div>

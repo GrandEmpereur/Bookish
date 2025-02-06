@@ -90,13 +90,23 @@
         ]
     },
     "/lists/": {
+        "showBackButton": false,
+        "title": {
+            "text": "Bibliothèques",
+            "icon": ""
+        },
+        "rightIcons": [
+            "plus"
+        ]
+    },
+    "/lists/[id]": {
         "showBackButton": true,
         "title": {
             "text": "Bibliothèque",
             "icon": ""
         },
         "rightIcons": [
-            "plus"
+            "pencil"
         ]
     },
     "/feed/": {

@@ -10,10 +10,13 @@ import {
   Settings,
   QrCode,
   Search,
-  Plus
+  Plus,
+  Pencil,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import topBarConfig from "@lib/data/topBarConfig.json";
+import { useState, useEffect } from "react";
+import { getListById } from "@/services/listsService"; // Assurez-vous que cette fonction existe pour récupérer les informations
 
 interface TitleConfig {
   text: string;
@@ -32,6 +35,11 @@ const normalizePath = (path: string): string => {
   if (feedCommentsRegex.test(path)) {
     return "/feed/[id]/comments";
   }
+  const listsIdRegex = /^\/lists\/[^\/]+\/?$/;
+
+  if (listsIdRegex.test(path)) {
+    return "/lists/[id]";
+  }
   return path;
 };
 
@@ -39,8 +47,40 @@ const TopBar: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
 
+  const [listName, setListName] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+
   // Normaliser le chemin de la route
   const normalizedPath = normalizePath(pathname);
+
+  // Vérifier si on est sur une page de type /lists/[id]
+  const isListPage = normalizedPath === "/lists/[id]";
+
+  // Si on est sur une page /lists/[id], on charge le nom de la bibliothèque depuis l'API
+  useEffect(() => {
+    if (isListPage) {
+      const listId = pathname.split("/")[2]; // Extraction de l'ID de la liste depuis l'URL
+
+      if (listId) {
+        setLoading(true);
+        setListName(null); // Réinitialiser le nom de la liste pendant le chargement
+
+        getListById(listId)
+          .then((response) => {
+            setListName(response.data.name); // Mettre à jour avec le nom de la bibliothèque
+          })
+          .catch((error) => {
+            console.error(
+              "Erreur lors de la récupération de la liste :",
+              error
+            );
+          })
+          .finally(() => {
+            setLoading(false);
+          });
+      }
+    }
+  }, [pathname]);
 
   // Charger la configuration pour la route actuelle ou utiliser une configuration par défaut
   const config: TopBarConfig = topBarConfig[
@@ -50,6 +90,11 @@ const TopBar: React.FC = () => {
     title: { text: "", icon: "" },
     rightIcons: [],
   };
+
+  // Si on est sur une page de liste, modifier le titre
+  if (isListPage) {
+    config.title.text = loading ? "Chargement..." : listName || "Bibliothèque";
+  }
 
   // Mapper les icônes aux composants JSX
   const iconMap: { [key: string]: JSX.Element } = {
@@ -82,9 +127,16 @@ const TopBar: React.FC = () => {
       </Link>
     ),
     plus: (
-      <Link href="/search" key="search">
+      <Link href="/search" key="plus">
         <Button size="icon" variant="icon">
           <Plus size={20} stroke="#2f5046" />
+        </Button>
+      </Link>
+    ),
+    pencil: (
+      <Link href="/search" key="pencil">
+        <Button size="icon" variant="icon">
+          <Pencil size={20} stroke="#2f5046" />
         </Button>
       </Link>
     ),
