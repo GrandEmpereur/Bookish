@@ -8,232 +8,159 @@ import { User } from "@/types/user";
 import { Book } from "@/types/book";
 
 const SearchPage: React.FC = () => {
-    const [query, setQuery] = useState<string>("");
-    const [user, setUser] = useState<User | null>(null);
-    const [books, setBooks] = useState<Book[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
-    const [loginError, setLoginError] = useState<string | null>(null);
-    const [suggestions, setSuggestions] = useState<string[]>([]);
-    const [debouncedQuery, setDebouncedQuery] = useState<string>("");
+  const [query, setQuery] = useState<string>("");
+  const [users, setUsers] = useState<User[]>([]);
+  const [books, setBooks] = useState<Book[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [debouncedQuery, setDebouncedQuery] = useState<string>("");
 
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedQuery(query);
-        }, 500);
+  // Gestion du délai de debounce
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 500);
 
-        return () => clearTimeout(timer);
-    }, [query]);
+    return () => clearTimeout(timer);
+  }, [query]);
 
-    useEffect(() => {
-        if (debouncedQuery.length >= 2) {
-            fetchResults(debouncedQuery);
-            addSuggestion(debouncedQuery);
-        } else if (debouncedQuery === "") {
-            setUser(null);
-            setBooks([]);
-        }
-    }, [debouncedQuery]);
+  // Récupérer les résultats dès que la recherche est effectuée
+  useEffect(() => {
+    if (debouncedQuery.length >= 2) {
+      fetchResults(debouncedQuery);
+    } else if (debouncedQuery === "") {
+      setUsers([]);
+      setBooks([]);
+    }
+  }, [debouncedQuery]);
 
-    const fetchResults = async (searchValue: string) => {
-        if (searchValue.length < 2) {
-            setUser(null);
-            setBooks([]);
-            return;
-        }
+  // Fonction pour récupérer les résultats (utilisateurs et livres)
+  const fetchResults = async (searchValue: string) => {
+    setLoading(true);
+    setError(null);
 
-        setLoading(true);
-        setLoginError(null);
+    try {
+      // Recherche des utilisateurs
+      const userResponse = await searchUsers();
+      const usersData = userResponse.data?.users || [];
+      setUsers(
+        usersData.filter(
+          (user) =>
+            user.username.toLowerCase().includes(searchValue.toLowerCase()) ||
+            user.profile?.fullName?.toLowerCase().includes(searchValue.toLowerCase()) ||
+            user.profile?.bio?.toLowerCase().includes(searchValue.toLowerCase())
+        )
+      );
 
-        try {
-            const users = await searchUsers(searchValue);
-            const foundUser = users.find((user) =>
-                user.username.toLowerCase().includes(searchValue.toLowerCase()) ||
-                user.email.toLowerCase().includes(searchValue.toLowerCase())
-            );
+      // Recherche des livres
+      const allBooksResponse = await searchBooks();
+      const allBooks = allBooksResponse.data || [];
+      setBooks(
+        allBooks.filter(
+          (book: any) =>
+            book.title.toLowerCase().includes(searchValue.toLowerCase()) ||
+            book.author.toLowerCase().includes(searchValue.toLowerCase()) ||
+            book.genre.toLowerCase().includes(searchValue.toLowerCase())
+        )
+      );
+    } catch (error) {
+      console.error("Erreur lors de la recherche:", error);
+      setError("Une erreur est survenue lors de la recherche.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            if (foundUser) {
-                setUser(foundUser);
-                console.log("Utilisateur trouvé:", foundUser);
-
-                if (foundUser.role === "AUTHOR") {
-                    try {
-                        const allBooks = await searchBooks();
-                        console.log("Livres récupérés:", allBooks);
-
-                        const filteredBooks = allBooks.filter((book) => {
-                            return normalizeName(book.author) === normalizeName(foundUser.username);
-                        });
-
-                        console.log("Livres filtrés:", filteredBooks);
-                        setBooks(filteredBooks);
-                    } catch (error) {
-                        console.error("Erreur lors de la récupération ou du filtrage des livres:", error);
-                        setLoginError("Une erreur est survenue lors de la récupération des livres.");
-                    }
-                }
-            } else {
-                try {
-                    const allBooks = await searchBooks();
-
-                    const filteredBooks = allBooks.filter((book) => {
-                        const matchesTitle = book.title.toLowerCase().includes(searchValue.toLowerCase());
-                        const matchesGenre = book.genre.toLowerCase().includes(searchValue.toLowerCase());
-
-                        return matchesTitle || matchesGenre;
-                    });
-
-                    console.log("Livres filtrés par titre/genre:", filteredBooks);
-                    setBooks(filteredBooks);
-                } catch (error) {
-                    console.error("Erreur lors de la recherche de livres par titre ou genre:", error);
-                    setLoginError("Une erreur est survenue lors de la recherche de livres.");
-                }
-            }
-        } catch (error) {
-            setLoginError("Une erreur est survenue lors de la recherche.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const normalizeName = (name: string) => {
-        return name.trim().replace(/\s+/g, '').toLowerCase();
-    };
-
-    // Ajouter une suggestion uniquement si elle est unique
-    const addSuggestion = (searchValue: string) => {
-        setSuggestions((prevSuggestions) => {
-            if (!prevSuggestions.includes(searchValue)) {
-                return [...prevSuggestions, searchValue];
-            }
-            return prevSuggestions;
-        });
-    };
-
-    const removeSuggestion = (suggestionToRemove: string) => {
-        setSuggestions((prevSuggestions) => {
-            return prevSuggestions.filter((suggestion) => suggestion !== suggestionToRemove);
-        });
-    };
-
-    const clearSuggestions = () => {
-        setSuggestions([]);
-    };
+  // Fonction de rendu du profil utilisateur
+  const renderUserProfile = (profile: UserProfile) => {
+    if (profile.profileVisibility === "private") {
+      return <p>Ce profil est privé.</p>;
+    }
 
     return (
-        <div className="relative flex flex-col gap-6 px-4">
-            {/* Barre de recherche unique */}
-            <div className="flex gap-4 relative">
-                <Input
-                    type="text"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Rechercher par utilisateur, titre ou genre..."
-                />
-                {suggestions.length > 0 && (
-                    <button
-                        onClick={clearSuggestions}
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
-                    >
-                        <span>&#10005;</span> {}
-                    </button>
-                )}
-            </div>
-            {loginError && <p className="text-error text-center">{loginError}</p>}
-            {/* Suggestions */}
-            {suggestions.length > 0 && query !== "" && (
-                <div className="mt-6">
-                    <h3 className="font-semibold">Suggestions :</h3>
-                    <ul>
-                        {suggestions.map((suggestion, index) => (
-                            <li key={index} className="py-2 flex justify-between items-center">
-                                <span>{suggestion}</span>
-                                <button
-                                    onClick={() => removeSuggestion(suggestion)}
-                                    className="text-red-500 ml-2"
-                                >
-                                    &#10005; {/* Croissant pour supprimer */}
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            )}
-
-            {loading ? (
-                <div className="flex flex-col gap-6">
-                    <Skeleton className="w-full h-10 mb-4 rounded" />
-                    <Skeleton className="w-full h-6 mb-2 rounded" />
-                    <Skeleton className="w-full h-40 mb-4 rounded" />
-                    <Skeleton className="w-full h-10 mb-4 rounded" />
-                </div>
-            ) : (
-                <div className="flex flex-col gap-y-6">
-                    {/* Affichage des résultats */}
-                    {user ? (
-                        <div key={user.id} className="flex flex-col gap-4 p-4 border rounded-md">
-                            <div className="flex items-center">
-                                <h2 className="font-bold">{user.username}</h2>
-                                {user.profilePicture && (
-                                    <img
-                                        src={user.profilePicture}
-                                        alt={user.username}
-                                        className="w-10 h-10 rounded-full ml-4"
-                                    />
-                                )}
-                            </div>
-                            {user.firstName && user.lastName && (
-                                <p>{user.firstName} {user.lastName}</p>
-                            )}
-                            {user.role === "AUTHOR" && (
-                                <div className="mt-4">
-                                    <h3 className="font-semibold">Livres associés:</h3>
-                                    {books.length > 0 ? (
-                                        books.map((book) => (
-                                            <div key={book.id} className="flex flex-col gap-2 p-4 border rounded-md mt-4">
-                                                {book.coverImage && (
-                                                    <img
-                                                        src={book.coverImage}
-                                                        alt={book.title}
-                                                        className="w-32 h-48 object-cover"
-                                                    />
-                                                )}
-                                                <h4 className="font-bold">{book.title}</h4>
-                                                <p>{book.genre} - {book.publicationYear}</p>
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <p>Aucun livre trouvé pour cet auteur.</p>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    ) : (
-                        query && books.length > 0 ? (
-                            <div>
-                                <h3 className="font-semibold">Livres trouvés:</h3>
-                                {books.map((book) => (
-                                    <div key={book.id} className="flex flex-col gap-2 p-4 border rounded-md mt-4">
-                                        {book.coverImage && (
-                                            <img
-                                                src={book.coverImage}
-                                                alt={book.title}
-                                                className="w-32 h-48 object-cover"
-                                            />
-                                        )}
-                                        <h4 className="font-bold">{book.title}</h4>
-                                        <p>{book.genre} - {book.publicationYear}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            query && !loading && <p>Aucun résultat trouvé pour "{query}".</p>
-                        )
-                    )}
-                </div>
-            )}
-        </div>
+      <>
+        <p>Nom complet: {profile.fullName}</p>
+        <p>Bio: {profile.bio}</p>
+        <p>Lieu: {profile.location}</p>
+        {profile.profilePicturePath && (
+          <img
+            src={profile.profilePicturePath}
+            alt="Profile Picture"
+            className="w-10 h-10 rounded-full"
+          />
+        )}
+        <p>Rôle: {profile.role}</p>
+      </>
     );
+  };
+
+  return (
+    <div className="relative flex flex-col gap-6 px-4">
+      {/* Barre de recherche */}
+      <div className="flex gap-4 relative">
+        <Input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Rechercher un utilisateur, un livre par nom , autheur ou genre"
+        />
+      </div>
+
+      {/* Message d'erreur */}
+      {error && <p className="text-error text-center">{error}</p>}
+
+      {loading ? (
+        <div className="flex flex-col gap-6">
+          <Skeleton className="w-full h-10 mb-4 rounded" />
+          <Skeleton className="w-full h-6 mb-2 rounded" />
+          <Skeleton className="w-full h-40 mb-4 rounded" />
+          <Skeleton className="w-full h-10 mb-4 rounded" />
+        </div>
+      ) : (
+        <div className="flex flex-col gap-y-6">
+          {/* Affichage des utilisateurs uniquement si la recherche concerne des utilisateurs */}
+          {users.length > 0 && books.length === 0 ? (
+            <div className="flex flex-col gap-4">
+              <h2 className="font-bold">Utilisateurs trouvés:</h2>
+              {users.map((user) => (
+                <div key={user.id} className="flex flex-col gap-2 p-4 border rounded-md">
+                  <h3 className="font-semibold">{user.username}</h3>
+                  {renderUserProfile(user.profile)}
+                </div>
+              ))}
+            </div>
+          ) : null}
+
+          {/* Affichage des livres uniquement si la recherche concerne des livres */}
+          {books.length > 0 && users.length === 0 ? (
+            <div className="flex flex-col gap-4">
+              <h2 className="font-bold">Livres trouvés:</h2>
+              {books.map((book) => (
+                <div key={book.id} className="flex flex-col gap-2 p-4 border rounded-md">
+                  {book.coverImage && (
+                    <img
+                      src={book.coverImage}
+                      alt={book.title}
+                      className="w-32 h-48 object-cover"
+                    />
+                  )}
+                  <h3 className="font-semibold">{book.title}</h3>
+                  <p>Auteur: {book.author}</p>
+                  <p>Genre: {book.genre}</p>
+                  <p>Année de publication: {book.publicationYear}</p>
+                </div>
+              ))}
+            </div>
+          ) : null}
+
+          {/* Affichage du message "Aucun livre trouvé" ou "Aucun utilisateur trouvé" */}
+          {users.length === 0 && books.length === 0 && query && (
+            <p>Aucun résultat trouvé pour "{query}".</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default SearchPage;
