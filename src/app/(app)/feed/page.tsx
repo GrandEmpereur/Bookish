@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { postService } from "@/services/post.service";
 import { Heart, MessageCircle, Bookmark, Share2, Loader2 } from "lucide-react";
@@ -15,7 +15,28 @@ import { favoriteService } from "@/services/favorite.service";
 import { cn } from "@/lib/utils";
 import { FloatingActionButton } from "@/components/ui/floating-action-button";
 import { useRouter } from "next/navigation";
-import { Post } from "@/types/post";
+import { Post } from "@/types/postTypes";
+
+// Fonction utilitaire pour gérer les mises à jour optimistes
+const handleOptimisticUpdate = (
+    id: string,
+    currentSet: Set<string>,
+    setterFn: (value: Set<string>) => void,
+    storageKey: string
+) => {
+    const isCurrentlyActive = currentSet.has(id);
+    const newSet = new Set(currentSet);
+
+    if (isCurrentlyActive) {
+        newSet.delete(id);
+    } else {
+        newSet.add(id);
+    }
+
+    setterFn(newSet);
+    sessionStorage.setItem(storageKey, JSON.stringify([...newSet]));
+    return { isCurrentlyActive, newSet };
+};
 
 export default function Feed() {
     const [posts, setPosts] = useState<Post[]>([]);
@@ -25,26 +46,30 @@ export default function Feed() {
     const { toast } = useToast();
     const router = useRouter();
 
+    // Charger les données initiales
     useEffect(() => {
         loadPosts();
-        // Charger les états depuis le sessionStorage
-        const savedLikes = sessionStorage.getItem('likedPosts');
-        const savedBookmarks = sessionStorage.getItem('bookmarkedPosts');
-
-        if (savedLikes) setLikedPosts(new Set(JSON.parse(savedLikes)));
-        if (savedBookmarks) setBookmarkedPosts(new Set(JSON.parse(savedBookmarks)));
+        ['likedPosts', 'bookmarkedPosts'].forEach(key => {
+            const saved = sessionStorage.getItem(key);
+            if (saved) {
+                const setter = key === 'likedPosts' ? setLikedPosts : setBookmarkedPosts;
+                setter(new Set(JSON.parse(saved)));
+            }
+        });
     }, []);
 
     const loadPosts = async () => {
         try {
             setIsLoading(true);
             const response = await postService.getPosts();
+            
             // Trier les posts par date de création (du plus récent au plus ancien)
             const sortedPosts = response.data.sort((a, b) => 
                 new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
             );
+            
             setPosts(sortedPosts);
-        } catch (error: any) {
+        } catch {
             toast({
                 variant: "destructive",
                 title: "Erreur",
@@ -56,76 +81,70 @@ export default function Feed() {
         }
     };
 
-    const handleLike = async (postId: string) => {
+    const handleLike = useCallback(async (postId: string) => {
         try {
-            const response = await likeService.togglePostLike({ postId });
+            const { isCurrentlyActive, newSet } = handleOptimisticUpdate(
+                postId,
+                likedPosts,
+                setLikedPosts,
+                'likedPosts'
+            );
 
-            if (response.status === 'success') {
-                const isLiked = response.message === 'Post liked successfully';
-                const newLikedPosts = new Set(likedPosts);
+            setPosts(posts => posts.map(post =>
+                post.id === postId
+                    ? { ...post, likesCount: post.likesCount + (isCurrentlyActive ? -1 : 1) }
+                    : post
+            ));
 
-                if (isLiked) {
-                    newLikedPosts.add(postId);
-                    setPosts(currentPosts =>
-                        currentPosts.map(post =>
-                            post.id === postId
-                                ? { ...post, likesCount: post.likesCount + 1 }
-                                : post
-                        )
-                    );
-                } else {
-                    newLikedPosts.delete(postId);
-                    setPosts(currentPosts =>
-                        currentPosts.map(post =>
-                            post.id === postId
-                                ? { ...post, likesCount: post.likesCount - 1 }
-                                : post
-                        )
-                    );
-                }
+            const response = await likeService.togglePostLike(postId);
 
-                setLikedPosts(newLikedPosts);
-                sessionStorage.setItem('likedPosts', JSON.stringify([...newLikedPosts]));
+            if (response.status !== 'success') {
+                setLikedPosts(likedPosts);
+                sessionStorage.setItem('likedPosts', JSON.stringify([...likedPosts]));
+                setPosts(posts => posts.map(post =>
+                    post.id === postId
+                        ? { ...post, likesCount: response.data.likesCount }
+                        : post
+                ));
+                throw new Error('Erreur lors du like');
             }
         } catch (error) {
-            console.error('Like error:', error);
             toast({
                 variant: "destructive",
                 title: "Erreur",
                 description: "Impossible de mettre à jour le like"
             });
         }
-    };
+    }, [likedPosts, toast]);
 
     const handleComment = (postId: string) => {
         router.push(`/feed/${postId}/`);
     };
 
-    const handleBookmark = async (postId: string) => {
+    const handleBookmark = useCallback(async (postId: string) => {
         try {
-            const response = await favoriteService.toggleFavorite({ postId });
+            const { isCurrentlyActive, newSet } = handleOptimisticUpdate(
+                postId,
+                bookmarkedPosts,
+                setBookmarkedPosts,
+                'bookmarkedPosts'
+            );
 
-            if (response.status === 'success') {
-                const newBookmarkedPosts = new Set(bookmarkedPosts);
+            const response = await favoriteService.toggleFavorite(postId);
 
-                if (newBookmarkedPosts.has(postId)) {
-                    newBookmarkedPosts.delete(postId);
-                } else {
-                    newBookmarkedPosts.add(postId);
-                }
-
-                setBookmarkedPosts(newBookmarkedPosts);
-                sessionStorage.setItem('bookmarkedPosts', JSON.stringify([...newBookmarkedPosts]));
+            if (response.status !== 'success') {
+                setBookmarkedPosts(bookmarkedPosts);
+                sessionStorage.setItem('bookmarkedPosts', JSON.stringify([...bookmarkedPosts]));
+                throw new Error('Erreur lors de la mise à jour du favori');
             }
         } catch (error) {
-            console.error('Bookmark error:', error);
             toast({
                 variant: "destructive",
                 title: "Erreur",
                 description: "Impossible de mettre à jour le favori"
             });
         }
-    };
+    }, [bookmarkedPosts, toast]);
 
     const handleShare = async (post: Post) => {
         try {
@@ -140,12 +159,11 @@ export default function Feed() {
             };
 
             await Share.share(shareOptions);
-        } catch (error) {
-            console.error('Share error:', error);
-            toast({
-                title: "Erreur",
-                description: "Impossible de partager ce post"
-            });
+        } catch (error: any) {
+            // Ne rien faire si l'utilisateur annule le partage
+            if (error.message !== 'Share canceled') {
+                console.error('Share error:', error);
+            }
         }
     };
 
@@ -170,13 +188,13 @@ export default function Feed() {
                                 <div className="flex gap-3">
                                     <Avatar>
                                         <AvatarFallback>
-                                            {post.user.username.charAt(0).toUpperCase()}
+                                            {post.user?.username.charAt(0).toUpperCase()}
                                         </AvatarFallback>
                                     </Avatar>
                                     <div className="flex-1">
                                         <div className="flex items-center justify-between">
                                             <span className="font-medium">
-                                                {post.user.username}
+                                                {post.user?.username}
                                             </span>
                                             <span className="text-sm text-muted-foreground">
                                                 {formatDistanceToNow(new Date(post.createdAt), {

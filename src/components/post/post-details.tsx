@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { postService } from "@/services/post.service";
-import { ApiResponse } from "@/types/api";
-import { Post } from "@/types/post";
+import { Post } from "@/types/postTypes";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Loader2 } from "lucide-react";
 import { CommentsSection } from "@/components/comments/comments-section";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { GetPostResponse } from '@/types/postTypes';
 
 interface PostDetailsProps {
     postId: string;
@@ -57,20 +57,20 @@ export function PostDetails({ postId }: PostDetailsProps) {
     }
 
     return (
-        <div className="flex-1 px-5 pb-[20px] pt-[100px]">
+        <div className="flex-1 px-5 pb-[120px] pt-[100px]">
             <div className="max-w-md mx-auto">
                 <article className=" p-4">
                     {/* En-tête du post avec avatar et infos utilisateur */}
                     <div className="flex gap-3 mb-4">
                         <Avatar>
                             <AvatarFallback>
-                                {post.user.username.charAt(0).toUpperCase()}
+                                {post.user?.username.charAt(1).toUpperCase()}
                             </AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
                             <div className="flex items-center justify-between">
                                 <span className="font-medium">
-                                    {post.user.username}
+                                    {post.user?.username}
                                 </span>
                                 <span className="text-sm text-muted-foreground">
                                     {formatDistanceToNow(new Date(post.createdAt), {

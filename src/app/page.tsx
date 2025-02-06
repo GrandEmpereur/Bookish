@@ -33,8 +33,7 @@ const App: React.FC = () => {
 
     const initializeApp = async () => {
       try {
-        const response = await userService.getProfile();
-
+        const response = await userService.getAuthenticatedProfile();
         if (response.data) {
           router.replace('/feed');
           return;

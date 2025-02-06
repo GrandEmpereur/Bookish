@@ -4,18 +4,26 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { useRouter } from 'next/navigation';
 import { authService } from "@/services/auth.service";
 import { userService } from "@/services/user.service";
-import type { User } from "@/types/user";
-import type { LoginInput, RegisterInput } from "@/lib/validations/auth";
+import type { UserProfile as User } from "@/types/userTypes";
+import type { LoginRequest, RegisterRequest, VerifyEmailRequest, ResendVerificationRequest, RegisterStepOneRequest, RegisterStepTwoRequest, RegisterStepThreeRequest, ForgotPasswordRequest, VerifyResetCodeRequest, ResetPasswordRequest } from "@/types/authTypes";
 import { useToast } from "@/hooks/use-toast";
 
 interface AuthContextType {
     user: User | null;
     isLoading: boolean;
     isAuthenticated: boolean;
-    login: (data: LoginInput) => Promise<void>;
-    register: (data: RegisterInput) => Promise<void>;
+    login: (data: LoginRequest) => Promise<void>;
+    register: (data: RegisterRequest) => Promise<void>;
     logout: () => Promise<void>;
     refreshUser: () => Promise<void>;
+    verifyEmail: (data: VerifyEmailRequest) => Promise<void>;
+    resendVerification: (data: ResendVerificationRequest) => Promise<void>;
+    completeStepOne: (data: RegisterStepOneRequest) => Promise<void>;
+    completeStepTwo: (data: RegisterStepTwoRequest) => Promise<void>;
+    completeStepThree: (data: RegisterStepThreeRequest) => Promise<void>;
+    requestPasswordReset: (data: ForgotPasswordRequest) => Promise<void>;
+    verifyResetCode: (data: VerifyResetCodeRequest) => Promise<void>;
+    resetPassword: (data: ResetPasswordRequest) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,7 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         const initAuth = async () => {
             try {
-                const response = await userService.getProfile();
+                const response = await userService.getAuthenticatedProfile();
                 setUser(response.data);
             } catch (error: any) {
                 // Si l'erreur est 401, c'est normal - l'utilisateur n'est pas connecté
@@ -47,7 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         initAuth();
     }, []);
 
-    const login = async (data: LoginInput) => {
+    const login = async (data: LoginRequest) => {
         try {
             setIsLoading(true);
             await authService.login(data);
@@ -55,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             // Attendre un peu pour s'assurer que les cookies sont bien définis
             await new Promise(resolve => setTimeout(resolve, 100));
             
-            const userResponse = await userService.getProfile();
+            const userResponse = await userService.getAuthenticatedProfile();
             setUser(userResponse.data);
             
             toast({
@@ -76,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     };
 
-    const register = async (data: RegisterInput) => {
+    const register = async (data: RegisterRequest) => {
         try {
             await authService.register(data);
             toast({
@@ -117,13 +125,121 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const refreshUser = async () => {
         try {
-            const response = await userService.getProfile();
+            const response = await userService.getAuthenticatedProfile();
             setUser(response.data);
         } catch (error: any) {
             if (error.status === 401) {
                 setUser(null);
                 router.replace('/auth/login');
             }
+        }
+    };
+
+    const verifyEmail = async (data: VerifyEmailRequest) => {
+        try {
+            await authService.verifyEmail(data);
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: "Erreur de vérification",
+                description: error.message || "Une erreur est survenue lors de la vérification"
+            });
+            throw error;
+        }
+    };
+
+    const resendVerification = async (data: ResendVerificationRequest) => {
+        try {
+            await authService.resendVerification(data);
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: "Erreur",
+                description: error.message || "Une erreur est survenue lors du renvoi du code"
+            });
+            throw error;
+        }
+    };
+
+    const completeStepOne = async (data: RegisterStepOneRequest) => {
+        try {
+            await authService.completeStep1(data);
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: "Erreur",
+                description: error.message || "Une erreur est survenue lors de la sélection"
+            });
+            throw error;
+        }
+    };
+
+    const completeStepTwo = async (data: RegisterStepTwoRequest) => {
+        try {
+            await authService.completeStep2(data);
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: "Erreur",
+                description: error.message || "Une erreur est survenue lors de la sélection"
+            });
+            throw error;
+        }
+    };
+
+    const completeStepThree = async (data: RegisterStepThreeRequest) => {
+        try {
+            await authService.completeStep3(data);
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: "Erreur",
+                description: error.message || "Une erreur est survenue lors de la sélection"
+            });
+            throw error;
+        }
+    };
+
+    const requestPasswordReset = async (data: ForgotPasswordRequest) => {
+        try {
+            await authService.requestPasswordReset(data);
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: "Erreur",
+                description: error.message || "Une erreur est survenue"
+            });
+            throw error;
+        }
+    };
+
+    const verifyResetCode = async (data: VerifyResetCodeRequest) => {
+        try {
+            await authService.verifyResetCode(data);
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: "Erreur",
+                description: error.message || "Code invalide"
+            });
+            throw error;
+        }
+    };
+
+    const resetPassword = async (data: ResetPasswordRequest) => {
+        try {
+            await authService.resetPassword(data);
+            toast({
+                title: "Succès",
+                description: "Votre mot de passe a été réinitialisé"
+            });
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: "Erreur",
+                description: error.message || "Une erreur est survenue"
+            });
+            throw error;
         }
     };
 
@@ -137,6 +253,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 register,
                 logout,
                 refreshUser,
+                verifyEmail,
+                resendVerification,
+                completeStepOne,
+                completeStepTwo,
+                completeStepThree,
+                requestPasswordReset,
+                verifyResetCode,
+                resetPassword,
             }}
         >
             {children}

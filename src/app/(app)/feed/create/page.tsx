@@ -12,8 +12,8 @@ import { postService } from "@/services/post.service";
 import Image from 'next/image';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createPostSchema } from "@/lib/validations/post";
-import type { CreatePostInput } from "@/lib/validations/post";
+import { createPostSchema, POST_SUBJECTS, PostSubject } from "@/lib/validations/post";
+import type { CreatePostFormData } from "@/lib/validations/post";
 import {
     Form,
     FormControl,
@@ -38,11 +38,11 @@ export default function CreatePost() {
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-    const form = useForm<CreatePostInput>({
+    const form = useForm<CreatePostFormData>({
         resolver: zodResolver(createPostSchema),
         defaultValues: {
             title: '',
-            subject: 'book_review',
+            subject: undefined,
             content: '',
             media: []
         }
@@ -51,6 +51,26 @@ export default function CreatePost() {
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            // Vérifier le type de fichier
+            if (!file.type.match(/^(image\/(jpeg|png|gif|webp)|video\/(mp4|quicktime))$/)) {
+                toast({
+                    variant: "destructive",
+                    title: "Erreur",
+                    description: "Type de fichier non supporté"
+                });
+                return;
+            }
+
+            // Vérifier la taille du fichier (10MB max)
+            if (file.size > 10 * 1024 * 1024) {
+                toast({
+                    variant: "destructive",
+                    title: "Erreur",
+                    description: "La taille du fichier ne doit pas dépasser 10MB"
+                });
+                return;
+            }
+
             setSelectedImage(file);
             form.setValue('media', [file]);
             
@@ -62,7 +82,7 @@ export default function CreatePost() {
         }
     };
 
-    const onSubmit = async (data: CreatePostInput) => {
+    const onSubmit = async (data: CreatePostFormData) => {
         try {
             setIsLoading(true);
             const response = await postService.createPost(data);
@@ -87,7 +107,7 @@ export default function CreatePost() {
     };
 
     return (
-        <div className="flex-1 px-5 pb-[20px] pt-[120px]">
+        <div className="flex-1 px-5 pb-[120px] pt-[120px]">
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                     <FormField
@@ -116,21 +136,28 @@ export default function CreatePost() {
                                 <FormLabel>Type de post</FormLabel>
                                 <Select 
                                     onValueChange={field.onChange} 
-                                    defaultValue={field.value}
+                                    value={field.value}
                                     disabled={isLoading}
                                 >
                                     <FormControl>
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Sélectionnez un type" />
+                                            <SelectValue placeholder="Sélectionnez un type de post" />
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                        <SelectItem value="book_review">Critique de livre</SelectItem>
-                                        <SelectItem value="book_recommendation">Recommandation</SelectItem>
+                                        {Object.entries(POST_SUBJECTS).map(([value, label]) => (
+                                            <SelectItem 
+                                                key={value} 
+                                                value={value}
+                                                className="capitalize"
+                                            >
+                                                {label}
+                                            </SelectItem>
+                                        ))}
                                     </SelectContent>
                                 </Select>
                                 <FormDescription>
-                                    Choisissez le type de votre publication
+                                    Choisissez le type de votre publication pour aider les lecteurs à la trouver
                                 </FormDescription>
                                 <FormMessage />
                             </FormItem>

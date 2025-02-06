@@ -5,13 +5,14 @@ import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { authService } from "@/services/auth.service";
+import { useAuth } from "@/contexts/auth-context";
 import {
     InputOTP,
     InputOTPGroup,
     InputOTPSeparator,
     InputOTPSlot,
 } from "@/components/ui/input-otp";
+import type { VerifyEmailRequest, ResendVerificationRequest } from "@/types/authTypes";
 
 export default function Verification() {
     const [code, setCode] = useState('');
@@ -21,6 +22,7 @@ export default function Verification() {
     const [timeLeft, setTimeLeft] = useState(30);
     const router = useRouter();
     const { toast } = useToast();
+    const { verifyEmail, resendVerification } = useAuth();
 
     useEffect(() => {
         const storedEmail = sessionStorage.getItem('verificationEmail');
@@ -53,19 +55,9 @@ export default function Verification() {
 
         try {
             setIsVerifying(true);
-            const data = {email, code};
-            const response = await authService.verifyEmail(data);
-            
-            if (response.status === 'success') {
-                router.replace('/auth/register/purpose');
-            } else {
-                toast({
-                    variant: "destructive",
-                    title: "Code incorrect",
-                    description: "Le code de vérification est invalide"
-                });
-                setCode('');
-            }
+            const data: VerifyEmailRequest = { email, code };
+            await verifyEmail(data);
+            router.replace('/auth/register/purpose');
         } catch (error: any) {
             toast({
                 variant: "destructive",
@@ -83,7 +75,8 @@ export default function Verification() {
 
         try {
             setIsLoading(true);
-            await authService.resendVerification(email);
+            const data: ResendVerificationRequest = { email };
+            await resendVerification(data);
             setTimeLeft(30);
             
             toast({

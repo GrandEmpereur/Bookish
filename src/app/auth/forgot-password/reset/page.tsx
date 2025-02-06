@@ -7,7 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { resetPasswordSchema, type ResetPasswordInput } from "@/lib/validations/auth";
 import { useToast } from "@/hooks/use-toast";
-import { authService } from "@/services/auth.service";
+import { useAuth } from "@/contexts/auth-context";
+import type { ResetPasswordRequest } from "@/types/authTypes";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -23,12 +24,14 @@ export default function ResetPassword() {
     const [showPassword, setShowPassword] = useState(false);
     const router = useRouter();
     const { toast } = useToast();
+    const { resetPassword } = useAuth();
 
     const form = useForm<ResetPasswordInput>({
         resolver: zodResolver(resetPasswordSchema),
         defaultValues: {
             email: "",
-            newPassword: ""
+            newPassword: "",
+            confirmPassword: ""
         },
     });
 
@@ -43,9 +46,14 @@ export default function ResetPassword() {
         form.setValue('email', storedEmail);
     }, [router, form]);
 
-    const onSubmit = async (data: ResetPasswordInput) => {
+    const onSubmit = async (formData: ResetPasswordInput) => {
         try {
-            await authService.resetPassword(data);
+            const data: ResetPasswordRequest = {
+                email: formData.email,
+                newPassword: formData.newPassword
+            };
+
+            await resetPassword(data);
 
             // Retour haptique sur mobile
             if (navigator.vibrate) {
@@ -54,12 +62,6 @@ export default function ResetPassword() {
 
             // Nettoyage et redirection
             sessionStorage.removeItem('resetPasswordEmail');
-            
-            toast({
-                title: "Mot de passe réinitialisé",
-                description: "Vous pouvez maintenant vous connecter avec votre nouveau mot de passe",
-            });
-
             router.replace('/auth/login');
         } catch (error: any) {
             console.error('Reset password error:', error); // Debug log
@@ -110,6 +112,27 @@ export default function ResetPassword() {
                                                     <Eye className="h-5 w-5 text-muted-foreground" />
                                                 )}
                                             </Button>
+                                        </div>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="confirmPassword"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormControl>
+                                        <div className="relative">
+                                            <Input
+                                                {...field}
+                                                type={showPassword ? "text" : "password"}
+                                                placeholder="Confirmer le mot de passe"
+                                                className="h-14 bg-accent-100 border-0 text-base placeholder:text-muted-500 pr-12"
+                                                disabled={form.formState.isSubmitting}
+                                            />
                                         </div>
                                     </FormControl>
                                     <FormMessage />

@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { registerSchema, type RegisterInput } from "@/lib/validations/auth";
 import { useToast } from "@/hooks/use-toast";
-import { authService } from "@/services/auth.service";
+import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,7 @@ import {
 
 export default function Register() {
     const { toast } = useToast();
+    const { register } = useAuth();
     const [showPassword, setShowPassword] = useState(false);
     const [showEmailDialog, setShowEmailDialog] = useState(false);
     const router = useRouter();
@@ -45,7 +46,7 @@ export default function Register() {
 
     const onSubmit = async (data: RegisterInput) => {
         try {
-            const response = await authService.register(data);
+            await register(data);
             
             // S'assurer que l'email est stocké avant d'afficher le dialogue
             if (data.email) {

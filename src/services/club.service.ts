@@ -1,34 +1,40 @@
 import { CapacitorHttp } from '@capacitor/core';
 import {
     Club,
-    ClubFilters,
-    PaginatedClubs,
-    ClubPost,
-    ClubMessage
-} from '@/types/club';
-import {
-    CreateClubInput,
-    UpdateClubInput,
-    BanMemberInput,
-    CreateClubPostInput,
-    SendClubMessageInput,
-    ReportMessageInput
-} from '@/lib/validations/club';
+    ClubType,
+    ClubMemberRole,
+    CreateClubRequest,
+    UpdateClubRequest,
+    SendMessageRequest,
+    JoinClubRequest,
+    GetClubResponse,
+    GetClubsResponse,
+    CreateClubResponse,
+    UpdateClubResponse,
+    GetClubMessagesResponse,
+    SendMessageResponse,
+    GenerateInviteLinkResponse,
+    JoinClubResponse
+} from '@/types/clubTypes';
 import { ApiResponse } from '@/types/api';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 class ClubService {
-    // Récupérer la liste des clubs
-    async getClubs(filters: ClubFilters = {}): Promise<ApiResponse<PaginatedClubs>> {
+    async getClubs(options?: {
+        page?: number;
+        limit?: number;
+        type?: ClubType;
+        genre?: string;
+        search?: string;
+    }): Promise<ApiResponse<GetClubsResponse>> {
         try {
-            const queryParams = new URLSearchParams({
-                page: (filters.page || 1).toString(),
-                limit: (filters.limit || 20).toString(),
-                ...(filters.type && { type: filters.type }),
-                ...(filters.sort && { sort: filters.sort }),
-                ...(filters.order && { order: filters.order })
-            });
+            const queryParams = new URLSearchParams();
+            if (options?.page) queryParams.append('page', options.page.toString());
+            if (options?.limit) queryParams.append('limit', options.limit.toString());
+            if (options?.type) queryParams.append('type', options.type);
+            if (options?.genre) queryParams.append('genre', options.genre);
+            if (options?.search) queryParams.append('search', options.search);
 
             const response = await CapacitorHttp.get({
                 url: `${API_URL}/clubs?${queryParams.toString()}`,
@@ -46,29 +52,7 @@ class ClubService {
         }
     }
 
-    // Créer un club
-    async createClub(data: CreateClubInput): Promise<ApiResponse<Club>> {
-        try {
-            const response = await CapacitorHttp.post({
-                url: `${API_URL}/clubs`,
-                headers: { 'Content-Type': 'application/json' },
-                data,
-                webFetchExtra: { credentials: 'include' }
-            });
-
-            if (response.status !== 201) {
-                throw new Error(response.data.message || 'Erreur lors de la création du club');
-            }
-
-            return response.data;
-        } catch (error: any) {
-            console.error('Create club error:', error);
-            throw error;
-        }
-    }
-
-    // Récupérer les détails d'un club
-    async getClub(id: string): Promise<ApiResponse<Club>> {
+    async getClub(id: string): Promise<ApiResponse<GetClubResponse>> {
         try {
             const response = await CapacitorHttp.get({
                 url: `${API_URL}/clubs/${id}`,
@@ -86,13 +70,50 @@ class ClubService {
         }
     }
 
-    // Mettre à jour un club
-    async updateClub(id: string, data: UpdateClubInput): Promise<ApiResponse<Club>> {
+    async createClub(data: CreateClubRequest): Promise<ApiResponse<CreateClubResponse>> {
         try {
-            const response = await CapacitorHttp.put({
+            const formData = new FormData();
+            Object.entries(data).forEach(([key, value]) => {
+                if (key === 'club_picture' && value instanceof File) {
+                    formData.append(key, value);
+                } else if (value !== undefined) {
+                    formData.append(key, String(value));
+                }
+            });
+
+            const response = await CapacitorHttp.post({
+                url: `${API_URL}/clubs`,
+                data: formData,
+                headers: { 'Content-Type': 'multipart/form-data' },
+                webFetchExtra: { credentials: 'include' }
+            });
+
+            if (response.status !== 201) {
+                throw new Error(response.data.message || 'Erreur lors de la création du club');
+            }
+
+            return response.data;
+        } catch (error: any) {
+            console.error('Create club error:', error);
+            throw error;
+        }
+    }
+
+    async updateClub(id: string, data: UpdateClubRequest): Promise<ApiResponse<UpdateClubResponse>> {
+        try {
+            const formData = new FormData();
+            Object.entries(data).forEach(([key, value]) => {
+                if (key === 'club_picture' && value instanceof File) {
+                    formData.append(key, value);
+                } else if (value !== undefined) {
+                    formData.append(key, String(value));
+                }
+            });
+
+            const response = await CapacitorHttp.patch({
                 url: `${API_URL}/clubs/${id}`,
-                headers: { 'Content-Type': 'application/json' },
-                data,
+                data: formData,
+                headers: { 'Content-Type': 'multipart/form-data' },
                 webFetchExtra: { credentials: 'include' }
             });
 
@@ -107,113 +128,48 @@ class ClubService {
         }
     }
 
-    // Rejoindre un club
-    async joinClub(id: string): Promise<ApiResponse<void>> {
-        try {
-            const response = await CapacitorHttp.post({
-                url: `${API_URL}/clubs/${id}/join`,
-                webFetchExtra: { credentials: 'include' }
-            });
-
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de la demande d\'adhésion');
-            }
-
-            return response.data;
-        } catch (error: any) {
-            console.error('Join club error:', error);
-            throw error;
-        }
-    }
-
-    // Quitter un club
-    async leaveClub(id: string): Promise<ApiResponse<void>> {
-        try {
-            const response = await CapacitorHttp.post({
-                url: `${API_URL}/clubs/${id}/leave`,
-                webFetchExtra: { credentials: 'include' }
-            });
-
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors du départ du club');
-            }
-
-            return response.data;
-        } catch (error: any) {
-            console.error('Leave club error:', error);
-            throw error;
-        }
-    }
-
-    // Bannir un membre
-    async banMember(clubId: string, data: BanMemberInput): Promise<ApiResponse<void>> {
-        try {
-            const response = await CapacitorHttp.post({
-                url: `${API_URL}/clubs/${clubId}/ban`,
-                headers: { 'Content-Type': 'application/json' },
-                data,
-                webFetchExtra: { credentials: 'include' }
-            });
-
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors du bannissement');
-            }
-
-            return response.data;
-        } catch (error: any) {
-            console.error('Ban member error:', error);
-            throw error;
-        }
-    }
-
-    // Créer un post
-    async createPost(clubId: string, data: CreateClubPostInput): Promise<ApiResponse<ClubPost>> {
-        try {
-            const response = await CapacitorHttp.post({
-                url: `${API_URL}/clubs/${clubId}/posts`,
-                headers: { 'Content-Type': 'application/json' },
-                data,
-                webFetchExtra: { credentials: 'include' }
-            });
-
-            if (response.status !== 201) {
-                throw new Error(response.data.message || 'Erreur lors de la création du post');
-            }
-
-            return response.data;
-        } catch (error: any) {
-            console.error('Create post error:', error);
-            throw error;
-        }
-    }
-
-    // Supprimer un post
-    async deletePost(clubId: string, postId: string): Promise<void> {
+    async deleteClub(id: string): Promise<ApiResponse<null>> {
         try {
             const response = await CapacitorHttp.delete({
-                url: `${API_URL}/clubs/${clubId}/posts/${postId}`,
+                url: `${API_URL}/clubs/${id}`,
                 webFetchExtra: { credentials: 'include' }
             });
 
             if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de la suppression du post');
+                throw new Error(response.data.message || 'Erreur lors de la suppression du club');
             }
+
+            return response.data;
         } catch (error: any) {
-            console.error('Delete post error:', error);
+            console.error('Delete club error:', error);
             throw error;
         }
     }
 
-    // Envoyer un message
-    async sendMessage(clubId: string, data: SendClubMessageInput): Promise<ApiResponse<ClubMessage>> {
+    async getMessages(clubId: string, page = 1): Promise<ApiResponse<GetClubMessagesResponse>> {
+        try {
+            const response = await CapacitorHttp.get({
+                url: `${API_URL}/clubs/${clubId}/messages?page=${page}`,
+                webFetchExtra: { credentials: 'include' }
+            });
+
+            if (response.status !== 200) {
+                throw new Error(response.data.message || 'Erreur lors de la récupération des messages');
+            }
+
+            return response.data;
+        } catch (error: any) {
+            console.error('Get messages error:', error);
+            throw error;
+        }
+    }
+
+    async sendMessage(clubId: string, data: SendMessageRequest): Promise<ApiResponse<SendMessageResponse>> {
         try {
             const formData = new FormData();
             formData.append('content', data.content);
-
-            if (data.attachments) {
-                data.attachments.forEach((file, index) => {
-                    formData.append(`attachments[${index}]`, file);
-                });
+            if (data.media) {
+                formData.append('media', data.media);
             }
 
             const response = await CapacitorHttp.post({
@@ -234,35 +190,47 @@ class ClubService {
         }
     }
 
-    // Signaler un message
-    async reportMessage(
-        clubId: string,
-        messageId: string,
-        data: ReportMessageInput
-    ): Promise<ApiResponse<void>> {
+    async joinClub(id: string, data: JoinClubRequest): Promise<ApiResponse<JoinClubResponse>> {
         try {
             const response = await CapacitorHttp.post({
-                url: `${API_URL}/clubs/${clubId}/messages/${messageId}/report`,
+                url: `${API_URL}/clubs/${id}/join`,
                 headers: { 'Content-Type': 'application/json' },
                 data,
                 webFetchExtra: { credentials: 'include' }
             });
 
             if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors du signalement');
+                throw new Error(response.data.message || 'Erreur lors de la demande d\'adhésion');
             }
 
             return response.data;
         } catch (error: any) {
-            console.error('Report message error:', error);
+            console.error('Join club error:', error);
             throw error;
         }
     }
 
-    // Générer un lien d'invitation
-    async getInviteLink(clubId: string): Promise<ApiResponse<{ code: string }>> {
+    async leaveClub(id: string): Promise<ApiResponse<null>> {
         try {
-            const response = await CapacitorHttp.get({
+            const response = await CapacitorHttp.post({
+                url: `${API_URL}/clubs/${id}/leave`,
+                webFetchExtra: { credentials: 'include' }
+            });
+
+            if (response.status !== 200) {
+                throw new Error(response.data.message || 'Erreur lors du départ du club');
+            }
+
+            return response.data;
+        } catch (error: any) {
+            console.error('Leave club error:', error);
+            throw error;
+        }
+    }
+
+    async generateInviteLink(clubId: string): Promise<ApiResponse<GenerateInviteLinkResponse>> {
+        try {
+            const response = await CapacitorHttp.post({
                 url: `${API_URL}/clubs/${clubId}/invite`,
                 webFetchExtra: { credentials: 'include' }
             });
@@ -273,28 +241,43 @@ class ClubService {
 
             return response.data;
         } catch (error: any) {
-            console.error('Get invite link error:', error);
+            console.error('Generate invite link error:', error);
             throw error;
         }
     }
 
-    // Rejoindre avec un code d'invitation
-    async joinWithInvite(code: string): Promise<ApiResponse<void>> {
+    async banMember(clubId: string, userId: string): Promise<ApiResponse<null>> {
         try {
             const response = await CapacitorHttp.post({
-                url: `${API_URL}/clubs/join-with-invite`,
-                headers: { 'Content-Type': 'application/json' },
-                data: { code },
+                url: `${API_URL}/clubs/${clubId}/ban/${userId}`,
                 webFetchExtra: { credentials: 'include' }
             });
 
             if (response.status !== 200) {
-                throw new Error(response.data.message || 'Code d\'invitation invalide');
+                throw new Error(response.data.message || 'Erreur lors du bannissement');
             }
 
             return response.data;
         } catch (error: any) {
-            console.error('Join with invite error:', error);
+            console.error('Ban member error:', error);
+            throw error;
+        }
+    }
+
+    async reportMessage(messageId: string): Promise<ApiResponse<null>> {
+        try {
+            const response = await CapacitorHttp.post({
+                url: `${API_URL}/clubs/messages/${messageId}/report`,
+                webFetchExtra: { credentials: 'include' }
+            });
+
+            if (response.status !== 200) {
+                throw new Error(response.data.message || 'Erreur lors du signalement');
+            }
+
+            return response.data;
+        } catch (error: any) {
+            console.error('Report message error:', error);
             throw error;
         }
     }

@@ -48,10 +48,10 @@ export function BookListDetail({ id }: BookListDetailProps) {
         try {
             setIsLoading(true);
             const response = await bookListService.getBookList(id);
-            setBookList(response);
+            setBookList(response.data);
         } catch (error) {
             toast({
-                variant: "destructive",
+                variant: "destructive", 
                 title: "Erreur",
                 description: "Impossible de charger la liste"
             });

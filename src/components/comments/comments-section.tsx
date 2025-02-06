@@ -10,7 +10,7 @@ import { fr } from 'date-fns/locale';
 import { Loader2, Heart } from "lucide-react";
 import { commentService } from "@/services/comment.service";
 import { likeService } from "@/services/like.service";
-import { Comment } from "@/types/comment";
+import { Comment } from "@/types/postTypes";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
@@ -42,7 +42,23 @@ export function CommentsSection({ postId }: CommentsProps) {
         try {
             setIsLoading(true);
             const response = await commentService.getComments(postId);
-            setComments(response.data);
+            
+            // S'assurer que chaque commentaire et réponse a un likesCount valide
+            const formattedComments = response.data.map(comment => ({
+                ...comment,
+                likesCount: comment.likesCount || 0,
+                replies: comment.replies?.map(reply => ({
+                    ...reply,
+                    likesCount: reply.likesCount || 0
+                }))
+            }));
+
+            // Trier les commentaires par nombre de likes
+            const sortedComments = [...formattedComments].sort((a, b) => 
+                b.likesCount - a.likesCount
+            );
+            
+            setComments(sortedComments);
         } catch (error) {
             toast({
                 variant: "destructive",
@@ -59,14 +75,23 @@ export function CommentsSection({ postId }: CommentsProps) {
 
         try {
             if (replyingTo) {
-                await commentService.replyToComment(postId, replyingTo.commentId, {
-                    content: newComment,
-                    spoilerAlert: false
-                });
+                // Trouver le commentaire parent original (le commentaire de premier niveau)
+                const parentComment = comments.find(comment => 
+                    comment.id === replyingTo.commentId || 
+                    comment.replies?.some(reply => reply.id === replyingTo.commentId)
+                );
+
+                if (parentComment) {
+                    // Si on répond à une réponse, utiliser l'ID du commentaire parent
+                    const commentIdToReplyTo = parentComment.id;
+                    
+                    await commentService.replyToComment(postId, commentIdToReplyTo, {
+                        content: newComment,
+                    });
+                }
             } else {
                 await commentService.createComment(postId, {
                     content: newComment,
-                    spoilerAlert: false
                 });
             }
             
@@ -89,26 +114,68 @@ export function CommentsSection({ postId }: CommentsProps) {
 
     const handleLike = async (commentId: string) => {
         try {
-            const response = await likeService.toggleCommentLike({ commentId });
-            
-            if (response.status === 'success') {
-                const newLikedComments = new Set(likedComments);
-                const isLiked = response.message === 'Comment liked successfully';
+            // Optimistic update - Mettre à jour l'UI immédiatement
+            const newLikedComments = new Set(likedComments);
+            const isCurrentlyLiked = likedComments.has(commentId);
 
-                if (isLiked) {
-                    newLikedComments.add(commentId);
-                } else {
-                    newLikedComments.delete(commentId);
+            if (isCurrentlyLiked) {
+                newLikedComments.delete(commentId);
+            } else {
+                newLikedComments.add(commentId);
+            }
+
+            setLikedComments(newLikedComments);
+            sessionStorage.setItem('likedComments', JSON.stringify([...newLikedComments]));
+
+            // Mise à jour optimiste du compteur
+            const updatedComments = comments.map(comment => {
+                if (comment.id === commentId) {
+                    return { ...comment, likesCount: comment.likesCount + (isCurrentlyLiked ? -1 : 1) };
                 }
+                if (comment.replies) {
+                    const updatedReplies = comment.replies.map(reply =>
+                        reply.id === commentId
+                            ? { ...reply, likesCount: reply.likesCount + (isCurrentlyLiked ? -1 : 1) }
+                            : reply
+                    );
+                    return { ...comment, replies: updatedReplies };
+                }
+                return comment;
+            });
+            setComments(updatedComments);
 
-                setLikedComments(newLikedComments);
-                sessionStorage.setItem('likedComments', JSON.stringify([...newLikedComments]));
+            // Faire la requête API en arrière-plan
+            const response = await likeService.toggleCommentLike(commentId);
+            
+            if (response.status !== 'success') {
+                // En cas d'erreur, revenir à l'état précédent
+                const revertLikedComments = new Set(likedComments);
+                if (isCurrentlyLiked) {
+                    revertLikedComments.add(commentId);
+                } else {
+                    revertLikedComments.delete(commentId);
+                }
+                setLikedComments(revertLikedComments);
+                sessionStorage.setItem('likedComments', JSON.stringify([...revertLikedComments]));
 
-                // Mise à jour du compteur avec la bonne structure de réponse
-                const updatedComment = comments.map(comment => 
-                    comment.id === commentId ? { ...comment, likesCount: comment.likesCount + (isLiked ? 1 : -1) } : comment
-                );
-                setComments(updatedComment);
+                // Revenir au compteur précédent
+                const revertedComments = comments.map(comment => {
+                    if (comment.id === commentId) {
+                        return { ...comment, likesCount: response.data.likesCount };
+                    }
+                    if (comment.replies) {
+                        const revertedReplies = comment.replies.map(reply =>
+                            reply.id === commentId
+                                ? { ...reply, likesCount: response.data.likesCount }
+                                : reply
+                        );
+                        return { ...comment, replies: revertedReplies };
+                    }
+                    return comment;
+                });
+                setComments(revertedComments);
+
+                throw new Error('Erreur lors du like');
             }
         } catch (error) {
             toast({
@@ -120,11 +187,22 @@ export function CommentsSection({ postId }: CommentsProps) {
     };
 
     const handleReply = (commentId: string, username: string) => {
-        setReplyingTo({ commentId, username });
-        // Focus sur la zone de texte
-        const textarea = document.querySelector('textarea');
-        if (textarea) {
-            textarea.focus();
+        // Trouver le commentaire parent si on répond à une réponse
+        const parentComment = comments.find(comment => 
+            comment.id === commentId || 
+            comment.replies?.some(reply => reply.id === commentId)
+        );
+
+        if (parentComment) {
+            setReplyingTo({ 
+                commentId: parentComment.id, // Toujours utiliser l'ID du commentaire parent
+                username: username 
+            });
+            // Focus sur la zone de texte
+            const textarea = document.querySelector('textarea');
+            if (textarea) {
+                textarea.focus();
+            }
         }
     };
 
@@ -232,7 +310,7 @@ export function CommentsSection({ postId }: CommentsProps) {
                                     </Button>
                                 </div>
                                 
-                                {/* Affichage des réponses */}
+                                {/* Affichage des réponses avec likes et reply */}
                                 {comment.replies && comment.replies.length > 0 && (
                                     <div className="ml-8 mt-4 space-y-4">
                                         {comment.replies.map((reply) => (
@@ -243,18 +321,52 @@ export function CommentsSection({ postId }: CommentsProps) {
                                                     </AvatarFallback>
                                                 </Avatar>
                                                 <div className="flex-1">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="font-medium text-sm">
-                                                            {reply.user.username}
-                                                        </span>
-                                                        <span className="text-xs text-muted-foreground">
-                                                            {formatDistanceToNow(new Date(reply.createdAt), {
-                                                                addSuffix: true,
-                                                                locale: fr
-                                                            })}
+                                                    <div className="flex flex-col">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="font-medium text-sm">
+                                                                {reply.user.username}
+                                                            </span>
+                                                            <span className="text-xs text-muted-foreground">
+                                                                {formatDistanceToNow(new Date(reply.createdAt), {
+                                                                    addSuffix: true,
+                                                                    locale: fr
+                                                                })}
+                                                            </span>
+                                                        </div>
+                                                        <span className="text-xs text-muted-foreground mt-0.5">
+                                                            en réponse à @{comment.user.username}
                                                         </span>
                                                     </div>
-                                                    <p className="text-sm mt-1">{reply.content}</p>
+                                                    <p className="text-sm mt-2">{reply.content}</p>
+                                                    {/* Ajout des boutons like et reply pour les réponses */}
+                                                    <div className="flex items-center gap-4 mt-2">
+                                                        <Button 
+                                                            variant="ghost" 
+                                                            size="sm" 
+                                                            className={cn(
+                                                                "h-auto p-0 hover:text-primary",
+                                                                likedComments.has(reply.id) ? "text-primary" : "text-muted-foreground"
+                                                            )}
+                                                            onClick={() => handleLike(reply.id)}
+                                                        >
+                                                            <Heart 
+                                                                className="h-4 w-4 mr-1"
+                                                                fill={likedComments.has(reply.id) ? "currentColor" : "none"}
+                                                                stroke="currentColor"
+                                                            />
+                                                            <span className="text-xs">
+                                                                {typeof reply.likesCount === 'number' ? reply.likesCount : 0}
+                                                            </span>
+                                                        </Button>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            className="h-auto p-0 text-muted-foreground hover:text-primary text-xs"
+                                                            onClick={() => handleReply(reply.id, reply.user.username)}
+                                                        >
+                                                            Reply
+                                                        </Button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         ))}

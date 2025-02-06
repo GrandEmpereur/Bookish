@@ -4,11 +4,17 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { authService } from "@/services/auth.service";
+import { useAuth } from "@/contexts/auth-context";
 import Image from "next/image";
-import { RegisterStepOneInput } from '@/types/auth';
+import type { UsagePurpose } from "@/types/userTypes";
+import type { RegisterStepOneRequest } from "@/types/authTypes";
 
-const purposes = [
+const purposes: Array<{
+    id: UsagePurpose;
+    label: string;
+    description: string;
+    icon: string;
+}> = [
     {
         id: 'find_books',
         label: 'Découvrir de nouveaux livres',
@@ -30,11 +36,12 @@ const purposes = [
 ];
 
 export default function Purpose() {
-    const [selectedPurpose, setSelectedPurpose] = useState<string | null>(null);
+    const [selectedPurpose, setSelectedPurpose] = useState<UsagePurpose | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [email, setEmail] = useState('');
     const router = useRouter();
     const { toast } = useToast();
+    const { completeStepOne } = useAuth();
 
     useEffect(() => {
         const storedEmail = sessionStorage.getItem('verificationEmail');
@@ -45,12 +52,17 @@ export default function Purpose() {
         setEmail(storedEmail);
     }, [router]);
 
-    const handlePurposeSelection = async (data: RegisterStepOneInput) => {
+    const handlePurposeSelection = async (purpose: UsagePurpose) => {
         try {
             setIsLoading(true);
-            setSelectedPurpose(data.usagePurpose);
+            setSelectedPurpose(purpose);
 
-            await authService.registerStepOne(data);
+            const data: RegisterStepOneRequest = {
+                email,
+                usage_purpose: purpose
+            };
+
+            await completeStepOne(data);
             router.push('/auth/register/habits');
         } catch (error: any) {
             toast({
@@ -78,10 +90,7 @@ export default function Purpose() {
                     {purposes.map((purpose) => (
                         <button
                             key={purpose.id}
-                            onClick={() => handlePurposeSelection({
-                                email,
-                                usagePurpose: purpose.id as RegisterStepOneInput['usagePurpose']
-                            })}
+                            onClick={() => handlePurposeSelection(purpose.id)}
                             disabled={isLoading}
                             className={`w-full p-4 rounded-lg border flex items-center gap-4 transition-colors
                                 ${selectedPurpose === purpose.id 

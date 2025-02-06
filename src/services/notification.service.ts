@@ -1,26 +1,30 @@
 import { CapacitorHttp } from '@capacitor/core';
+import { ApiResponse } from '@/types/api';
 import {
     Notification,
-    NotificationFilters,
+    NotificationType,
+    NotificationChannel,
+    NotificationPreference,
     NotificationPreferences,
-    PaginatedNotifications
-} from '@/types/notification';
-import { UpdateNotificationPreferencesInput } from '@/lib/validations/notification';
-import { ApiResponse } from '@/types/api';
+    GetNotificationsResponse,
+    GetNotificationPreferencesResponse,
+    UpdateNotificationPreferencesRequest,
+    UpdateNotificationPreferencesResponse
+} from '@/types/notificationTypes';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 class NotificationService {
-    // Récupérer la liste des notifications
-    async getNotifications(filters: NotificationFilters = {}): Promise<ApiResponse<PaginatedNotifications>> {
+    async getNotifications(options?: {
+        unreadOnly?: boolean;
+        page?: number;
+        limit?: number;
+    }): Promise<ApiResponse<GetNotificationsResponse>> {
         try {
-            const queryParams = new URLSearchParams({
-                page: (filters.page || 1).toString(),
-                limit: (filters.limit || 20).toString(),
-                ...(filters.status && { status: filters.status }),
-                ...(filters.sort && { sort: filters.sort }),
-                ...(filters.order && { order: filters.order })
-            });
+            const queryParams = new URLSearchParams();
+            if (options?.unreadOnly) queryParams.append('unread_only', 'true');
+            if (options?.page) queryParams.append('page', options.page.toString());
+            if (options?.limit) queryParams.append('limit', options.limit.toString());
 
             const response = await CapacitorHttp.get({
                 url: `${API_URL}/notifications?${queryParams.toString()}`,
@@ -38,11 +42,10 @@ class NotificationService {
         }
     }
 
-    // Marquer une notification comme lue
-    async markAsRead(id: string): Promise<ApiResponse<void>> {
+    async markAsRead(notificationId: string): Promise<ApiResponse<Notification>> {
         try {
-            const response = await CapacitorHttp.post({
-                url: `${API_URL}/notifications/${id}/read`,
+            const response = await CapacitorHttp.patch({
+                url: `${API_URL}/notifications/${notificationId}/read`,
                 webFetchExtra: { credentials: 'include' }
             });
 
@@ -57,11 +60,10 @@ class NotificationService {
         }
     }
 
-    // Marquer toutes les notifications comme lues
-    async markAllAsRead(): Promise<ApiResponse<void>> {
+    async markAllAsRead(): Promise<ApiResponse<null>> {
         try {
             const response = await CapacitorHttp.post({
-                url: `${API_URL}/notifications/mark-all-as-read`,
+                url: `${API_URL}/notifications/mark-all-read`,
                 webFetchExtra: { credentials: 'include' }
             });
 
@@ -76,25 +78,25 @@ class NotificationService {
         }
     }
 
-    // Supprimer une notification
-    async deleteNotification(id: string): Promise<void> {
+    async deleteNotification(notificationId: string): Promise<ApiResponse<null>> {
         try {
             const response = await CapacitorHttp.delete({
-                url: `${API_URL}/notifications/${id}`,
+                url: `${API_URL}/notifications/${notificationId}`,
                 webFetchExtra: { credentials: 'include' }
             });
 
             if (response.status !== 200) {
                 throw new Error(response.data.message || 'Erreur lors de la suppression de la notification');
             }
+
+            return response.data;
         } catch (error: any) {
             console.error('Delete notification error:', error);
             throw error;
         }
     }
 
-    // Récupérer les préférences de notification
-    async getPreferences(): Promise<ApiResponse<NotificationPreferences>> {
+    async getPreferences(): Promise<ApiResponse<GetNotificationPreferencesResponse>> {
         try {
             const response = await CapacitorHttp.get({
                 url: `${API_URL}/notifications/preferences`,
@@ -112,10 +114,9 @@ class NotificationService {
         }
     }
 
-    // Mettre à jour les préférences de notification
-    async updatePreferences(data: UpdateNotificationPreferencesInput): Promise<ApiResponse<NotificationPreferences>> {
+    async updatePreferences(data: UpdateNotificationPreferencesRequest): Promise<ApiResponse<UpdateNotificationPreferencesResponse>> {
         try {
-            const response = await CapacitorHttp.put({
+            const response = await CapacitorHttp.patch({
                 url: `${API_URL}/notifications/preferences`,
                 headers: { 'Content-Type': 'application/json' },
                 data,
@@ -129,6 +130,44 @@ class NotificationService {
             return response.data;
         } catch (error: any) {
             console.error('Update notification preferences error:', error);
+            throw error;
+        }
+    }
+
+    async isEnabled(type: NotificationType, channel: NotificationChannel): Promise<boolean> {
+        try {
+            const response = await CapacitorHttp.get({
+                url: `${API_URL}/notifications/enabled/${type}/${channel}`,
+                webFetchExtra: { credentials: 'include' }
+            });
+
+            if (response.status !== 200) {
+                throw new Error(response.data.message || 'Erreur lors de la vérification des préférences');
+            }
+
+            return response.data.enabled;
+        } catch (error: any) {
+            console.error('Check notification enabled error:', error);
+            throw error;
+        }
+    }
+
+    async createNotification(userId: string, type: NotificationType, data: Record<string, any>): Promise<ApiResponse<Notification>> {
+        try {
+            const response = await CapacitorHttp.post({
+                url: `${API_URL}/notifications`,
+                headers: { 'Content-Type': 'application/json' },
+                data: { user_id: userId, type, data },
+                webFetchExtra: { credentials: 'include' }
+            });
+
+            if (response.status !== 201) {
+                throw new Error(response.data.message || 'Erreur lors de la création de la notification');
+            }
+
+            return response.data;
+        } catch (error: any) {
+            console.error('Create notification error:', error);
             throw error;
         }
     }

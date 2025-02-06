@@ -1,6 +1,15 @@
 import { CapacitorHttp } from '@capacitor/core';
-import { Book, BookFilters, PaginatedBooks } from '@/types/book';
-import { CreateBookInput, UpdateBookInput } from '@/lib/validations/book';
+import {
+    Book,
+    CreateBookRequest,
+    UpdateBookRequest,
+    GetBookResponse,
+    GetBooksResponse,
+    CreateBookResponse,
+    UpdateBookResponse,
+    BookFormat,
+    BookAvailability
+} from '@/types/bookTypes';
 import { ApiResponse } from '@/types/api';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -40,16 +49,26 @@ interface SearchBooksResponse {
 }
 
 class BookService {
-    // Récupérer la liste des livres
-    async getBooks(filters: BookFilters = {}): Promise<ApiResponse<PaginatedBooks>> {
+    async getBooks(options?: {
+        page?: number;
+        limit?: number;
+        genre?: string;
+        format?: BookFormat;
+        availability?: BookAvailability;
+        search?: string;
+        sort?: string;
+        order?: 'asc' | 'desc';
+    }): Promise<ApiResponse<GetBooksResponse>> {
         try {
-            const queryParams = new URLSearchParams({
-                page: (filters.page || 1).toString(),
-                limit: (filters.limit || 20).toString(),
-                ...(filters.genre && { genre: filters.genre }),
-                ...(filters.sort && { sort: filters.sort }),
-                ...(filters.order && { order: filters.order })
-            });
+            const queryParams = new URLSearchParams();
+            if (options?.page) queryParams.append('page', options.page.toString());
+            if (options?.limit) queryParams.append('limit', options.limit.toString());
+            if (options?.genre) queryParams.append('genre', options.genre);
+            if (options?.format) queryParams.append('format', options.format);
+            if (options?.availability) queryParams.append('availability', options.availability);
+            if (options?.search) queryParams.append('search', options.search);
+            if (options?.sort) queryParams.append('sort', options.sort);
+            if (options?.order) queryParams.append('order', options.order);
 
             const response = await CapacitorHttp.get({
                 url: `${API_URL}/books?${queryParams.toString()}`,
@@ -67,8 +86,7 @@ class BookService {
         }
     }
 
-    // Récupérer les détails d'un livre
-    async getBook(id: string): Promise<ApiResponse<Book>> {
+    async getBook(id: string): Promise<ApiResponse<GetBookResponse>> {
         try {
             const response = await CapacitorHttp.get({
                 url: `${API_URL}/books/${id}`,
@@ -86,13 +104,21 @@ class BookService {
         }
     }
 
-    // Créer un nouveau livre
-    async createBook(data: CreateBookInput): Promise<ApiResponse<Book>> {
+    async createBook(data: CreateBookRequest): Promise<ApiResponse<CreateBookResponse>> {
         try {
+            const formData = new FormData();
+            Object.entries(data).forEach(([key, value]) => {
+                if (key === 'cover_image' && value instanceof File) {
+                    formData.append(key, value);
+                } else if (value !== undefined) {
+                    formData.append(key, String(value));
+                }
+            });
+
             const response = await CapacitorHttp.post({
                 url: `${API_URL}/books`,
-                headers: { 'Content-Type': 'application/json' },
-                data,
+                data: formData,
+                headers: { 'Content-Type': 'multipart/form-data' },
                 webFetchExtra: { credentials: 'include' }
             });
 
@@ -107,13 +133,21 @@ class BookService {
         }
     }
 
-    // Mettre à jour un livre
-    async updateBook(id: string, data: UpdateBookInput): Promise<ApiResponse<Book>> {
+    async updateBook(id: string, data: UpdateBookRequest): Promise<ApiResponse<UpdateBookResponse>> {
         try {
-            const response = await CapacitorHttp.put({
+            const formData = new FormData();
+            Object.entries(data).forEach(([key, value]) => {
+                if (key === 'cover_image' && value instanceof File) {
+                    formData.append(key, value);
+                } else if (value !== undefined) {
+                    formData.append(key, String(value));
+                }
+            });
+
+            const response = await CapacitorHttp.patch({
                 url: `${API_URL}/books/${id}`,
-                headers: { 'Content-Type': 'application/json' },
-                data,
+                data: formData,
+                headers: { 'Content-Type': 'multipart/form-data' },
                 webFetchExtra: { credentials: 'include' }
             });
 
@@ -128,8 +162,7 @@ class BookService {
         }
     }
 
-    // Supprimer un livre
-    async deleteBook(id: string): Promise<void> {
+    async deleteBook(id: string): Promise<ApiResponse<null>> {
         try {
             const response = await CapacitorHttp.delete({
                 url: `${API_URL}/books/${id}`,
@@ -139,41 +172,23 @@ class BookService {
             if (response.status !== 200) {
                 throw new Error(response.data.message || 'Erreur lors de la suppression du livre');
             }
+
+            return response.data;
         } catch (error: any) {
             console.error('Delete book error:', error);
             throw error;
         }
     }
 
-    async searchBooks(params: SearchBooksParams): Promise<ApiResponse<SearchBooksResponse>> {
+    async searchBooks(query: string): Promise<ApiResponse<GetBooksResponse>> {
         try {
-            const queryParams = new URLSearchParams();
-
-            // Ajouter uniquement les paramètres définis
-            if (params.query) queryParams.append('query', params.query);
-            if (params.author) queryParams.append('author', params.author);
-            if (params.isbn) queryParams.append('isbn', params.isbn);
-            if (params.genres?.length) params.genres.forEach(genre => queryParams.append('genres[]', genre));
-            if (params.publisher) queryParams.append('publisher', params.publisher);
-            if (params.publication_year) queryParams.append('publication_year', params.publication_year.toString());
-            if (params.language) queryParams.append('language', params.language);
-            if (params.format) queryParams.append('format', params.format);
-            if (params.rating_min !== undefined) queryParams.append('rating_min', params.rating_min.toString());
-            if (params.rating_max !== undefined) queryParams.append('rating_max', params.rating_max.toString());
-            if (params.page_count_min !== undefined) queryParams.append('page_count_min', params.page_count_min.toString());
-            if (params.page_count_max !== undefined) queryParams.append('page_count_max', params.page_count_max.toString());
-            if (params.available !== undefined) queryParams.append('available', params.available.toString());
-            if (params.page) queryParams.append('page', params.page.toString());
-            if (params.limit) queryParams.append('limit', params.limit.toString());
-            if (params.sort_by) queryParams.append('sort_by', params.sort_by);
-
             const response = await CapacitorHttp.get({
-                url: `${API_URL}/search/books?${queryParams.toString()}`,
+                url: `${API_URL}/books/search?q=${encodeURIComponent(query)}`,
                 webFetchExtra: { credentials: 'include' }
             });
 
             if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de la recherche des livres');
+                throw new Error(response.data.message || 'Erreur lors de la recherche de livres');
             }
 
             return response.data;

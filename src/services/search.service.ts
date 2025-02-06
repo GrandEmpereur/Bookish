@@ -1,32 +1,40 @@
 import { CapacitorHttp } from '@capacitor/core';
-import {
-    PaginatedUserSearch,
-    PaginatedBookSearch,
-    PaginatedClubSearch,
-    PaginatedBookListSearch,
-    PaginatedContributorSearch,
-    CategorySearchResult
-} from '@/types/search';
-import {
-    SearchBooksInput,
-    SearchClubsInput,
-    SearchBookListsInput,
-    SearchByCategoryInput,
-    SearchContributorsInput
-} from '@/lib/validations/search';
 import { ApiResponse } from '@/types/api';
+import {
+    BaseSearchOptions,
+    UserSearchOptions,
+    BookSearchOptions,
+    ClubSearchOptions,
+    BookListSearchOptions,
+    CategorySearchOptions,
+    ContributorSearchOptions,
+    UserSearchResponse,
+    BookSearchResponse,
+    ClubSearchResponse,
+    BookListSearchResponse,
+    CategorySearchResponse,
+    ContributorSearchResponse,
+    GeneralSearchResponse
+} from '@/types/searchTypes';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 class SearchService {
-    // Rechercher des utilisateurs
-    async searchUsers(query: string, page = 1, limit = 10): Promise<ApiResponse<PaginatedUserSearch>> {
+    async searchUsers(options: UserSearchOptions): Promise<ApiResponse<UserSearchResponse>> {
         try {
-            const queryParams = new URLSearchParams({
-                query,
-                page: page.toString(),
-                limit: limit.toString()
-            });
+            const queryParams = new URLSearchParams();
+            if (options.query) queryParams.append('query', options.query);
+            if (options.page) queryParams.append('page', options.page.toString());
+            if (options.limit) queryParams.append('limit', options.limit.toString());
+            if (options.role) queryParams.append('role', options.role);
+            if (options.preferred_genres) {
+                options.preferred_genres.forEach(genre => {
+                    queryParams.append('genres[]', genre);
+                });
+            }
+            if (options.location) queryParams.append('location', options.location);
+            if (options.sort_by) queryParams.append('sort_by', options.sort_by);
+            if (options.order) queryParams.append('order', options.order);
 
             const response = await CapacitorHttp.get({
                 url: `${API_URL}/search/users?${queryParams.toString()}`,
@@ -44,15 +52,27 @@ class SearchService {
         }
     }
 
-    // Rechercher des livres
-    async searchBooks(params: SearchBooksInput): Promise<ApiResponse<PaginatedBookSearch>> {
+    async searchBooks(options: BookSearchOptions): Promise<ApiResponse<BookSearchResponse>> {
         try {
-            const queryParams = new URLSearchParams({
-                query: params.query,
-                page: (params.page || 1).toString(),
-                limit: (params.limit || 10).toString(),
-                ...(params.genre && { genre: params.genre })
-            });
+            const queryParams = new URLSearchParams();
+            if (options.query) queryParams.append('query', options.query);
+            if (options.page) queryParams.append('page', options.page.toString());
+            if (options.limit) queryParams.append('limit', options.limit.toString());
+            if (options.author) queryParams.append('author', options.author);
+            if (options.isbn) queryParams.append('isbn', options.isbn);
+            if (options.genres) {
+                options.genres.forEach(genre => {
+                    queryParams.append('genres[]', genre);
+                });
+            }
+            if (options.publisher) queryParams.append('publisher', options.publisher);
+            if (options.publication_year) queryParams.append('year', options.publication_year.toString());
+            if (options.language) queryParams.append('language', options.language);
+            if (options.format) queryParams.append('format', options.format);
+            if (options.rating_min) queryParams.append('rating_min', options.rating_min.toString());
+            if (options.rating_max) queryParams.append('rating_max', options.rating_max.toString());
+            if (options.sort_by) queryParams.append('sort_by', options.sort_by);
+            if (options.order) queryParams.append('order', options.order);
 
             const response = await CapacitorHttp.get({
                 url: `${API_URL}/search/books?${queryParams.toString()}`,
@@ -70,15 +90,21 @@ class SearchService {
         }
     }
 
-    // Rechercher des clubs
-    async searchClubs(params: SearchClubsInput): Promise<ApiResponse<PaginatedClubSearch>> {
+    async searchClubs(options: ClubSearchOptions): Promise<ApiResponse<ClubSearchResponse>> {
         try {
-            const queryParams = new URLSearchParams({
-                query: params.query,
-                page: (params.page || 1).toString(),
-                limit: (params.limit || 10).toString(),
-                ...(params.type && { type: params.type })
-            });
+            const queryParams = new URLSearchParams();
+            if (options.query) queryParams.append('query', options.query);
+            if (options.page) queryParams.append('page', options.page.toString());
+            if (options.limit) queryParams.append('limit', options.limit.toString());
+            if (options.genres) {
+                options.genres.forEach(genre => {
+                    queryParams.append('genres[]', genre);
+                });
+            }
+            if (options.member_count) queryParams.append('member_count', options.member_count.toString());
+            if (options.visibility) queryParams.append('visibility', options.visibility);
+            if (options.sort_by) queryParams.append('sort_by', options.sort_by);
+            if (options.order) queryParams.append('order', options.order);
 
             const response = await CapacitorHttp.get({
                 url: `${API_URL}/search/clubs?${queryParams.toString()}`,
@@ -96,15 +122,22 @@ class SearchService {
         }
     }
 
-    // Rechercher des listes de lecture
-    async searchBookLists(params: SearchBookListsInput): Promise<ApiResponse<PaginatedBookListSearch>> {
+    async searchBookLists(options: BookListSearchOptions): Promise<ApiResponse<BookListSearchResponse>> {
         try {
-            const queryParams = new URLSearchParams({
-                query: params.query,
-                page: (params.page || 1).toString(),
-                limit: (params.limit || 10).toString(),
-                ...(params.visibility && { visibility: params.visibility })
-            });
+            const queryParams = new URLSearchParams();
+            if (options.query) queryParams.append('query', options.query);
+            if (options.page) queryParams.append('page', options.page.toString());
+            if (options.limit) queryParams.append('limit', options.limit.toString());
+            if (options.genres) {
+                options.genres.forEach(genre => {
+                    queryParams.append('genres[]', genre);
+                });
+            }
+            if (options.created_by) queryParams.append('created_by', options.created_by);
+            if (options.book_count) queryParams.append('book_count', options.book_count.toString());
+            if (options.visibility) queryParams.append('visibility', options.visibility);
+            if (options.sort_by) queryParams.append('sort_by', options.sort_by);
+            if (options.order) queryParams.append('order', options.order);
 
             const response = await CapacitorHttp.get({
                 url: `${API_URL}/search/book-lists?${queryParams.toString()}`,
@@ -122,54 +155,26 @@ class SearchService {
         }
     }
 
-    // Rechercher par catégorie
-    async searchByCategory(params: SearchByCategoryInput): Promise<ApiResponse<CategorySearchResult>> {
+    async searchGeneral(query: string, options?: BaseSearchOptions): Promise<ApiResponse<GeneralSearchResponse>> {
         try {
-            const queryParams = new URLSearchParams({
-                category: params.category,
-                type: params.type,
-                page: (params.page || 1).toString(),
-                limit: (params.limit || 10).toString()
-            });
+            const queryParams = new URLSearchParams({ query });
+            if (options?.page) queryParams.append('page', options.page.toString());
+            if (options?.limit) queryParams.append('limit', options.limit.toString());
+            if (options?.sort_by) queryParams.append('sort_by', options.sort_by);
+            if (options?.order) queryParams.append('order', options.order);
 
             const response = await CapacitorHttp.get({
-                url: `${API_URL}/search/category?${queryParams.toString()}`,
+                url: `${API_URL}/search?${queryParams.toString()}`,
                 webFetchExtra: { credentials: 'include' }
             });
 
             if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de la recherche par catégorie');
+                throw new Error(response.data.message || 'Erreur lors de la recherche générale');
             }
 
             return response.data;
         } catch (error: any) {
-            console.error('Search by category error:', error);
-            throw error;
-        }
-    }
-
-    // Rechercher des contributeurs
-    async searchContributors(params: SearchContributorsInput): Promise<ApiResponse<PaginatedContributorSearch>> {
-        try {
-            const queryParams = new URLSearchParams({
-                query: params.query,
-                page: (params.page || 1).toString(),
-                limit: (params.limit || 10).toString(),
-                ...(params.role && { role: params.role })
-            });
-
-            const response = await CapacitorHttp.get({
-                url: `${API_URL}/search/contributors?${queryParams.toString()}`,
-                webFetchExtra: { credentials: 'include' }
-            });
-
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de la recherche de contributeurs');
-            }
-
-            return response.data;
-        } catch (error: any) {
-            console.error('Search contributors error:', error);
+            console.error('General search error:', error);
             throw error;
         }
     }

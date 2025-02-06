@@ -4,12 +4,15 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { authService } from "@/services/auth.service";
+import { useAuth } from "@/contexts/auth-context";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { RegisterStepThreeInput } from '@/types/auth';
+import type { RegisterStepThreeRequest } from '@/types/authTypes';
 
-const genres = [
+const genres: Array<{
+    id: string;
+    label: string;
+}> = [
     { id: 'fantasy', label: 'Fantasy' },
     { id: 'sci-fi', label: 'Science Fiction' },
     { id: 'romance', label: 'Romance' },
@@ -30,6 +33,7 @@ export default function Genres() {
     const [email, setEmail] = useState('');
     const router = useRouter();
     const { toast } = useToast();
+    const { completeStepThree } = useAuth();
 
     useEffect(() => {
         const storedEmail = sessionStorage.getItem('verificationEmail');
@@ -60,10 +64,12 @@ export default function Genres() {
 
         try {
             setIsLoading(true);
-            await authService.registerStepThree({
+            const data: RegisterStepThreeRequest = {
                 email,
-                preferredGenres
-            });
+                preferred_genres: preferredGenres
+            };
+
+            await completeStepThree(data);
             
             // Nettoyage et redirection vers le feed
             sessionStorage.removeItem('verificationEmail');

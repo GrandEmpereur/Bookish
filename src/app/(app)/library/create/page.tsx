@@ -142,6 +142,7 @@ export default function CreateBookList() {
                                         className="resize-none"
                                         disabled={isLoading}
                                         {...field}
+                                        value={field.value ?? ''}
                                     />
                                 </FormControl>
                                 <FormMessage />

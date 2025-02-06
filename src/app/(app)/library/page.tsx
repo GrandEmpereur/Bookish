@@ -26,7 +26,7 @@ export default function Library() {
         try {
             setIsLoading(true);
             const response = await bookListService.getBookLists();
-            const sortedLists = response.sort((a, b) => 
+            const sortedLists = response.data.sort((a, b) => 
                 new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
             );
             setBookLists(sortedLists);

@@ -6,6 +6,7 @@ import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { loginSchema, type LoginInput } from "@/lib/validations/auth";
+import type { LoginRequest } from "@/types/authTypes";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/contexts/auth-context';
 
@@ -33,15 +34,16 @@ export default function Login() {
         },
     });
 
-    const onSubmit = async (data: LoginInput) => {
+    const onSubmit = async (formData: LoginInput) => {
         try {
-            await login(data);
-            
-            toast({
-                title: "Connexion réussie",
-                description: "Bienvenue sur Bookish !",
-            });
+            const loginData: LoginRequest = {
+                email: formData.email,
+                password: formData.password,
+                rememberMe: formData.rememberMe
+            };
 
+            await login(loginData);
+            
             // Retour haptique sur mobile
             if (navigator.vibrate) {
                 navigator.vibrate(100);

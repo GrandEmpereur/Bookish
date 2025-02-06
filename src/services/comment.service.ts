@@ -1,15 +1,16 @@
 import { CapacitorHttp } from '@capacitor/core';
-import { Comment } from '@/types/comment';
-import { CreateCommentInput, UpdateCommentInput } from '@/lib/validations/comment';
-import { ApiResponse } from '@/types/api';
+import {
+    GetCommentsResponse,
+    CreateCommentResponse,
+    UpdateCommentResponse,
+    ReplyCommentResponse
+} from '@/types/postTypes';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 class CommentService {
-    // Récupérer les commentaires d'un post
-    async getComments(
-        postId: string,
-    ): Promise<ApiResponse<Comment[]>> {
+    // GET /:postId/comments
+    async getComments(postId: string): Promise<GetCommentsResponse> {
         try {
             const response = await CapacitorHttp.get({
                 url: `${API_URL}/posts/${postId}/comments`,
@@ -27,8 +28,8 @@ class CommentService {
         }
     }
 
-    // Créer un commentaire
-    async createComment(postId: string, data: CreateCommentInput): Promise<ApiResponse<Comment>> {
+    // POST /:postId/comments
+    async createComment(postId: string, data: { content: string }): Promise<CreateCommentResponse> {
         try {
             const response = await CapacitorHttp.post({
                 url: `${API_URL}/posts/${postId}/comments`,
@@ -48,12 +49,8 @@ class CommentService {
         }
     }
 
-    // Répondre à un commentaire
-    async replyToComment(
-        postId: string,
-        commentId: string,
-        data: CreateCommentInput
-    ): Promise<ApiResponse<Comment>> {
+    // POST /:postId/comments/:commentId/reply
+    async replyToComment(postId: string, commentId: string, data: { content: string }): Promise<ReplyCommentResponse> {
         try {
             const response = await CapacitorHttp.post({
                 url: `${API_URL}/posts/${postId}/comments/${commentId}/reply`,
@@ -63,7 +60,7 @@ class CommentService {
             });
 
             if (response.status !== 201) {
-                throw new Error(response.data.message || 'Erreur lors de la création de la réponse');
+                throw new Error(response.data.message || 'Erreur lors de l\'ajout de la réponse');
             }
 
             return response.data;
@@ -73,21 +70,18 @@ class CommentService {
         }
     }
 
-    // Modifier un commentaire
-    async updateComment(
-        commentId: string,
-        data: UpdateCommentInput
-    ): Promise<ApiResponse<Comment>> {
+    // PUT /comments/:id
+    async updateComment(commentId: string, data: { content: string }): Promise<UpdateCommentResponse> {
         try {
             const response = await CapacitorHttp.put({
-                url: `${API_URL}/posts/comments/${commentId}`,
+                url: `${API_URL}/comments/${commentId}`,
                 headers: { 'Content-Type': 'application/json' },
                 data,
                 webFetchExtra: { credentials: 'include' }
             });
 
             if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de la modification du commentaire');
+                throw new Error(response.data.message || 'Erreur lors de la mise à jour du commentaire');
             }
 
             return response.data;
@@ -97,17 +91,19 @@ class CommentService {
         }
     }
 
-    // Supprimer un commentaire
-    async deleteComment(commentId: string): Promise<void> {
+    // DELETE /comments/:id
+    async deleteComment(commentId: string): Promise<{ status: string; message: string; data: { post: { id: string; commentsCount: number } } }> {
         try {
             const response = await CapacitorHttp.delete({
-                url: `${API_URL}/posts/comments/${commentId}`,
+                url: `${API_URL}/comments/${commentId}`,
                 webFetchExtra: { credentials: 'include' }
             });
 
             if (response.status !== 200) {
                 throw new Error(response.data.message || 'Erreur lors de la suppression du commentaire');
             }
+
+            return response.data;
         } catch (error: any) {
             console.error('Delete comment error:', error);
             throw error;

@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { authService } from "@/services/auth.service";
+import { useAuth } from "@/contexts/auth-context";
+import type { VerifyResetCodeRequest } from "@/types/authTypes";
 import {
     InputOTP,
     InputOTPGroup,
@@ -12,7 +13,6 @@ import {
     InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { Button } from "@/components/ui/button";
-import { VerifyResetCodeInput } from '@/types/auth';
 
 export default function VerifyResetCode() {
     const [code, setCode] = useState('');
@@ -20,6 +20,7 @@ export default function VerifyResetCode() {
     const [email, setEmail] = useState('');
     const router = useRouter();
     const { toast } = useToast();
+    const { verifyResetCode } = useAuth();
 
     useEffect(() => {
         const storedEmail = sessionStorage.getItem('resetPasswordEmail');
@@ -30,7 +31,7 @@ export default function VerifyResetCode() {
         setEmail(storedEmail);
     }, [router]);
 
-    const handleVerification = async (data: VerifyResetCodeInput) => {
+    const handleVerification = async () => {
         if (code.length !== 6) {
             toast({
                 variant: "destructive",
@@ -42,7 +43,12 @@ export default function VerifyResetCode() {
 
         try {
             setIsLoading(true);
-            await authService.verifyResetCode(data);
+            const data: VerifyResetCodeRequest = {
+                email,
+                code
+            };
+
+            await verifyResetCode(data);
             router.push('/auth/forgot-password/reset');
         } catch (error: any) {
             toast({
@@ -86,7 +92,7 @@ export default function VerifyResetCode() {
 
                 <Button
                     className="w-full h-14"
-                    onClick={() => handleVerification({ email, code })}
+                    onClick={handleVerification}
                     disabled={code.length !== 6 || isLoading}
                 >
                     {isLoading ? (

@@ -1,60 +1,34 @@
 import { CapacitorHttp } from '@capacitor/core';
-import {
-    Conversation,
-    Message,
-    ConversationFilters,
-    MessageFilters,
-    PaginatedConversations,
-    PaginatedMessages
-} from '@/types/message';
-import {
-    CreateConversationInput,
-    SendMessageInput
-} from '@/lib/validations/message';
 import { ApiResponse } from '@/types/api';
+import {
+    Message,
+    SendMessageRequest,
+    UpdateMessageRequest,
+    GetMessagesResponse,
+    GetMessageResponse,
+    SendMessageResponse,
+    UpdateMessageResponse,
+    MessageStats,
+    Conversation,
+    GetConversationsResponse
+} from '@/types/messagerieTypes';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 class MessageService {
-    // Récupérer la liste des conversations
-    async getConversations(filters: ConversationFilters = {}): Promise<ApiResponse<PaginatedConversations>> {
+    async getMessages(options: {
+        page?: number;
+        limit?: number;
+        conversation_with?: string;
+    }): Promise<ApiResponse<GetMessagesResponse>> {
         try {
-            const queryParams = new URLSearchParams({
-                page: (filters.page || 1).toString(),
-                limit: (filters.limit || 20).toString(),
-                ...(filters.sort && { sort: filters.sort }),
-                ...(filters.order && { order: filters.order })
-            });
+            const queryParams = new URLSearchParams();
+            if (options?.page) queryParams.append('page', options.page.toString());
+            if (options?.limit) queryParams.append('limit', options.limit.toString());
+            if (options?.conversation_with) queryParams.append('with', options.conversation_with);
 
             const response = await CapacitorHttp.get({
-                url: `${API_URL}/messages/conversations?${queryParams.toString()}`,
-                webFetchExtra: { credentials: 'include' }
-            });
-
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de la récupération des conversations');
-            }
-
-            return response.data;
-        } catch (error: any) {
-            console.error('Get conversations error:', error);
-            throw error;
-        }
-    }
-
-    // Récupérer les messages d'une conversation
-    async getMessages(
-        conversationId: string,
-        filters: MessageFilters = {}
-    ): Promise<ApiResponse<PaginatedMessages>> {
-        try {
-            const queryParams = new URLSearchParams({
-                page: (filters.page || 1).toString(),
-                limit: (filters.limit || 50).toString()
-            });
-
-            const response = await CapacitorHttp.get({
-                url: `${API_URL}/messages/conversations/${conversationId}?${queryParams.toString()}`,
+                url: `${API_URL}/messages?${queryParams.toString()}`,
                 webFetchExtra: { credentials: 'include' }
             });
 
@@ -69,46 +43,30 @@ class MessageService {
         }
     }
 
-    // Créer une nouvelle conversation
-    async createConversation(data: CreateConversationInput): Promise<ApiResponse<Conversation>> {
+    async getMessage(messageId: string): Promise<ApiResponse<GetMessageResponse>> {
         try {
-            const response = await CapacitorHttp.post({
-                url: `${API_URL}/messages/conversations`,
-                headers: { 'Content-Type': 'application/json' },
-                data,
+            const response = await CapacitorHttp.get({
+                url: `${API_URL}/messages/${messageId}`,
                 webFetchExtra: { credentials: 'include' }
             });
 
-            if (response.status !== 201) {
-                throw new Error(response.data.message || 'Erreur lors de la création de la conversation');
+            if (response.status !== 200) {
+                throw new Error(response.data.message || 'Erreur lors de la récupération du message');
             }
 
             return response.data;
         } catch (error: any) {
-            console.error('Create conversation error:', error);
+            console.error('Get message error:', error);
             throw error;
         }
     }
 
-    // Envoyer un message
-    async sendMessage(
-        conversationId: string,
-        data: SendMessageInput
-    ): Promise<ApiResponse<Message>> {
+    async sendMessage(data: SendMessageRequest): Promise<ApiResponse<SendMessageResponse>> {
         try {
-            const formData = new FormData();
-            formData.append('content', data.content);
-
-            if (data.attachments?.length) {
-                data.attachments.forEach((file, index) => {
-                    formData.append(`attachments[${index}]`, file);
-                });
-            }
-
             const response = await CapacitorHttp.post({
-                url: `${API_URL}/messages/conversations/${conversationId}/messages`,
-                data: formData,
-                headers: { 'Content-Type': 'multipart/form-data' },
+                url: `${API_URL}/messages`,
+                headers: { 'Content-Type': 'application/json' },
+                data,
                 webFetchExtra: { credentials: 'include' }
             });
 
@@ -123,16 +81,71 @@ class MessageService {
         }
     }
 
-    // Marquer une conversation comme lue
-    async markAsRead(conversationId: string): Promise<ApiResponse<void>> {
+    async updateMessage(messageId: string, data: UpdateMessageRequest): Promise<ApiResponse<UpdateMessageResponse>> {
         try {
-            const response = await CapacitorHttp.post({
-                url: `${API_URL}/messages/conversations/${conversationId}/read`,
+            const response = await CapacitorHttp.patch({
+                url: `${API_URL}/messages/${messageId}`,
+                headers: { 'Content-Type': 'application/json' },
+                data,
                 webFetchExtra: { credentials: 'include' }
             });
 
             if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors du marquage de la conversation');
+                throw new Error(response.data.message || 'Erreur lors de la mise à jour du message');
+            }
+
+            return response.data;
+        } catch (error: any) {
+            console.error('Update message error:', error);
+            throw error;
+        }
+    }
+
+    async deleteMessage(messageId: string): Promise<ApiResponse<null>> {
+        try {
+            const response = await CapacitorHttp.delete({
+                url: `${API_URL}/messages/${messageId}`,
+                webFetchExtra: { credentials: 'include' }
+            });
+
+            if (response.status !== 200) {
+                throw new Error(response.data.message || 'Erreur lors de la suppression du message');
+            }
+
+            return response.data;
+        } catch (error: any) {
+            console.error('Delete message error:', error);
+            throw error;
+        }
+    }
+
+    async getConversations(): Promise<ApiResponse<GetConversationsResponse>> {
+        try {
+            const response = await CapacitorHttp.get({
+                url: `${API_URL}/messages/conversations`,
+                webFetchExtra: { credentials: 'include' }
+            });
+
+            if (response.status !== 200) {
+                throw new Error(response.data.message || 'Erreur lors de la récupération des conversations');
+            }
+
+            return response.data;
+        } catch (error: any) {
+            console.error('Get conversations error:', error);
+            throw error;
+        }
+    }
+
+    async markConversationAsRead(userId: string): Promise<ApiResponse<null>> {
+        try {
+            const response = await CapacitorHttp.post({
+                url: `${API_URL}/messages/read/${userId}`,
+                webFetchExtra: { credentials: 'include' }
+            });
+
+            if (response.status !== 200) {
+                throw new Error(response.data.message || 'Erreur lors du marquage comme lu');
             }
 
             return response.data;
@@ -142,38 +155,20 @@ class MessageService {
         }
     }
 
-    // Archiver une conversation
-    async archiveConversation(conversationId: string): Promise<ApiResponse<void>> {
+    async getMessageStats(): Promise<ApiResponse<MessageStats>> {
         try {
-            const response = await CapacitorHttp.post({
-                url: `${API_URL}/messages/conversations/${conversationId}/archive`,
+            const response = await CapacitorHttp.get({
+                url: `${API_URL}/messages/stats`,
                 webFetchExtra: { credentials: 'include' }
             });
 
             if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de l\'archivage de la conversation');
+                throw new Error(response.data.message || 'Erreur lors de la récupération des statistiques');
             }
 
             return response.data;
         } catch (error: any) {
-            console.error('Archive conversation error:', error);
-            throw error;
-        }
-    }
-
-    // Supprimer une conversation
-    async deleteConversation(conversationId: string): Promise<void> {
-        try {
-            const response = await CapacitorHttp.delete({
-                url: `${API_URL}/messages/conversations/${conversationId}`,
-                webFetchExtra: { credentials: 'include' }
-            });
-
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de la suppression de la conversation');
-            }
-        } catch (error: any) {
-            console.error('Delete conversation error:', error);
+            console.error('Get message stats error:', error);
             throw error;
         }
     }

@@ -4,11 +4,17 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { authService } from "@/services/auth.service";
+import { useAuth } from "@/contexts/auth-context";
 import Image from "next/image";
-import { RegisterStepTwoInput } from '@/types/auth';
+import type { ReadingHabit } from "@/types/userTypes";
+import type { RegisterStepTwoRequest } from "@/types/authTypes";
 
-const readingHabits = [
+const readingHabits: Array<{
+    id: ReadingHabit;
+    label: string;
+    description: string;
+    icon: string;
+}> = [
     {
         id: 'library_rat',
         label: 'Grand lecteur',
@@ -30,11 +36,12 @@ const readingHabits = [
 ];
 
 export default function Habits() {
-    const [selectedHabit, setSelectedHabit] = useState<string | null>(null);
+    const [selectedHabit, setSelectedHabit] = useState<ReadingHabit | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [email, setEmail] = useState('');
     const router = useRouter();
     const { toast } = useToast();
+    const { completeStepTwo } = useAuth();
 
     useEffect(() => {
         const storedEmail = sessionStorage.getItem('verificationEmail');
@@ -45,14 +52,17 @@ export default function Habits() {
         setEmail(storedEmail);
     }, [router]);
 
-    const handleHabitSelection = async (data: RegisterStepTwoInput) => {
+    const handleHabitSelection = async (habit: ReadingHabit) => {
         try {
             setIsLoading(true);
-            setSelectedHabit(data.readingHabit);
+            setSelectedHabit(habit);
 
-            await authService.registerStepTwo(data);
-            
-            // Si succès, passer à l'étape suivante
+            const data: RegisterStepTwoRequest = {
+                email,
+                reading_habit: habit
+            };
+
+            await completeStepTwo(data);
             router.push('/auth/register/genres');
         } catch (error: any) {
             toast({
@@ -80,10 +90,7 @@ export default function Habits() {
                     {readingHabits.map((habit) => (
                         <button
                             key={habit.id}
-                            onClick={() => handleHabitSelection({
-                                email,
-                                readingHabit: habit.id as RegisterStepTwoInput['readingHabit']
-                            })}
+                            onClick={() => handleHabitSelection(habit.id)}
                             disabled={isLoading}
                             className={`w-full p-4 rounded-lg border flex items-center gap-4 transition-colors
                                 ${selectedHabit === habit.id 

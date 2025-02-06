@@ -8,7 +8,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { forgotPasswordSchema, type ForgotPasswordInput } from "@/lib/validations/auth";
 import { useToast } from "@/hooks/use-toast";
-import { authService } from "@/services/auth.service";
+import { useAuth } from "@/contexts/auth-context";
+import type { ForgotPasswordRequest } from "@/types/authTypes";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -32,6 +33,7 @@ export default function ForgotPassword() {
     const [emailToReset, setEmailToReset] = useState('');
     const router = useRouter();
     const { toast } = useToast();
+    const { requestPasswordReset } = useAuth();
 
     const form = useForm<ForgotPasswordInput>({
         resolver: zodResolver(forgotPasswordSchema),
@@ -40,13 +42,17 @@ export default function ForgotPassword() {
         },
     });
 
-    const onSubmit = async (data: ForgotPasswordInput) => {
+    const onSubmit = async (formData: ForgotPasswordInput) => {
         try {
-            await authService.forgotPassword(data);
+            const data: ForgotPasswordRequest = {
+                email: formData.email
+            };
+
+            await requestPasswordReset(data);
             
             // Stocker l'email pour la vérification
-            setEmailToReset(data.email);
-            sessionStorage.setItem('resetPasswordEmail', data.email);
+            setEmailToReset(formData.email);
+            sessionStorage.setItem('resetPasswordEmail', formData.email);
 
             // Retour haptique sur mobile
             if (navigator.vibrate) {

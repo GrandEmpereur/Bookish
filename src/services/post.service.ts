@@ -1,13 +1,23 @@
 import { CapacitorHttp } from '@capacitor/core';
-import { Post, CreatePostResponse, DeletePostResponse } from '@/types/post';
-import { CreatePostInput, UpdatePostInput } from '@/lib/validations/post';
 import { ApiResponse } from '@/types/api';
+import {
+    Post,
+    PostSubject,
+    CreatePostRequest,
+    UpdatePostRequest,
+    GetPostResponse,
+    GetPostsResponse,
+    CreatePostResponse,
+    UpdatePostResponse,
+    ToggleLikeResponse,
+    ToggleFavoriteResponse
+} from '@/types/postTypes';
+import { CreatePostFormData } from '@/lib/validations/post';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 class PostService {
-    // Récupérer la liste des posts
-    async getPosts(): Promise<ApiResponse<Post[]>> {
+    async getPosts(): Promise<GetPostsResponse> {
         try {
             const response = await CapacitorHttp.get({
                 url: `${API_URL}/posts`,
@@ -25,46 +35,7 @@ class PostService {
         }
     }
 
-    // Créer un post
-    async createPost(data: CreatePostInput): Promise<ApiResponse<CreatePostResponse>> {
-        try {
-            // Création du FormData pour l'upload multipart
-            const formData = new FormData();
-            formData.append('title', data.title);
-            formData.append('subject', data.subject);
-            formData.append('content', data.content);
-
-            // Ajout des fichiers médias s'il y en a
-            if (data.media && data.media.length > 0) {
-                data.media.forEach((file, index) => {
-                    formData.append('media', file);
-                });
-            }
-
-            const response = await CapacitorHttp.post({
-                url: `${API_URL}/posts`,
-                headers: {
-                    // Ne pas définir Content-Type, il sera automatiquement défini avec la boundary
-                },
-                data: formData,
-                webFetchExtra: {
-                    credentials: 'include',
-                }
-            });
-
-            if (response.status !== 201) {
-                throw new Error(response.data.message || 'Erreur lors de la création du post');
-            }
-
-            return response.data;
-        } catch (error: any) {
-            console.error('Create post error:', error);
-            throw error;
-        }
-    }
-
-    // Récupérer un post
-    async getPost(id: string): Promise<ApiResponse<Post>> {
+    async getPost(id: string): Promise<GetPostResponse> {
         try {
             const response = await CapacitorHttp.get({
                 url: `${API_URL}/posts/${id}`,
@@ -82,32 +53,53 @@ class PostService {
         }
     }
 
-    // Supprimer un post
-    async deletePost(id: string): Promise<ApiResponse<DeletePostResponse>> {
+    async createPost(data: CreatePostFormData): Promise<GetPostResponse> {
         try {
-            const response = await CapacitorHttp.delete({
-                url: `${API_URL}/posts/${id}`,
+            const formData = new FormData();
+            formData.append('title', data.title);
+            formData.append('subject', data.subject);
+            formData.append('content', data.content);
+
+            if (data.media && data.media.length > 0) {
+                data.media.forEach(file => {
+                    formData.append('media', file);
+                });
+            }
+
+            const response = await CapacitorHttp.post({
+                url: `${API_URL}/posts`,
+                data: formData,
                 webFetchExtra: { credentials: 'include' }
             });
 
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de la suppression du post');
+            if (response.status !== 201) {
+                throw new Error(response.data.message || 'Erreur lors de la création du post');
             }
 
             return response.data;
         } catch (error: any) {
-            console.error('Delete post error:', error);
+            console.error('Create post error:', error);
             throw error;
         }
     }
 
-    // Mettre à jour un post
-    async updatePost(id: string, data: UpdatePostInput): Promise<ApiResponse<Post>> {
+    async updatePost(id: string, data: UpdatePostRequest): Promise<ApiResponse<UpdatePostResponse>> {
         try {
-            const response = await CapacitorHttp.put({
+            const formData = new FormData();
+            Object.entries(data).forEach(([key, value]) => {
+                if (key === 'media' && Array.isArray(value)) {
+                    value.forEach((file, index) => {
+                        formData.append(`media[${index}]`, file);
+                    });
+                } else if (value !== undefined) {
+                    formData.append(key, String(value));
+                }
+            });
+
+            const response = await CapacitorHttp.patch({
                 url: `${API_URL}/posts/${id}`,
-                headers: { 'Content-Type': 'application/json' },
-                data,
+                data: formData,
+                headers: { 'Content-Type': 'multipart/form-data' },
                 webFetchExtra: { credentials: 'include' }
             });
 
@@ -118,6 +110,78 @@ class PostService {
             return response.data;
         } catch (error: any) {
             console.error('Update post error:', error);
+            throw error;
+        }
+    }
+
+    async deletePost(id: string): Promise<void> {
+        try {
+            const response = await CapacitorHttp.delete({
+                url: `${API_URL}/posts/${id}`,
+                webFetchExtra: { credentials: 'include' }
+            });
+
+            if (response.status !== 200) {
+                throw new Error(response.data.message || 'Erreur lors de la suppression du post');
+            }
+        } catch (error: any) {
+            console.error('Delete post error:', error);
+            throw error;
+        }
+    }
+
+    async toggleLike(id: string): Promise<ApiResponse<ToggleLikeResponse>> {
+        try {
+            const response = await CapacitorHttp.post({
+                url: `${API_URL}/posts/${id}/like`,
+                webFetchExtra: { credentials: 'include' }
+            });
+
+            if (response.status !== 200) {
+                throw new Error(response.data.message || 'Erreur lors du like/unlike');
+            }
+
+            return response.data;
+        } catch (error: any) {
+            console.error('Toggle like error:', error);
+            throw error;
+        }
+    }
+
+    async toggleFavorite(id: string): Promise<ApiResponse<ToggleFavoriteResponse>> {
+        try {
+            const response = await CapacitorHttp.post({
+                url: `${API_URL}/posts/${id}/favorite`,
+                webFetchExtra: { credentials: 'include' }
+            });
+
+            if (response.status !== 200) {
+                throw new Error(response.data.message || 'Erreur lors de l\'ajout/retrait des favoris');
+            }
+
+            return response.data;
+        } catch (error: any) {
+            console.error('Toggle favorite error:', error);
+            throw error;
+        }
+    }
+
+    async reportPost(id: string, reason: string): Promise<ApiResponse<null>> {
+        try {
+            const response = await CapacitorHttp.post({
+                url: `${API_URL}/posts/${id}/report`,
+                headers: { 'Content-Type': 'application/json' },
+                data: { reason },
+                webFetchExtra: { credentials: 'include' }
+            });
+
+            if (response.status !== 200) {
+                throw new Error(response.data.message || 'Erreur lors du signalement');
+            }
+
+            return response.data;
+        } catch (error: any) {
+            console.error('Report post error:', error);
             throw error;
         }
     }
