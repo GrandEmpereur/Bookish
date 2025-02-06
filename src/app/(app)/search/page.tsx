@@ -78,33 +78,9 @@ const SearchPage: React.FC = () => {
       setMessageType("success");
     } catch (error) {
       console.error("Erreur lors de l'envoi de la demande d'ami:", error);
-      if (error.message === "Une demande d'ami existe déjà") {
-        setMessage("Vous avez déjà envoyé une demande d'ami à cet utilisateur.");
-        setMessageType("error");
-      } else {
-        setMessage("Vous avez déjà envoyé une demande d'ami à cet utilisateur.");
-        setMessageType("error");
-      }
+      setMessage("Vous avez déjà envoyé une demande d'ami à cet utilisateur.");
+      setMessageType("error");
     }
-  };
-
-  const renderUserProfile = (profile: UserProfile) => {
-    if (profile.profileVisibility === "private") {
-      return <p>Ce profil est privé.</p>;
-    }
-
-    return (
-      <>
-        <p>{profile.fullName}</p>
-        {profile.profilePicturePath && profile.profilePicturePath !== null && (
-          <img
-            src={profile.profilePicturePath}
-            alt="Profile Picture"
-            className="w-10 h-10 rounded-full"
-          />
-        )}
-      </>
-    );
   };
 
   return (
@@ -134,18 +110,27 @@ const SearchPage: React.FC = () => {
               {users.map((user) => {
                 console.log("Utilisateur affiché:", user);
                 return (
-                  <div key={user.id} className="flex flex-row gap-2 p-4 border rounded-md items-center gap-6">
+                  <div key={user.id} className="flex flex-row gap-6 p-4 border rounded-md items-center">
+                    {user.profile?.profilePicturePath && (
+                      <img
+                        src={user.profile.profilePicturePath}
+                        alt="Profile Picture"
+                        className="w-16 h-16 rounded-full object-cover"
+                      />
+                    )}
+                    <div className="flex flex-col">
                     <h3 className="font-semibold">{user.username}</h3>
-                    {renderUserProfile(user.profile)}
+                    {user.profile?.fullName && <p>{user.profile.fullName}</p>}
+                    </div>
+                    {/* Bouton pour envoyer une demande d'ami */}
                     <button
-                      onClick={() => {
-                        console.log("Le bouton a été cliqué pour l'utilisateur:", user.id);
-                        handleSendFriendRequest(user.id);
-                      }}
+                      onClick={() => handleSendFriendRequest(user.id)}
                       className="mt-4 py-2 px-4 w-40 bg-blue-500 text-white rounded hover:bg-blue-700"
                     >
                       Envoyer une demande d'ami
                     </button>
+
+                    {/* Message de statut (succès/erreur) */}
                     {message && (
                       <p
                         className={`mt-2 ${
