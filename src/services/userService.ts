@@ -3,6 +3,7 @@ import { apiClient, handleApiError } from './apiClient';
 import axios from "axios";
 import { ProfileSchema } from "@/schemas/profileSchema";
 
+
 export const getCurrentUser = async (): Promise<UserResponse> => {
     try {
         const response = await apiClient.get<UserResponse>('/users/me');
