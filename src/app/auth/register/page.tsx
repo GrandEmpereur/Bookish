@@ -69,7 +69,6 @@ export default function Register() {
             };
 
             const response = await register(requestData);
-            console.log("Register response:", response);
             sessionStorage.setItem('verificationEmail', data.email);
             setShowEmailDialog(true);
 

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Book, Lock, Globe, BookOpen } from "lucide-react";
 import { bookListService } from "@/services/book-list.service";
-import { BookList } from "@/types/book-list";
+import type { BookList } from "@/types/bookListTypes";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FloatingActionButton } from "@/components/ui/floating-action-button";
@@ -26,8 +26,9 @@ export default function Library() {
         try {
             setIsLoading(true);
             const response = await bookListService.getBookLists();
-            const sortedLists = response.data.sort((a, b) => 
-                new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            
+            const sortedLists = response.data.sort((a: BookList, b: BookList) => 
+                new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()   
             );
             setBookLists(sortedLists);
         } catch (error) {

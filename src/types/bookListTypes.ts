@@ -8,33 +8,31 @@ export type ReadingStatus = 'to_read' | 'reading' | 'finished';
 
 // Type principal pour les listes de livres
 export interface BookList {
+    bookCount: number;
+    books: Book[];
+    coverImage: string;
+    createdAt: string;
+    description: string;
+    genre: string;
     id: string;
     name: string;
-    description: string | null;
-    cover_image: string | null;
-    user_id: string;
+    updatedAt: string;
+    userId: string;
     visibility: BookListVisibility;
-    genre: string;
-    book_count: number;
-    created_at: string;
-    updated_at: string;
-    user?: UserProfile;
-    books?: Array<Book & { reading_status: ReadingStatus }>;
 }
 
 // Types pour les requêtes
 export interface CreateBookListRequest {
     name: string;
     description?: string;
-    visibility?: BookListVisibility;
+    visibility: BookListVisibility;
     genre: string;
-    cover_image?: File;
 }
 
 export interface UpdateBookListRequest extends Partial<CreateBookListRequest> { }
 
 export interface AddBookToListRequest {
-    book_ids: string[];
+    bookIds: string[];
 }
 
 export interface UpdateReadingStatusRequest {
@@ -42,44 +40,40 @@ export interface UpdateReadingStatusRequest {
 }
 
 // Types pour les réponses
-export interface GetBookListResponse {
-    book_list: BookList;
+export interface GetBookListsResponse {
+    status: string;
+    message: string;
+    data: BookList[];
 }
 
-export interface GetBookListsResponse {
-    book_lists: BookList[];
-    pagination: {
-        total: number;
-        per_page: number;
-        current_page: number;
-        last_page: number;
-    };
+export interface GetBookListResponse {
+    bookList: BookList;
 }
 
 export interface CreateBookListResponse {
-    book_list: BookList;
+    bookList: BookList;
 }
 
 export interface UpdateBookListResponse {
-    book_list: BookList;
+    bookList: BookList;
 }
 
 export interface AddBookToListResponse {
-    book_count: number;
-    added_count: number;
-    existing_books: Array<{
+    bookCount: number;
+    addedCount: number;
+    existingBooks: Array<{
         id: string;
         title: string;
     }>;
 }
 
 export interface RemoveBookFromListResponse {
-    book_count: number;
+    bookCount: number;
 }
 
 export interface UpdateReadingStatusResponse {
-    book_id: string;
-    reading_status: ReadingStatus;
+    bookId: string;
+    readingStatus: ReadingStatus;
 }
 
 export interface GetBookListsByGenreResponse {

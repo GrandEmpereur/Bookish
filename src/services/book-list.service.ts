@@ -1,6 +1,5 @@
 import { CapacitorHttp } from '@capacitor/core';
-import {
-    BookList,
+import type {
     CreateBookListRequest,
     UpdateBookListRequest,
     AddBookToListRequest,
@@ -12,29 +11,17 @@ import {
     AddBookToListResponse,
     RemoveBookFromListResponse,
     UpdateReadingStatusResponse,
-    GetBookListsByGenreResponse,
-    BookListVisibility
 } from '@/types/bookListTypes';
-import { ApiResponse } from '@/types/api';
+import type { ApiResponse } from '@/types/api';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 class BookListService {
-    async getBookLists(options?: {
-        page?: number;
-        limit?: number;
-        genre?: string;
-        visibility?: BookListVisibility;
-    }): Promise<ApiResponse<GetBookListsResponse>> {
+    // GET /book-lists
+    async getBookLists(): Promise<GetBookListsResponse> {
         try {
-            const queryParams = new URLSearchParams();
-            if (options?.page) queryParams.append('page', options.page.toString());
-            if (options?.limit) queryParams.append('limit', options.limit.toString());
-            if (options?.genre) queryParams.append('genre', options.genre);
-            if (options?.visibility) queryParams.append('visibility', options.visibility);
-
             const response = await CapacitorHttp.get({
-                url: `${API_URL}/book-lists?${queryParams.toString()}`,
+                url: `${API_URL}/book-lists`,
                 webFetchExtra: { credentials: 'include' }
             });
 
@@ -44,11 +31,11 @@ class BookListService {
 
             return response.data;
         } catch (error: any) {
-            console.error('Get book lists error:', error);
             throw error;
         }
     }
 
+    // GET /book-lists/:id
     async getBookList(id: string): Promise<ApiResponse<GetBookListResponse>> {
         try {
             const response = await CapacitorHttp.get({
@@ -62,26 +49,17 @@ class BookListService {
 
             return response.data;
         } catch (error: any) {
-            console.error('Get book list error:', error);
             throw error;
         }
     }
 
+    // POST /book-lists
     async createBookList(data: CreateBookListRequest): Promise<ApiResponse<CreateBookListResponse>> {
         try {
-            const formData = new FormData();
-            Object.entries(data).forEach(([key, value]) => {
-                if (key === 'cover_image' && value instanceof File) {
-                    formData.append(key, value);
-                } else {
-                    formData.append(key, String(value));
-                }
-            });
-
             const response = await CapacitorHttp.post({
                 url: `${API_URL}/book-lists`,
-                data: formData,
-                headers: { 'Content-Type': 'multipart/form-data' },
+                headers: { 'Content-Type': 'application/json' },
+                data,
                 webFetchExtra: { credentials: 'include' }
             });
 
@@ -91,26 +69,17 @@ class BookListService {
 
             return response.data;
         } catch (error: any) {
-            console.error('Create book list error:', error);
             throw error;
         }
     }
 
+    // PUT /book-lists/:id
     async updateBookList(id: string, data: UpdateBookListRequest): Promise<ApiResponse<UpdateBookListResponse>> {
         try {
-            const formData = new FormData();
-            Object.entries(data).forEach(([key, value]) => {
-                if (key === 'cover_image' && value instanceof File) {
-                    formData.append(key, value);
-                } else if (value !== undefined) {
-                    formData.append(key, String(value));
-                }
-            });
-
-            const response = await CapacitorHttp.patch({
+            const response = await CapacitorHttp.put({
                 url: `${API_URL}/book-lists/${id}`,
-                data: formData,
-                headers: { 'Content-Type': 'multipart/form-data' },
+                headers: { 'Content-Type': 'application/json' },
+                data,
                 webFetchExtra: { credentials: 'include' }
             });
 
@@ -120,11 +89,11 @@ class BookListService {
 
             return response.data;
         } catch (error: any) {
-            console.error('Update book list error:', error);
             throw error;
         }
     }
 
+    // DELETE /book-lists/:id
     async deleteBookList(id: string): Promise<ApiResponse<null>> {
         try {
             const response = await CapacitorHttp.delete({
@@ -138,11 +107,11 @@ class BookListService {
 
             return response.data;
         } catch (error: any) {
-            console.error('Delete book list error:', error);
             throw error;
         }
     }
 
+    // POST /book-lists/:id/books
     async addBookToList(listId: string, data: AddBookToListRequest): Promise<ApiResponse<AddBookToListResponse>> {
         try {
             const response = await CapacitorHttp.post({
@@ -153,16 +122,16 @@ class BookListService {
             });
 
             if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de l\'ajout des livres');
+                throw new Error(response.data.message || 'Erreur lors de l\'ajout du livre');
             }
 
             return response.data;
         } catch (error: any) {
-            console.error('Add book to list error:', error);
             throw error;
         }
     }
 
+    // DELETE /book-lists/:listId/books/:bookId
     async removeBookFromList(listId: string, bookId: string): Promise<ApiResponse<RemoveBookFromListResponse>> {
         try {
             const response = await CapacitorHttp.delete({
@@ -176,18 +145,18 @@ class BookListService {
 
             return response.data;
         } catch (error: any) {
-            console.error('Remove book from list error:', error);
             throw error;
         }
     }
 
+    // PUT /book-lists/:listId/books/:bookId/status
     async updateReadingStatus(
         listId: string,
         bookId: string,
         data: UpdateReadingStatusRequest
     ): Promise<ApiResponse<UpdateReadingStatusResponse>> {
         try {
-            const response = await CapacitorHttp.patch({
+            const response = await CapacitorHttp.put({
                 url: `${API_URL}/book-lists/${listId}/books/${bookId}/status`,
                 headers: { 'Content-Type': 'application/json' },
                 data,
@@ -200,25 +169,6 @@ class BookListService {
 
             return response.data;
         } catch (error: any) {
-            console.error('Update reading status error:', error);
-            throw error;
-        }
-    }
-
-    async getBookListsByGenre(genre: string): Promise<ApiResponse<GetBookListsByGenreResponse>> {
-        try {
-            const response = await CapacitorHttp.get({
-                url: `${API_URL}/book-lists/genre/${genre}`,
-                webFetchExtra: { credentials: 'include' }
-            });
-
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de la récupération des listes par genre');
-            }
-
-            return response.data;
-        } catch (error: any) {
-            console.error('Get lists by genre error:', error);
             throw error;
         }
     }
