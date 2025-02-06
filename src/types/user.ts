@@ -2,26 +2,26 @@ import { Post } from './post';
 import { UserGenre } from './userGenre';
 import { UserPreference } from './userPreference';
 
-export interface User {
-    id: string;
-    username: string;
-    email: string;
-    birth_date: string;
-    role: string;
-    profile_picture: string;
-    bio: string;
-    is_verified: boolean;
-    hasLoggedIn: boolean;
-    emailVerificationToken: string | null;
-    emailVerificationTokenExpiresAt: string | null;
-    resetPasswordToken: string | null;
-    resetPasswordTokenExpiresAt: string | null;
-    createdAt: string | undefined;
-    updatedAt: string | undefined;
-    posts?: Post[];
-    preferences?: UserPreference[];
-    genres?: UserGenre[];
+export interface UserProfile {
+  firstName?: string;
+  lastName?: string;
+  fullName?: string;
+  bio?: string;
+  location?: string;
+  profilePicturePath?: string;
+  preferredGenres?: string[];
+  readingHabit?: string;
+  role?: string;
+  profileVisibility?: string;
 }
+
+export interface User {
+  id: string;
+  username: string;
+  profile: UserProfile;
+  createdAt: string;
+}
+
 
 export interface UserResponse {
     status: string;
