@@ -1,9 +1,11 @@
-import React from 'react'
+import ClubDetails from "@/components/club/club-details";
 
-export default function page() {
-  return (
-    <div>
-      
-    </div>
-  )
-}
+export default async function Page({
+    params,
+}: {
+    params: Promise<{ clubId: string }>
+}) {
+    const { clubId } = await params;
+    
+    return <ClubDetails clubId={clubId} />;
+} 

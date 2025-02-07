@@ -14,9 +14,7 @@ export default function FeedLayout({
 }) {
     const { isLoading } = useAuthGuard();
     const pathname = usePathname();
-    console.log(pathname);
     const topBarConfig = getTopBarConfig(pathname);
-    console.log(topBarConfig);
 
     if (isLoading) {
         return (

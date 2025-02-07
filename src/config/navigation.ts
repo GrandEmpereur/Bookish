@@ -100,7 +100,73 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
     default: {
         variant: 'standard',
         showLogo: true
-    }
+    },
+
+    // Profile settings
+    '/profile/settings': {
+        variant: 'back',
+        title: 'Paramètres',
+        showBack: true
+    },
+    '/profile/settings/me': {
+        variant: 'back',
+        title: 'Mon profil',
+        showBack: true
+    },
+    '/profile/settings/bookmarked': {
+        variant: 'back',
+        title: 'Mes favoris',
+        showBack: true
+    },
+    '/profile/settings/statistics': {
+        variant: 'back',
+        title: 'Statistiques',
+        showBack: true
+    },
+    '/profile/settings/notifications': {
+        variant: 'back',
+        title: 'Notifications',
+        showBack: true
+    },
+    '/profile/settings/help': {
+        variant: 'back',
+        title: 'Aide',
+        showBack: true
+    },
+    '/profile/settings/privacy': {
+        variant: 'back',
+        title: 'Politique de confidentialité',
+        showBack: true
+    },
+    '/profile/settings/delete': {
+        variant: 'back',
+        title: 'Supprimer mon compte',
+        showBack: true
+    },
+
+    // Clubs
+    '/clubs': {
+        variant: 'back',
+        title: 'Clubs',
+        showBack: true,
+        rightIcons: [
+            {
+                icon: Search,
+                onClick: () => { },
+                modalType: 'dialog'
+            }
+        ]
+    },
+    '/clubs/create/': {
+        variant: 'back',
+        title: 'Créer un club',
+        showBack: true
+    },
+    '/clubs/[clubId]': {
+        variant: 'back',
+        title: 'Club',
+        showBack: true
+    },
 };
 
 export function getTopBarConfig(path: string): TopBarConfig {
@@ -115,6 +181,16 @@ export function getTopBarConfig(path: string): TopBarConfig {
     // Pour les posts avec UUID
     if (/^\/feed\/[\w-]+$/.test(cleanPath) && cleanPath !== '/feed/create') {
         return topBarConfigs['/feed/[id]'];
+    }
+
+    // Pour les clubs
+    if (cleanPath === '/clubs') {
+        return topBarConfigs['/clubs'];
+    }
+
+    // Pour les clubs avec UUID
+    if (/^\/clubs\/[\w-]+$/.test(cleanPath)) {
+        return topBarConfigs['/clubs/[clubId]'];
     }
 
     // Pour les bibliothèques avec UUID

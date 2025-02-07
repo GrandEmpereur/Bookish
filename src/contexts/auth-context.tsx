@@ -52,6 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const initAuth = async () => {
             try {
                 const response = await userService.getAuthenticatedProfile();
+                console.log(response);
                 setUser(response.data);
             } catch (error: any) {
                 // Si erreur 401, c'est normal - l'utilisateur n'est pas connecté
