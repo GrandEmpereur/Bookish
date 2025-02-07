@@ -10,8 +10,8 @@ import { Loader2, ImagePlus } from "lucide-react";
 import { bookListService } from "@/services/book-list.service";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { updateBookListSchema } from "@/lib/validations/book-list";
-import type { UpdateBookListInput } from "@/lib/validations/book-list";
+import { updateBookListSchema, type UpdateBookListInput, genres } from "@/lib/validations/book-list";
+import type { BookListVisibility, UpdateBookListRequest } from "@/types/bookListTypes";
 import {
     Form,
     FormControl,
@@ -29,27 +29,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Genre } from "@/types/book-list";
 import Image from "next/image";
 import { use } from 'react';
-
-const genres: { value: Genre; label: string }[] = [
-    { value: 'fantasy', label: 'Fantasy' },
-    { value: 'science-fiction', label: 'Science-fiction' },
-    { value: 'romance', label: 'Romance' },
-    { value: 'thriller', label: 'Thriller' },
-    { value: 'mystery', label: 'Mystère' },
-    { value: 'horror', label: 'Horreur' },
-    { value: 'historical', label: 'Historique' },
-    { value: 'contemporary', label: 'Contemporain' },
-    { value: 'literary', label: 'Littéraire' },
-    { value: 'young-adult', label: 'Young Adult' },
-    { value: 'non-fiction', label: 'Non-fiction' },
-    { value: 'biography', label: 'Biographie' },
-    { value: 'poetry', label: 'Poésie' },
-    { value: 'comics', label: 'Comics' },
-    { value: 'mixed', label: 'Mixte' }
-];
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -68,7 +49,8 @@ export default function EditBookList({ params }: PageProps) {
             name: '',
             description: '',
             visibility: 'private',
-            genre: 'mixed'
+            genre: 'mixed',
+            coverImage: null
         },
         mode: 'onBlur'
     });
@@ -82,16 +64,18 @@ export default function EditBookList({ params }: PageProps) {
             setIsLoading(true);
             const response = await bookListService.getBookList(id);
             
-            const formData: Partial<UpdateBookListInput> = {};
-            if (response.name) formData.name = response.name;
-            if (response.description) formData.description = response.description;
-            if (response.visibility) formData.visibility = response.visibility;
-            if (response.genre) formData.genre = response.genre;
+            const formData: UpdateBookListInput = {
+                name: response.data.name,
+                description: response.data.description,
+                visibility: response.data.visibility as BookListVisibility,
+                genre: response.data.genre,
+                coverImage: null
+            };
 
             form.reset(formData);
 
-            if (response.coverImage) {
-                setCoverImagePreview(response.coverImage);
+            if (response.data.coverImage) {
+                setCoverImagePreview(response.data.coverImage);
             }
         } catch (error) {
             toast({
@@ -109,14 +93,16 @@ export default function EditBookList({ params }: PageProps) {
         try {
             setIsLoading(true);
 
-            const formData: Partial<UpdateBookListInput> = {};
+            const formData: UpdateBookListRequest = {};
             const dirtyFields = form.formState.dirtyFields;
 
             if (dirtyFields.name && data.name) formData.name = data.name;
-            if (dirtyFields.description) formData.description = data.description;
+            if (dirtyFields.description !== undefined) {
+                formData.description = data.description || '';
+            }
             if (dirtyFields.visibility) formData.visibility = data.visibility;
             if (dirtyFields.genre) formData.genre = data.genre;
-            if (dirtyFields.coverImage && data.coverImage) formData.coverImage = data.coverImage;
+            if (dirtyFields.coverImage !== undefined) formData.coverImage = data.coverImage;
 
             await bookListService.updateBookList(id, formData);
 
@@ -126,12 +112,11 @@ export default function EditBookList({ params }: PageProps) {
             });
 
             router.push(`/library/${id}`);
-        } catch (error) {
-            console.error("Error updating book list:", error);
+        } catch (error: any) {
             toast({
                 variant: "destructive",
                 title: "Erreur",
-                description: "Impossible de mettre à jour la liste de lecture"
+                description: error.message || "Impossible de mettre à jour la liste de lecture"
             });
         } finally {
             setIsLoading(false);

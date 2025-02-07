@@ -180,10 +180,11 @@ class BookService {
         }
     }
 
-    async searchBooks(query: string): Promise<ApiResponse<GetBooksResponse>> {
+    async searchBooks(query: string): Promise<GetBooksResponse> {
         try {
             const response = await CapacitorHttp.get({
-                url: `${API_URL}/books/search?q=${encodeURIComponent(query)}`,
+                url: `${API_URL}/search/books`,
+                params: { query },
                 webFetchExtra: { credentials: 'include' }
             });
 

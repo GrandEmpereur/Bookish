@@ -24,12 +24,19 @@ export interface BookList {
 // Types pour les requêtes
 export interface CreateBookListRequest {
     name: string;
-    description?: string;
+    description: string;
     visibility: BookListVisibility;
     genre: string;
+    coverImage?: File | null;
 }
 
-export interface UpdateBookListRequest extends Partial<CreateBookListRequest> { }
+export interface UpdateBookListRequest {
+    name?: string;
+    description?: string;
+    visibility?: BookListVisibility;
+    genre?: string;
+    coverImage?: File | null;
+}
 
 export interface AddBookToListRequest {
     bookIds: string[];
@@ -47,7 +54,9 @@ export interface GetBookListsResponse {
 }
 
 export interface GetBookListResponse {
-    bookList: BookList;
+    data: BookList;
+    status: string;
+    message: string;
 }
 
 export interface CreateBookListResponse {
@@ -59,12 +68,16 @@ export interface UpdateBookListResponse {
 }
 
 export interface AddBookToListResponse {
-    bookCount: number;
-    addedCount: number;
-    existingBooks: Array<{
-        id: string;
-        title: string;
-    }>;
+    status: string;
+    message: string;
+    data: {
+        bookCount: number;
+        addedCount: number;
+        existingBooks: Array<{
+            id: string;
+            title: string;
+        }>;
+    };
 }
 
 export interface RemoveBookFromListResponse {

@@ -36,7 +36,7 @@ class BookListService {
     }
 
     // GET /book-lists/:id
-    async getBookList(id: string): Promise<ApiResponse<GetBookListResponse>> {
+    async getBookList(id: string): Promise<GetBookListResponse> {
         try {
             const response = await CapacitorHttp.get({
                 url: `${API_URL}/book-lists/${id}`,
@@ -74,12 +74,31 @@ class BookListService {
     }
 
     // PUT /book-lists/:id
-    async updateBookList(id: string, data: UpdateBookListRequest): Promise<ApiResponse<UpdateBookListResponse>> {
+    async updateBookList(id: string, data: UpdateBookListRequest): Promise<UpdateBookListResponse> {
         try {
+            // Créer un FormData si on a une image
+            let requestData: any;
+            let headers: { [key: string]: string } = {};
+
+            if (data.coverImage instanceof File) {
+                const formData = new FormData();
+                formData.append('coverImage', data.coverImage);
+                if (data.name) formData.append('name', data.name);
+                if (data.description) formData.append('description', data.description);
+                if (data.visibility) formData.append('visibility', data.visibility);
+                if (data.genre) formData.append('genre', data.genre);
+                requestData = formData;
+            } else {
+                // Si pas d'image, envoyer en JSON
+                const { coverImage, ...jsonData } = data;
+                requestData = jsonData;
+                headers['Content-Type'] = 'application/json';
+            }
+
             const response = await CapacitorHttp.put({
                 url: `${API_URL}/book-lists/${id}`,
-                headers: { 'Content-Type': 'application/json' },
-                data,
+                headers,
+                data: requestData,
                 webFetchExtra: { credentials: 'include' }
             });
 
@@ -112,7 +131,7 @@ class BookListService {
     }
 
     // POST /book-lists/:id/books
-    async addBookToList(listId: string, data: AddBookToListRequest): Promise<ApiResponse<AddBookToListResponse>> {
+    async addBookToList(listId: string, data: AddBookToListRequest): Promise<AddBookToListResponse> {
         try {
             const response = await CapacitorHttp.post({
                 url: `${API_URL}/book-lists/${listId}/books`,

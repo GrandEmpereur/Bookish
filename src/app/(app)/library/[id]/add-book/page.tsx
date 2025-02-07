@@ -13,10 +13,10 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Image from "next/image";
 import { use } from 'react';
-import { Book as BookType } from "@/types/book";
+import type { Book as BookType } from "@/types/bookTypes";
 import { useDebounce } from '@/hooks/use-debounce';
 import { cn } from "@/lib/utils";
-import { existingBooks } from '@/types/book-list';
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -36,22 +36,23 @@ export default function AddBookToList({ params }: PageProps) {
     const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
     const handleSearch = useCallback(async (query: string) => {
-        if (!query.trim()) return setSearchResults([]);
+        if (!query.trim()) {
+            setSearchResults([]);
+            setIsSearching(false);
+            return;
+        }
 
+        setIsSearching(true);
         try {
-            setIsSearching(true);
-            const response = await bookService.searchBooks({
-                query,
-                limit: 10,
-                sort_by: 'relevance'
-            });
+            const response = await bookService.searchBooks(query);
             setSearchResults(response.data.books);
-        } catch {
+        } catch (error: any) {
             toast({
                 variant: "destructive",
                 title: "Erreur",
-                description: "Impossible de rechercher des livres"
+                description: error.message || "Impossible de rechercher des livres"
             });
+            setSearchResults([]);
         } finally {
             setIsSearching(false);
         }
@@ -60,9 +61,17 @@ export default function AddBookToList({ params }: PageProps) {
     const handleSelectBook = useCallback((book: BookType) => {
         setSelectedBooks(prev => {
             if (prev.some(b => b.id === book.id)) return prev;
+            if (prev.length >= 50) {
+                toast({
+                    variant: "destructive",
+                    title: "Limite atteinte",
+                    description: "Vous ne pouvez pas ajouter plus de 50 livres à la fois"
+                });
+                return prev;
+            }
             return [...prev, book];
         });
-    }, []);
+    }, [toast]);
 
     const handleRemoveBook = useCallback((bookId: string) => {
         setSelectedBooks(prev => prev.filter(book => book.id !== bookId));
@@ -81,26 +90,31 @@ export default function AddBookToList({ params }: PageProps) {
         try {
             setIsSubmitting(true);
             
-            const response = await bookListService.addBooksToList(id, { 
+            const response = await bookListService.addBookToList(id, { 
                 bookIds: selectedBooks.map(book => book.id) 
             });
 
-            const { status, message } = response;
+            toast({
+                title: "Succès",
+                description: response.message,
+                duration: 3000,
+            });
 
-            if (status === 'success') {
+            if (response.data.existingBooks.length > 0) {
                 toast({
-                    title: "Succès",
                     description: (
-                        <div className="">
-                            <p>{message}</p>
-                            <p>Les livres suivants sont déjà dans la liste : <br />{response.data?.existingBooks?.map((book: existingBooks) => book.title).join(", ")}</p>
+                        <div>
+                            <p>Les livres suivants étaient déjà dans la liste :</p>
+                            <p>{response.data.existingBooks.map(book => book.title).join(", ")}</p>
                         </div>
                     ),
-                    duration: 3000,
+                    duration: 5000,
                 });
-                
-                router.push(`/library/${id}`);
             }
+            
+            setTimeout(() => {
+                router.push(`/library/${id}`);
+            }, 1000);
         } catch (error: any) {
             toast({
                 variant: "destructive",
@@ -113,18 +127,26 @@ export default function AddBookToList({ params }: PageProps) {
     }, [id, router, toast, selectedBooks]);
 
     useEffect(() => {
-        if (debouncedSearchQuery) {
-            handleSearch(debouncedSearchQuery);
-        }
+        handleSearch(debouncedSearchQuery);
     }, [debouncedSearchQuery, handleSearch]);
 
-    if (isSearching) {
-        return (
-            <div className="flex justify-center items-center h-full">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-        );
-    }
+    const SearchResultsSkeleton = () => (
+        <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+                <div key={i} className="flex gap-4 p-4 border rounded-lg">
+                    <Skeleton className="w-16 h-24 flex-shrink-0" />
+                    <div className="flex-1 space-y-2">
+                        <Skeleton className="h-4 w-3/4" />
+                        <Skeleton className="h-4 w-1/2" />
+                        <div className="mt-2">
+                            <Skeleton className="h-6 w-16" />
+                        </div>
+                    </div>
+                    <Skeleton className="w-8 h-8" />
+                </div>
+            ))}
+        </div>
+    );
 
     return (
         <div className="flex-1 px-5 pb-[120px] pt-[120px]">
@@ -145,9 +167,7 @@ export default function AddBookToList({ params }: PageProps) {
                         <ScrollArea className="h-[400px] rounded-md border p-4">
                             <div className="space-y-4">
                                 {isSearching ? (
-                                    <div className="flex justify-center py-8">
-                                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                                    </div>
+                                    <SearchResultsSkeleton />
                                 ) : searchResults.length > 0 ? (
                                     searchResults.map((book) => (
                                         <Card 
@@ -189,7 +209,7 @@ export default function AddBookToList({ params }: PageProps) {
                                                     </div>
                                                     <div className="mt-2">
                                                         <Badge variant="outline" className="text-xs">
-                                                            {book.genre.charAt(0).toUpperCase() + book.genre.slice(1)}
+                                                            {book.genre}
                                                         </Badge>
                                                     </div>
                                                 </div>

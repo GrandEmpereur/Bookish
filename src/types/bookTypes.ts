@@ -15,7 +15,7 @@ export interface Book {
     isbn: string | null;
     genre: string | null;
     publication_year: number | null;
-    cover_image: string | null;
+    coverImage: string | null;
     publisher_id: string | null;
     language: string | null;
     format: BookFormat | null;
@@ -52,7 +52,11 @@ export interface GetBookResponse {
 }
 
 export interface GetBooksResponse {
-    books: Book[];
+    status: string;
+    message: string;
+    data: {
+        books: Book[];
+    };
 }
 
 export interface CreateBookResponse {

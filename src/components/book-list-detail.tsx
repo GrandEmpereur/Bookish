@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Book, Calendar, Globe, Lock, Trash2, Edit, Plus, BookOpen, Share2, MoreVertical } from "lucide-react";
 import { bookListService } from "@/services/book-list.service";
-import { BookList } from "@/types/book-list";
+import { BookList } from "@/types/bookListTypes";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -277,7 +277,7 @@ export function BookListDetail({ id }: BookListDetailProps) {
                                             </div>
                                             <div className="mt-2">
                                                 <Badge variant="outline" className="text-xs">
-                                                    {book.genre.charAt(0).toUpperCase() + book.genre.slice(1)}
+                                                    {book.genre}
                                                 </Badge>
                                             </div>
                                         </div>
