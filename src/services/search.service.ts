@@ -14,7 +14,8 @@ import {
     BookListSearchResponse,
     CategorySearchResponse,
     ContributorSearchResponse,
-    GeneralSearchResponse
+    GeneralSearchResponse,
+    SearchOptions
 } from '@/types/searchTypes';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -155,16 +156,15 @@ class SearchService {
         }
     }
 
-    async searchGeneral(query: string, options?: BaseSearchOptions): Promise<ApiResponse<GeneralSearchResponse>> {
+    async searchGeneral(options: SearchOptions): Promise<GeneralSearchResponse> {
         try {
-            const queryParams = new URLSearchParams({ query });
-            if (options?.page) queryParams.append('page', options.page.toString());
-            if (options?.limit) queryParams.append('limit', options.limit.toString());
-            if (options?.sort_by) queryParams.append('sort_by', options.sort_by);
-            if (options?.order) queryParams.append('order', options.order);
+            const queryParams = new URLSearchParams();
+            if (options.query) queryParams.append('query', options.query);
+            if (options.page) queryParams.append('page', options.page.toString());
+            if (options.limit) queryParams.append('limit', options.limit.toString());
 
             const response = await CapacitorHttp.get({
-                url: `${API_URL}/search?${queryParams.toString()}`,
+                url: `${API_URL}/search/general?${queryParams.toString()}`,
                 webFetchExtra: { credentials: 'include' }
             });
 

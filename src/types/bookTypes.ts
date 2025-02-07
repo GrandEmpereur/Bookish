@@ -14,7 +14,7 @@ export interface Book {
     description: string | null;
     isbn: string | null;
     genre: string | null;
-    publication_year: number | null;
+    publicationYear: number | null;
     coverImage: string | null;
     publisher_id: string | null;
     language: string | null;
@@ -25,6 +25,7 @@ export interface Book {
     created_at: string;
     updated_at: string;
     publisher?: User;
+    genres: string[];
 }
 
 // Types pour les requêtes

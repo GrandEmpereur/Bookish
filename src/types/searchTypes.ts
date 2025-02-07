@@ -4,6 +4,7 @@ import { Book } from './bookTypes';
 import { Club } from './clubTypes';
 import { Post } from './postTypes';
 import type { UserProfile } from './userTypes';
+import { BookList } from './bookListTypes';
 
 // Types pour les options de recherche de base
 export interface BaseSearchOptions {
@@ -77,13 +78,23 @@ export interface SearchResult<T> {
     total_pages: number;
 }
 
-// Types pour les réponses de recherche
+export interface SearchResponse<T> {
+    data: T[];
+    total: number;
+}
+
 export interface UserSearchResponse {
-    users: SearchResult<User>;
+    data: {
+        users: UserProfile[];
+        total: number;
+    };
 }
 
 export interface BookSearchResponse {
-    books: SearchResult<Book>;
+    data: {
+        books: Book[];
+        total: number;
+    };
 }
 
 export interface ClubSearchResponse {
@@ -118,40 +129,69 @@ export interface ContributorSearchResponse {
     contributors: SearchResult<User>;
 }
 
+export interface PaginationMeta {
+    total: number;
+    perPage: number;
+    currentPage: number;
+    lastPage: number;
+    firstPage: number;
+    firstPageUrl: string;
+    lastPageUrl: string;
+    nextPageUrl: string | null;
+    previousPageUrl: string | null;
+}
+
+export interface SearchResultSection<T> {
+    data: T[];
+    pagination: PaginationMeta;
+}
+
 export interface GeneralSearchResponse {
-    users: {
-        total: number;
-        items: User[];
+    status: string;
+    message: string;
+    data: {
+        currentPage: number;
+        limit: number;
+        query: string;
+        results: {
+            BookLists: {
+                data: BookList[];
+            };
+            Books: {
+                data: Book[];
+            };
+            Clubs: {
+                data: Club[];
+            };
+            Users: {
+                data: UserProfile[];
+            };
+        };
+        totals: {
+            bookLists: number;
+            books: number;
+            clubs: number;
+            users: number;
+            total: number;
+        };
     };
-    books: {
-        total: number;
-        items: Book[];
-    };
-    clubs: {
-        total: number;
-        items: Club[];
-    };
-    posts: {
-        total: number;
-        items: Post[];
-    };
+}
+
+export interface SearchOptions {
+    query: string;
+    page?: number;
+    limit?: number;
 }
 
 // Interface pour le service de recherche
 export interface SearchService {
-    searchUsers(options: UserSearchOptions): Promise<ApiResponse<UserSearchResponse>>;
-
-    searchBooks(options: BookSearchOptions): Promise<ApiResponse<BookSearchResponse>>;
-
+    searchUsers: (options: SearchOptions) => Promise<UserSearchResponse>;
+    searchBooks: (options: SearchOptions) => Promise<BookSearchResponse>;
     searchClubs(options: ClubSearchOptions): Promise<ApiResponse<ClubSearchResponse>>;
-
     searchBookLists(options: BookListSearchOptions): Promise<ApiResponse<BookListSearchResponse>>;
-
     searchByCategory(options: CategorySearchOptions): Promise<ApiResponse<CategorySearchResponse>>;
-
     searchContributors(options: ContributorSearchOptions): Promise<ApiResponse<ContributorSearchResponse>>;
-
-    searchGeneral(query: string, options?: BaseSearchOptions): Promise<ApiResponse<GeneralSearchResponse>>;
+    searchGeneral(options: SearchOptions): Promise<GeneralSearchResponse>;
 }
 
 export interface SearchResults {
