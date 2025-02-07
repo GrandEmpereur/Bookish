@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import topBarConfig from "@lib/data/topBarConfig.json";
-import useListInfo from "@/hooks/TopBar/useListAction"; 
+import useListInfo from "@/hooks/TopBar/useListAction";
 
 interface TitleConfig {
   text: string;
@@ -58,7 +58,7 @@ const TopBar: React.FC = () => {
   };
 
   // Modifier le titre si on est sur une page de liste
-  if (isListPage) {
+  if (isListPage && !isCreateList) {
     config.title.text = listName || "";
   }
 
@@ -121,8 +121,8 @@ const TopBar: React.FC = () => {
       .filter((icon) => icon in iconMap)
       .map((icon) => iconMap[icon]);
 
-    // Ajouter le bouton "create" sur /lists/
-    if (!isListPage && !isCreateList) {
+    // Ajouter le bouton "create" sur /lists/, sauf si on est en train d'éditer
+    if (!isListPage && !isCreateList && !isEditList) {
       icons.push(iconMap.plus);
     }
 
@@ -159,7 +159,7 @@ const TopBar: React.FC = () => {
           </div>
 
           {/* Icônes à droite */}
-          <div className="flex gap-x-2">{renderRightIcons()}</div>
+          <div className="flex gap-x-2 min-w-10">{renderRightIcons()}</div>
         </div>
       </div>
     </div>
