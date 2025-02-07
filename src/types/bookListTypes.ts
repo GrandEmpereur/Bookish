@@ -8,17 +8,20 @@ export type ReadingStatus = 'to_read' | 'reading' | 'finished';
 
 // Type principal pour les listes de livres
 export interface BookList {
-    bookCount: number;
-    books: Book[];
-    coverImage: string;
-    createdAt: string;
-    description: string;
-    genre: string;
     id: string;
     name: string;
-    updatedAt: string;
-    userId: string;
+    description: string;
+    coverImage: string;
     visibility: BookListVisibility;
+    genre: string;
+    bookCount: number;
+    createdAt: string;
+    books: Array<{
+        id: string;
+        title: string;
+        author: string;
+        coverImage: string;
+    }>;
 }
 
 // Types pour les requêtes
@@ -57,6 +60,17 @@ export interface GetBookListResponse {
     data: BookList;
     status: string;
     message: string;
+}
+
+export interface SearchParams {
+    query?: string;
+    genre?: string;
+}
+
+export interface SearchMyBookListResponse {
+    data: BookList[];
+    message: string;
+    status: string;
 }
 
 export interface CreateBookListResponse {

@@ -11,6 +11,8 @@ import type {
     AddBookToListResponse,
     RemoveBookFromListResponse,
     UpdateReadingStatusResponse,
+    SearchMyBookListResponse,
+    SearchParams,
 } from '@/types/bookListTypes';
 import type { ApiResponse } from '@/types/api';
 
@@ -184,6 +186,31 @@ class BookListService {
 
             if (response.status !== 200) {
                 throw new Error(response.data.message || 'Erreur lors de la mise à jour du statut');
+            }
+
+            return response.data;
+        } catch (error: any) {
+            throw error;
+        }
+    }
+
+    /**
+     * Rechercher dans les listes de livres de l'utilisateur
+     */
+    async searchMyBookLists(params: SearchParams): Promise<SearchMyBookListResponse> {
+        try {
+            const queryParams: Record<string, string> = {};
+            if (params.query) queryParams.query = params.query;
+            if (params.genre) queryParams.genre = params.genre;
+
+            const response = await CapacitorHttp.get({
+                url: `${API_URL}/book-lists/search`,
+                params: queryParams,
+                webFetchExtra: { credentials: 'include' }
+            });
+
+            if (response.status !== 200) {
+                throw new Error(response.data.message || 'Erreur lors de la recherche');
             }
 
             return response.data;

@@ -1,4 +1,6 @@
-import { Bell, Send, Settings } from "lucide-react";
+import { Bell, Send, Search, Settings } from "lucide-react";
+
+type ModalType = 'drawer' | 'dialog';
 
 export type TopBarConfig = {
     variant: 'standard' | 'back';
@@ -6,55 +8,126 @@ export type TopBarConfig = {
     showBack?: boolean;
     showLogo?: boolean;
     rightIcons?: {
-        icon: typeof Bell | typeof Send;
+        icon: typeof Bell | typeof Send | typeof Search | typeof Settings;
         onClick?: () => void;
+        href?: string;
+        modalType?: ModalType;
     }[];
 };
 
 export const topBarConfigs: Record<string, TopBarConfig> = {
-    // Configuration standard (feed)
-    '/feed/': {
+    // Feed
+    '/feed': {
         variant: 'standard',
         showLogo: true,
         rightIcons: [
-            { icon: Bell },
-            { icon: Send }
+            {
+                icon: Bell,
+                href: '/notifications'
+            },
+            {
+                icon: Send,
+                href: '/messages'
+            }
         ]
     },
-    // Configuration pour la recherche
-    '/search/': {
+    '/feed/[id]': {
         variant: 'back',
-        title: 'Recherche',
-        showBack: true
-    },
-    // Configuration pour les messages
-    '/messages/': {
-        variant: 'back',
-        title: 'Messages',
+        title: 'Espace commentaire',
         showBack: true,
         rightIcons: [
-            { icon: Bell }
+            {
+                icon: Bell,
+                href: '/notifications'
+            },
+            {
+                icon: Send,
+                href: '/messages'
+            }
         ]
     },
-    '/profile/': {
+    '/feed/create': {
+        variant: 'back',
+        title: 'Nouveau post',
+        showBack: true
+    },
+
+    // Library
+    '/library': {
+        variant: 'back',
+        title: 'Librairie',
+        showBack: true,
+        rightIcons: [
+            {
+                icon: Search,
+                onClick: () => { },
+                modalType: 'dialog'
+            }
+        ]
+    },
+    '/library/[id]': {
+        variant: 'back',
+        title: 'Librairie',
+        showBack: true,
+        rightIcons: [
+            {
+                icon: Search,
+                onClick: () => { },
+                modalType: 'dialog'
+            }
+        ]
+    },
+    '/library/create': {
+        variant: 'back',
+        title: 'Nouvelle librairie',
+        showBack: true
+    },
+
+    // Profile
+    '/profile': {
         variant: 'back',
         title: 'Profil',
         showBack: true,
         rightIcons: [
-            { icon: Settings }
+            {
+                icon: Settings,
+                href: '/profile/settings'
+            }
         ]
     },
+
     // Configuration par défaut
     default: {
         variant: 'standard',
-        showLogo: true,
-        rightIcons: [
-            { icon: Bell },
-            { icon: Send }
-        ]
+        showLogo: true
     }
 };
 
 export function getTopBarConfig(path: string): TopBarConfig {
-    return topBarConfigs[path] || topBarConfigs.default;
+    // Nettoyer le chemin en retirant le slash final s'il existe
+    const cleanPath = path.replace(/\/$/, '');
+
+    // Pour la page feed principale
+    if (cleanPath === '/feed') {
+        return topBarConfigs['/feed'];
+    }
+
+    // Pour les posts avec UUID
+    if (/^\/feed\/[\w-]+$/.test(cleanPath) && cleanPath !== '/feed/create') {
+        return topBarConfigs['/feed/[id]'];
+    }
+
+    // Pour les bibliothèques avec UUID
+    if (/^\/library\/[\w-]+$/.test(cleanPath) && cleanPath !== '/library/create') {
+        return topBarConfigs['/library/[id]'];
+    }
+
+    // Pour les autres routes
+    const exactConfig = topBarConfigs[cleanPath];
+    if (exactConfig) {
+        return exactConfig;
+    }
+
+    // Configuration par défaut
+    return topBarConfigs.default;
 } 
