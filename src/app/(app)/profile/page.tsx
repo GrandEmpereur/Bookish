@@ -271,7 +271,7 @@ export default function Profile() {
                                 <div className="flex flex-col items-center">
                                     <Book className="w-5 h-5 mb-2 text-muted-foreground" />
                                     <p className="text-2xl font-bold text-primary">
-                                        {user?.stats?.books_count || 0}
+                                        { 0}
                                     </p>
                                     <p className="text-sm text-muted-foreground">
                                         Livres lus
@@ -282,7 +282,7 @@ export default function Profile() {
                                 <div className="flex flex-col items-center">
                                     <Theater className="w-5 h-5 mb-2 text-muted-foreground" />
                                     <p className="text-2xl font-bold text-primary">
-                                        {user?.stats?.clubs_count || 0}
+                                        {0}
                                     </p>
                                     <p className="text-sm text-muted-foreground">
                                         Clubs

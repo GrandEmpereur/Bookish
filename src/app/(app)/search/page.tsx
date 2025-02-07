@@ -76,6 +76,7 @@ const SearchPage: React.FC = () => {
       
       if (response.status === "success") {
         setResults({
+          //@ts-ignore
           results: response.data.results,
           totals: response.data.totals
         });
@@ -190,28 +191,6 @@ const SearchPage: React.FC = () => {
                 <h2 className="font-bold">Clubs</h2>
                 {results.results.clubs.data.map((club) => (
                   <div key={club.id} className="flex gap-4 p-4 border rounded-lg hover:bg-accent/50 transition-colors">
-                    <div className="relative min-w-[120px] h-[120px] overflow-hidden rounded-md">
-                      {club.coverImage ? (
-                        <Image
-                          src={club.coverImage}
-                          alt={club.name}
-                          fill
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-muted flex items-center justify-center">
-                          <Users className="h-8 w-8 text-muted-foreground" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex flex-col flex-1">
-                      <h3 className="font-medium text-lg">{club.name}</h3>
-                      <p className="text-sm text-muted-foreground line-clamp-2">{club.description}</p>
-                      <div className="mt-auto pt-2 flex items-center gap-2 text-sm text-muted-foreground">
-                        <Users className="h-4 w-4" />
-                        <span>{club.memberCount} membre{club.memberCount > 1 ? 's' : ''}</span>
-                      </div>
-                    </div>
                   </div>
                 ))}
               </div>
@@ -307,28 +286,6 @@ const SearchPage: React.FC = () => {
               <div className="space-y-4">
                 {results.results.clubs.data.map((club) => (
                   <div key={club.id} className="flex gap-4 p-4 border rounded-lg hover:bg-accent/50 transition-colors">
-                    <div className="relative min-w-[120px] h-[120px] overflow-hidden rounded-md">
-                      {club.coverImage ? (
-                        <Image
-                          src={club.coverImage}
-                          alt={club.name}
-                          fill
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-muted flex items-center justify-center">
-                          <Users className="h-8 w-8 text-muted-foreground" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex flex-col flex-1">
-                      <h3 className="font-medium text-lg">{club.name}</h3>
-                      <p className="text-sm text-muted-foreground line-clamp-2">{club.description}</p>
-                      <div className="mt-auto pt-2 flex items-center gap-2 text-sm text-muted-foreground">
-                        <Users className="h-4 w-4" />
-                        <span>{club.memberCount} membre{club.memberCount > 1 ? 's' : ''}</span>
-                      </div>
-                    </div>
                   </div>
                 ))}
               </div>

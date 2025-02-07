@@ -277,7 +277,7 @@ export function BookListDetail({ id }: BookListDetailProps) {
                                             </div>
                                             <div className="mt-2">
                                                 <Badge variant="outline" className="text-xs">
-                                                    {book.genre}
+                                                    {book.genres?.map((genre) => genre).join(', ') || 'Aucun genre'}
                                                 </Badge>
                                             </div>
                                         </div>
