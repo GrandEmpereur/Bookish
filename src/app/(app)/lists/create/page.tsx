@@ -5,20 +5,23 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Lock, Eye } from "lucide-react";
-import { createList } from "@/services/listsService"; // Assure-toi que cette fonction existe
+import { createList } from "@/services/listsService";
 
 const CreateListPage = () => {
   const router = useRouter();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [genre, setGenre] = useState("");
   const [isPublic, setIsPublic] = useState(false);
+  const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      setImagePreview(URL.createObjectURL(file)); // Créer un aperçu de l'image
+      setImage(file);
+      setImagePreview(URL.createObjectURL(file));
     }
   };
 
@@ -27,9 +30,15 @@ const CreateListPage = () => {
     setLoading(true);
 
     try {
-      // Crée une nouvelle liste via le service API
-      await createList({ name, description, isPublic }); // À implémenter dans ton service
-      router.push("/lists"); // Redirige vers la liste des listes
+      await createList({
+        name,
+        description,
+        genre,
+        isPublic,
+        image,
+      });
+
+      router.push("/lists");
     } catch (error) {
       console.error("Erreur lors de la création de la liste :", error);
     } finally {
@@ -40,7 +49,7 @@ const CreateListPage = () => {
   return (
     <div className="md:max-w-2xl mx-auto">
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Affichage de l'image sélectionnée */}
+        {/* Aperçu de l'image */}
         <div className="mb-4 w-fit m-auto">
           {imagePreview ? (
             <img
@@ -51,7 +60,6 @@ const CreateListPage = () => {
           ) : (
             <div className="w-32 h-32 bg-gray-200 rounded-md mt-2" />
           )}
-
           <input
             type="file"
             id="image"
@@ -60,24 +68,37 @@ const CreateListPage = () => {
             onChange={handleImageChange}
             className="mt-2 hidden"
           />
-          <div className="mt-2 text-sm text-blue-600 cursor-pointer text-center">
+          <label
+            htmlFor="image"
+            className="mt-2 text-sm text-blue-600 cursor-pointer text-center block"
+          >
             Modifier l'image
-          </div>
+          </label>
         </div>
 
-        {/* Formulaire de création de liste */}
+        {/* Nom */}
         <Input
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Nom de la liste"
+          placeholder="Nom de la bibliothèque"
           required
         />
 
+        {/* Description */}
         <Textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Description de la liste"
+          placeholder="Description de la bibliothèque"
+        />
+
+        {/* Genre */}
+        <Input
+          type="text"
+          value={genre}
+          onChange={(e) => setGenre(e.target.value)}
+          placeholder="Genre de la bibliothèque"
+          required
         />
 
         {/* Visibilité publique/privée */}
@@ -104,10 +125,10 @@ const CreateListPage = () => {
           />
         </div>
 
-        {/* Soumettre la nouvelle liste */}
+        {/* Bouton de soumission */}
         <button
           type="submit"
-          className="w-full mt-4 bg-primary-500 text-white py-2 px-4 rounded-md"
+          className="w-full mt-4 bg-primary text-white py-2 px-4 rounded-md"
           disabled={loading}
         >
           {loading ? "Création en cours..." : "Créer la bibliothèque"}

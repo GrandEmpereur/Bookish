@@ -69,40 +69,45 @@ const ListPage: React.FC<ListPageProps> = ({ params }) => {
 
   return (
     <div className="list-page">
-      {list.books.length > 0 ? (
-        <div>
-          {list.description && (
-            <p className="text-sm text-gray-500 mb-4">{list.description}</p>
-          )}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {list.books.map((book) => (
-              <div key={book.id} className="flex gap-4">
-                <div className="h-24 w-20">
-                  <img
-                    src={
-                      book.coverImage || "/img/illustrations/books_list_cat.jpg"
-                    }
-                    alt={`Couverture du livre ${book.title}`}
-                    className="w-full h-full object-cover rounded-md"
-                  />
+      {/* Description de la liste */}
+      {list.description && (
+        <p className="text-sm text-gray-500 mb-4">{list.description}</p>
+      )}
+
+      {/* Vérification si la liste contient des livres */}
+      {list.books?.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {list.books.map((book) => (
+            <div key={book.id} className="flex gap-4">
+              {/* Image du livre */}
+              <div className="h-24 w-20">
+                <img
+                  src={
+                    book.coverImage || "/img/illustrations/books_list_cat.jpg"
+                  }
+                  alt={`Couverture du livre ${book.title}`}
+                  className="w-full h-full object-cover rounded-md"
+                />
+              </div>
+
+              {/* Infos du livre */}
+              <div className="flex flex-col justify-between w-full">
+                <div>
+                  <h3 className="font-medium">{book.title}</h3>
+                  <p className="text-xs text-gray-500">{book.author}</p>
                 </div>
-                <div className="flex flex-col justify-between w-full">
-                  <div>
-                    <h3 className="font-medium">{book.title}</h3>
-                    <p className="text-xs text-gray-500">{book.author}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs py-0.5 px-2 text-gray-500 w-fit rounded-full border border-gray-500">
-                      {book.genre}
-                    </p>
-                    <div className="border-t border-gray-500 mt-2"></div>
-                  </div>
+                <div>
+                  <p className="text-xs py-0.5 px-2 text-gray-500 w-fit rounded-full border border-gray-500">
+                    {book.genre}
+                  </p>
+                  <div className="border-t border-gray-500 mt-2"></div>
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       ) : (
+        // Message si la collection est vide
         <div className="flex flex-col items-center justify-center h-[50vh] text-center bg-gray-50">
           <h2 className="text-2xl font-semibold text-gray-700 mb-2">
             La collection est vide

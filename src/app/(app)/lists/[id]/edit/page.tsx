@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { getListById, deleteList } from "@/services/listsService";
+import { getListById, updateList, deleteList } from "@/services/listsService";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Lock, Eye } from "lucide-react";
@@ -12,6 +12,7 @@ interface List {
   id: string;
   name: string;
   description: string;
+  genre: string;
   isPublic: boolean;
   coverImage?: string;
 }
@@ -22,7 +23,9 @@ const EditListPage = () => {
   const [list, setList] = useState<List | null>(null);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [genre, setGenre] = useState("");
   const [isPublic, setIsPublic] = useState(false);
+  const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -36,7 +39,8 @@ const EditListPage = () => {
         setList(listData);
         setName(listData.name);
         setDescription(listData.description);
-        setIsPublic(listData.isPublic);
+        setGenre(listData.genre);
+        setIsPublic(listData.visibility);
         setImagePreview(listData.coverImage);
       } catch (error) {
         console.error("Erreur lors de la récupération de la liste :", error);
@@ -48,15 +52,29 @@ const EditListPage = () => {
     fetchList();
   }, [id]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    router.push(`/lists/${id}`);
-  };
-
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      setImage(file);
       setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      await updateList(id, {
+        name,
+        description,
+        genre,
+        isPublic,
+        image,
+      });
+
+      router.push(`/lists/${id}`);
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour de la liste :", error);
     }
   };
 
@@ -119,6 +137,13 @@ const EditListPage = () => {
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Description de la liste"
         />
+        <Input
+          type="text"
+          value={genre}
+          onChange={(e) => setGenre(e.target.value)}
+          placeholder="Genre de la liste"
+          required
+        />
 
         {/* Visibilité publique/privée */}
         <div className="flex items-center space-x-3">
@@ -143,6 +168,14 @@ const EditListPage = () => {
             }`}
           />
         </div>
+
+        {/* Bouton de mise à jour */}
+        <button
+          type="submit"
+          className="w-full mt-4 bg-primary text-white py-2 px-4 rounded-md"
+        >
+          Mettre à jour la bibliothèque
+        </button>
 
         {/* Suppression de la liste */}
         <p
