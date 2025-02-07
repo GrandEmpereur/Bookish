@@ -96,7 +96,16 @@
             "icon": ""
         },
         "rightIcons": [
-            "plus"
+            "createList"
+        ]
+    },
+    "/lists/create": {
+        "showBackButton": true,
+        "title": {
+            "text": "Créer une bibliothèque",
+            "icon": ""
+        },
+        "rightIcons": [ 
         ]
     },
     "/lists/[id]": {
@@ -106,9 +115,20 @@
             "icon": ""
         },
         "rightIcons": [
-            "pencil"
+            "modifyList"
         ]
     },
+    "/lists/[id]/edit": {
+        "showBackButton": true,
+        "title": {
+            "text": "Modifier la liste",
+            "icon": ""
+        },
+        "rightIcons": [
+            "validate"
+        ]
+    },
+
     "/feed/": {
         "showBackButton": false,
         "title": {

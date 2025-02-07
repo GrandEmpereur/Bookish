@@ -16,7 +16,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import topBarConfig from "@lib/data/topBarConfig.json";
-import useListInfo from "@/hooks/TopBar/useListAction"; 
+import { useState, useEffect } from "react";
+import { getListById } from "@/services/listsService";
 
 interface TitleConfig {
   text: string;
@@ -32,30 +33,40 @@ interface TopBarConfig {
 // Fonction pour normaliser les routes dynamiques
 const normalizePath = (path: string): string => {
   if (/^\/feed\/[^\/]+\/comments\/?$/.test(path)) return "/feed/[id]/comments";
-
-  // Lists
   if (/^\/lists\/create\/?$/.test(path)) return "/lists/create";
-  if (/^\/lists\/[^\/]+\/?$/.test(path)) return "/lists/[id]";
   if (/^\/lists\/[^\/]+\/edit\/?$/.test(path)) return "/lists/[id]/edit";
+  if (/^\/lists\/[^\/]+\/?$/.test(path)) return "/lists/[id]";
   return path;
 };
 
 const TopBar: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const { listName, isCreateList, isEditList, isListPage, listId } =
-    useListInfo();
-
   const normalizedPath = normalizePath(pathname);
+  const isListPage = normalizedPath === "/lists/[id]";
+  const listId = pathname.split("/")[2] || null;
+
+  const [listName, setListName] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  // Charger le nom de la bibliothèque si on est sur une page de liste
+  useEffect(() => {
+    if (isListPage && listId) {
+      setLoading(true);
+      getListById(listId)
+        .then((response) => setListName(response.data.name))
+        .catch((error) => console.error("Erreur récupération liste:", error))
+        .finally(() => setLoading(false));
+    }
+  }, [pathname, isListPage, listId]);
 
   // Charger la configuration de la top bar
-  const config: TopBarConfig = topBarConfig[
-    normalizedPath as keyof typeof topBarConfig
-  ] || {
-    showBackButton: false,
-    title: { text: "", icon: "" },
-    rightIcons: [],
-  };
+  const config: TopBarConfig =
+    topBarConfig[normalizedPath as keyof typeof topBarConfig] || {
+      showBackButton: false,
+      title: { text: "", icon: "" },
+      rightIcons: [],
+    };
 
   // Modifier le titre si on est sur une page de liste
   if (isListPage) {
@@ -99,34 +110,21 @@ const TopBar: React.FC = () => {
         </Button>
       </Link>
     ),
-    modifyList: isListPage && !isEditList && listId && (
-      <Link href={`/lists/${listId}/edit`} key="edit">
-        <Button size="icon" variant="icon">
-          <Pencil size={20} stroke="#2f5046" />
-        </Button>
-      </Link>
-    ),
-    validate: isEditList && listId && (
-      <Link href={`/lists/${listId}`} key="validate">
+    modifyList:
+      listId && (
+        <Link href={`/lists/${listId}/edit`} key="modify">
+          <Button size="icon" variant="icon">
+            <Pencil size={20} stroke="#2f5046" />
+          </Button>
+        </Link>
+      ),
+    validate: (
+      <Link href="/lists/" key="validate">
         <Button size="icon" variant="icon">
           <Check size={20} stroke="#2f5046" />
         </Button>
       </Link>
     ),
-  };
-
-  // Rendre dynamiquement les icônes de droite
-  const renderRightIcons = (): JSX.Element[] => {
-    const icons = config.rightIcons
-      .filter((icon) => icon in iconMap)
-      .map((icon) => iconMap[icon]);
-
-    // Ajouter le bouton "create" sur /lists/
-    if (!isListPage && !isCreateList) {
-      icons.push(iconMap.plus);
-    }
-
-    return icons;
   };
 
   return (
@@ -152,14 +150,14 @@ const TopBar: React.FC = () => {
 
           {/* Titre avec icône QR code si nécessaire */}
           <div className="flex items-center">
-            {config.title.icon === "qr-code" && (
-              <QrCode size={20} className="mr-2" />
-            )}
+            {config.title.icon === "qr-code" && <QrCode size={20} className="mr-2" />}
             <h1 className="text-lg font-heading">{config.title.text}</h1>
           </div>
 
           {/* Icônes à droite */}
-          <div className="flex gap-x-2">{renderRightIcons()}</div>
+          <div className={`flex gap-x-2 ${config.showBackButton ? "min-w-5" : ""}`}>
+            {config.rightIcons.map((icon) => iconMap[icon] || null)}
+          </div>
         </div>
       </div>
     </div>

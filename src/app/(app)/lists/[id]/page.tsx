@@ -1,111 +1,115 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import { getCurrentUser } from "@/services/userService";
-import { getListById } from "@/services/listsService"; // Assure-toi que la fonction existe
-import { Skeleton } from "@/components/ui/skeleton"; // Skeleton pour les données en attente
+import { getListById } from "@/services/listsService";
+import { Skeleton } from "@/components/ui/skeleton";
+
+interface Book {
+  id: string;
+  title: string;
+  author: string;
+  genre: string;
+  coverImage?: string;
+}
+
+interface List {
+  id: string;
+  name: string;
+  description?: string;
+  books: Book[];
+}
 
 interface ListPageProps {
   params: {
-    id: string; // ID de la liste
+    id: string;
   };
 }
 
 const ListPage: React.FC<ListPageProps> = ({ params }) => {
   const { id } = params;
   const [user, setUser] = useState<any | null>(null);
-  const [list, setList] = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [list, setList] = useState<List | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  // Récupérer les informations de l'utilisateur
   useEffect(() => {
-    const fetchCurrentUser = async () => {
+    const fetchData = async () => {
       try {
-        const currentUser = await getCurrentUser();
+        const [currentUser, listData] = await Promise.all([
+          getCurrentUser(),
+          getListById(id),
+        ]);
         setUser(currentUser);
+        setList(listData.data);
       } catch (error) {
-        console.error(
-          "Erreur lors de la récupération de l'utilisateur :",
-          error
-        );
-      }
-    };
-
-    fetchCurrentUser();
-  }, []);
-
-  // Récupérer les détails de la liste par ID
-  useEffect(() => {
-    const fetchList = async () => {
-      try {
-        const listData = await getListById(id);
-        setList(listData.data); // Assure-toi que `listData.data` contient la liste
-      } catch (error) {
-        console.error("Erreur lors de la récupération de la liste :", error);
+        console.error("Erreur lors du chargement des données :", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchList();
+    fetchData();
   }, [id]);
 
-  // Afficher un Skeleton pendant le chargement
   if (loading) {
-    return <Skeleton />;
+    return (
+      <div className="flex flex-col gap-4">
+        <Skeleton className="w-full h-30 rounded" />
+        <Skeleton className="w-full h-30 rounded" />
+        <Skeleton className="w-full h-30 rounded" />
+      </div>
+    );
   }
 
   if (!list) {
-    return <div>La liste est introuvable.</div>;
+    return (
+      <div className="text-center text-red-500">La liste est introuvable.</div>
+    );
   }
 
   return (
     <div className="list-page">
-      <div className="books-section">
-        {list.books.length > 0 ? (
-          <div>
-            {list.description && (
-                          <p className="text-sm text-gray-500 mb-4">{list.description}</p>
-
-            )}
-            <div className="books-section">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {list.books.map((book: any) => (
-                  <div key={book.id} className="flex gap-4">
-                    <div className="h-24 w-20">
-                      <img
-                        src={book.coverImage}
-                        alt={book.title}
-                        className="w-full h-full  object-cover rounded-md"
-                      />
-                    </div>
-                    <div className="flex flex-col justify-between w-full">
-                      <div>
-                        <h3>{book.title}</h3>
-                        <p className="text-xs text-gray-500">{book.author}</p>
-                      </div>
-                      <div>
-                      <p className="text-xs py-0.5 px-2 text-gray-500 w-fit  rounded-full border-solid border-[1px] border-gray-500 ">
-                        {book.genre}
-                      </p>
-                      <div className="border-t-[1px] border-solid border-gray-500 mt-2"></div>
-                      </div>
-                    </div>
+      {list.books.length > 0 ? (
+        <div>
+          {list.description && (
+            <p className="text-sm text-gray-500 mb-4">{list.description}</p>
+          )}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {list.books.map((book) => (
+              <div key={book.id} className="flex gap-4">
+                <div className="h-24 w-20">
+                  <img
+                    src={
+                      book.coverImage || "/img/illustrations/books_list_cat.jpg"
+                    }
+                    alt={`Couverture du livre ${book.title}`}
+                    className="w-full h-full object-cover rounded-md"
+                  />
+                </div>
+                <div className="flex flex-col justify-between w-full">
+                  <div>
+                    <h3 className="font-medium">{book.title}</h3>
+                    <p className="text-xs text-gray-500">{book.author}</p>
                   </div>
-                ))}
+                  <div>
+                    <p className="text-xs py-0.5 px-2 text-gray-500 w-fit rounded-full border border-gray-500">
+                      {book.genre}
+                    </p>
+                    <div className="border-t border-gray-500 mt-2"></div>
+                  </div>
+                </div>
               </div>
-            </div>
+            ))}
           </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center h-[50vh] text-center bg-gray-50">
-            <div>
-              <h2 className="text-2xl font-semibold text-gray-700 mb-2">
-                La collection est vide
-              </h2>
-              <p className="text-gray-500 mb-4">Ajoutez-y des livres ! </p>
-            </div>
-          </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center h-[50vh] text-center bg-gray-50">
+          <h2 className="text-2xl font-semibold text-gray-700 mb-2">
+            La collection est vide
+          </h2>
+          <p className="text-gray-500 mb-4">Ajoutez-y des livres !</p>
+        </div>
+      )}
     </div>
   );
 };
