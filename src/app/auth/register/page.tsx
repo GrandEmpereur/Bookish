@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Eye, EyeOff, ChevronLeft, Loader2, Mail } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { registerSchema, type RegisterInput } from "@/lib/validations/auth";
+import { registerSchema, type RegisterInput } from "@/validations/auth";
 import type { RegisterRequest } from "@/types/authTypes";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/auth-context";

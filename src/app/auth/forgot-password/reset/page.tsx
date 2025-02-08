@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { resetPasswordSchema, type ResetPasswordInput } from "@/lib/validations/auth";
+import { resetPasswordSchema, type ResetPasswordInput } from "@/validations/auth";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/auth-context";
 import type { ResetPasswordRequest } from "@/types/authTypes";

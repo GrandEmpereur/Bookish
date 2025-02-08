@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { loginSchema, type LoginInput } from "@/lib/validations/auth";
+import { loginSchema, type LoginInput } from "@/validations/auth";
 import type { LoginRequest } from "@/types/authTypes";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/contexts/auth-context';

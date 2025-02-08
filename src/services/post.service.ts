@@ -12,7 +12,7 @@ import {
     ToggleLikeResponse,
     ToggleFavoriteResponse
 } from '@/types/postTypes';
-import { CreatePostFormData } from '@/lib/validations/post';
+import { CreatePostFormData } from '@/validations/post';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 

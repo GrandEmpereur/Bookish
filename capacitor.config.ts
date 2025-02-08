@@ -2,11 +2,11 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'bookish.test.app',
-  appName: 'bookish-test',
+  appName: 'bookish',
   webDir: 'src/app',
   server: {
     androidScheme: 'http',
-    url: 'http://172.20.10.2:3000',
+    url: process.env.NEXT_PUBLIC_CAPACITOR_URL,
     cleartext: true
   },
   plugins: {
