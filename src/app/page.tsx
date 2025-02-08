@@ -1,42 +1,79 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import React, { useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import gsap from 'gsap';
+import Image from 'next/image';
+import { userService } from "@/services/user.service";
+import { useToast } from "@/hooks/use-toast";
+
+const App: React.FC = () => {
+  const router = useRouter();
+  const containerRef = useRef(null);
+  const textRef = useRef(null);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const tl = gsap.timeline();
+    
+    // Animation du logo
+    tl.from(containerRef.current, {
+      scale: 0.95,
+      opacity: 0,
+      duration: 0.8,
+      ease: "power3.out"
+    });
+
+    tl.from(textRef.current, {
+      y: 10,
+      opacity: 0,
+      duration: 0.6,
+      ease: "power3.out"
+    });
+
+    const initializeApp = async () => {
+      try {
+        const response = await userService.getAuthenticatedProfile();
+        if (response.data) {
+          router.replace('/feed');
+          return;
+        }
+      } catch (error: any) {
+        // Si c'est une erreur 401, c'est normal - l'utilisateur n'est pas connecté
+        if (error.status === 401) {
+          const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
+          if (!hasSeenOnboarding) {
+            router.replace('/onboarding');
+          } else {
+            router.replace('/auth/login');
+          }
+          return;
+        }
+
+        // Pour les autres erreurs, on redirige vers login
+        console.error('Init error:', error);
+        router.replace('/auth/login');
+      }
+    };
+
+    // Attendre que l'animation soit terminée avant de vérifier l'auth
+    setTimeout(initializeApp, 2000);
+  }, [router, toast]);
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
+    <div className="flex items-center justify-center w-full h-[100dvh] bg-primary safe-area-p">
+      <div ref={containerRef} className="flex flex-col items-center gap-y-6 px-4">
+        <Image 
+          src="/bookish.svg" 
+          width={80}
+          height={68} 
+          alt="Logo" 
           priority
+          className="w-20 md:w-24"
         />
+        <p ref={textRef} className="text-3xl md:text-4xl font-heading uppercase text-white font-bold">
+          Bookish
+        </p>
       </div>
 
       <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
@@ -110,4 +147,6 @@ export default function Home() {
       </div>
     </main>
   );
-}
+};
+
+export default App;
