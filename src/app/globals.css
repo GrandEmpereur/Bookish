@@ -228,7 +228,7 @@
     padding-bottom: env(safe-area-inset-bottom);
     padding-left: env(safe-area-inset-left);
   }
-  
+   
   .safe-area-pb {
     padding-bottom: env(safe-area-inset-bottom);
   }
