@@ -6,7 +6,7 @@ const config: CapacitorConfig = {
   webDir: 'src/app',
   server: {
     androidScheme: 'http',
-    url: 'http://192.168.1.88:3000',
+    url: 'bookish-git-main-grandemepreurs-projects.vercel.app',
     cleartext: true
   },
   plugins: {
