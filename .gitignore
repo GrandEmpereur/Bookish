@@ -33,6 +33,8 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env
 .env.local
+.env.development
+.env.production
 
 # vercel
 .vercel
@@ -48,8 +50,8 @@ pnpm-lock.yaml
 package-lock.json
 
 # mobile
-ios/*
-android/*
+ios
+android
 
 # Postman
 postman/

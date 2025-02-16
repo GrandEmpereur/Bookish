@@ -12,8 +12,8 @@ import { postService } from "@/services/post.service";
 import Image from 'next/image';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createPostSchema, POST_SUBJECTS, PostSubject } from "@/lib/validations/post";
-import type { CreatePostFormData } from "@/lib/validations/post";
+import { createPostSchema, POST_SUBJECTS, PostSubject } from "@/validations/post";
+import type { CreatePostFormData } from "@/validations/post";
 import {
     Form,
     FormControl,
