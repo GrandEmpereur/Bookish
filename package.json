@@ -69,8 +69,8 @@
   },
   "devDependencies": {
     "@capacitor/cli": "^7.0.1",
-    "@types/node": "^22.13.1",
-    "@types/react": "^19.0.8",
+    "@types/node": "^22.13.4",
+    "@types/react": "^19.0.9",
     "@types/react-dom": "^19.0.3",
     "postcss": "^8.5.1",
     "tailwindcss": "3",
