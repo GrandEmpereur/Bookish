@@ -10,7 +10,7 @@ import { Loader2 } from "lucide-react";
 import { bookListService } from "@/services/book-list.service";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createBookListSchema, type CreateBookListInput, genres } from "@/lib/validations/book-list";
+import { createBookListSchema, type CreateBookListInput, genres } from "@/validations/book-list";
 import type { BookListVisibility } from "@/types/bookListTypes";
 import {
     Form,

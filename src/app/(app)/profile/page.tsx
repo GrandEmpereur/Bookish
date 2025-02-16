@@ -271,7 +271,7 @@ export default function Profile() {
                                 <div className="flex flex-col items-center">
                                     <Book className="w-5 h-5 mb-2 text-muted-foreground" />
                                     <p className="text-2xl font-bold text-primary">
-                                        { 0}
+                                        {0}
                                     </p>
                                     <p className="text-sm text-muted-foreground">
                                         Livres lus

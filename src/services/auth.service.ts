@@ -19,234 +19,124 @@ import {
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 class AuthService {
-    // POST /auth/register
+    /**
+     * Méthode utilitaire pour gérer les requêtes HTTP avec retry et gestion d'erreurs
+     */
+    private async makeRequest<T>(
+        method: 'get' | 'post',
+        endpoint: string,
+        data?: any,
+        retries = 3
+    ): Promise<AuthResponse<T>> {
+        const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+        try {
+            const response = await CapacitorHttp[method]({
+                url: `${API_URL}${endpoint}`,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                data,
+                webFetchExtra: {
+                    credentials: 'include',
+                    keepalive: true
+                }
+            });
+
+            // Gestion des différents codes de statut
+            switch (response.status) {
+                case 429: // Too Many Requests
+                    const retryAfter = parseInt(response.headers['retry-after'] || '5', 10);
+                    await delay(retryAfter * 1000);
+                    if (retries > 0) {
+                        return this.makeRequest(method, endpoint, data, retries - 1);
+                    }
+                    throw new Error('Trop de requêtes. Veuillez réessayer plus tard.');
+
+                case 419: // CSRF Token Mismatch
+                    if (retries > 0) {
+                        await delay(1000);
+                        return this.makeRequest(method, endpoint, data, retries - 1);
+                    }
+                    throw new Error('Session expirée. Veuillez rafraîchir la page.');
+
+                case 401:
+                    throw new Error('Non autorisé. Veuillez vous reconnecter.');
+
+                case 403:
+                    throw new Error('Accès refusé.');
+            }
+
+            if (response.status >= 400) {
+                throw new Error(response.data.message || `Erreur ${response.status}`);
+            }
+
+            return response.data;
+        } catch (error: any) {
+            if (error.message.includes('rate_limits:rlflx-get') && retries > 0) {
+                await delay(1000);
+                return this.makeRequest(method, endpoint, data, retries - 1);
+            }
+
+            throw new Error(error.message || 'Une erreur est survenue');
+        }
+    }
+
+    // Inscription
     async register(data: RegisterRequest): Promise<AuthResponse<RegisterResponse>> {
-        try {
-            const response = await CapacitorHttp.post({
-                url: `${API_URL}/auth/register`,
-                headers: { 'Content-Type': 'application/json' },
-                data,
-                webFetchExtra: { credentials: 'include' }
-            });
-
-            if (response.status !== 201) {
-                throw new Error(response.data.message || 'Erreur lors de l\'inscription');
-            }
-
-            return response.data;
-        } catch (error: any) {
-            console.error('Register error:', error);
-            throw error;
-        }
+        return this.makeRequest('post', '/auth/register', data);
     }
 
-    // POST /auth/register/step1
+    // Étape 1 de l'inscription
     async completeStep1(data: RegisterStepOneRequest): Promise<AuthResponse<{ message: string }>> {
-        try {
-            const response = await CapacitorHttp.post({
-                url: `${API_URL}/auth/register/step1`,
-                headers: { 'Content-Type': 'application/json' },
-                data,
-                webFetchExtra: { credentials: 'include' }
-            });
-
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de l\'étape 1');
-            }
-
-            return response.data;
-        } catch (error: any) {
-            console.error('Complete step 1 error:', error);
-            throw error;
-        }
+        return this.makeRequest('post', '/auth/register/step1', data);
     }
 
-    // POST /auth/register/step2
+    // Étape 2 de l'inscription
     async completeStep2(data: RegisterStepTwoRequest): Promise<AuthResponse<{ message: string }>> {
-        try {
-            const response = await CapacitorHttp.post({
-                url: `${API_URL}/auth/register/step2`,
-                headers: { 'Content-Type': 'application/json' },
-                data,
-                webFetchExtra: { credentials: 'include' }
-            });
-
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de l\'étape 2');
-            }
-
-            return response.data;
-        } catch (error: any) {
-            console.error('Complete step 2 error:', error);
-            throw error;
-        }
+        return this.makeRequest('post', '/auth/register/step2', data);
     }
 
-    // POST /auth/register/step3
+    // Étape 3 de l'inscription
     async completeStep3(data: RegisterStepThreeRequest): Promise<AuthResponse<{ message: string }>> {
-        try {
-            const response = await CapacitorHttp.post({
-                url: `${API_URL}/auth/register/step3`,
-                headers: { 'Content-Type': 'application/json' },
-                data,
-                webFetchExtra: { credentials: 'include' }
-            });
-
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de l\'étape 3');
-            }
-
-            return response.data;
-        } catch (error: any) {
-            console.error('Complete step 3 error:', error);
-            throw error;
-        }
+        return this.makeRequest('post', '/auth/register/step3', data);
     }
 
-    // POST /auth/login
+    // Connexion
     async login(data: LoginRequest): Promise<AuthResponse<LoginResponse>> {
-        try {
-            const response = await CapacitorHttp.post({
-                url: `${API_URL}/auth/login`,
-                headers: { 'Content-Type': 'application/json' },
-                data,
-                webFetchExtra: { credentials: 'include' }
-            });
-
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de la connexion');
-            }
-
-            return response.data;
-        } catch (error: any) {
-            console.error('Login error:', error);
-            throw error;
-        }
+        return this.makeRequest('post', '/auth/login', data);
     }
 
-    // POST /auth/verify-email
+    // Vérification d'email
     async verifyEmail(data: VerifyEmailRequest): Promise<AuthResponse<{ message: string }>> {
-        try {
-            const response = await CapacitorHttp.post({
-                url: `${API_URL}/auth/verify-email`,
-                headers: { 'Content-Type': 'application/json' },
-                data,
-                webFetchExtra: { credentials: 'include' }
-            });
-
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de la vérification de l\'email');
-            }
-
-            return response.data;
-        } catch (error: any) {
-            console.error('Verify email error:', error);
-            throw error;
-        }
+        return this.makeRequest('post', '/auth/verify-email', data);
     }
 
-    // POST /auth/resend-verification
+    // Renvoi du code de vérification
     async resendVerification(data: ResendVerificationRequest): Promise<AuthResponse<{ message: string }>> {
-        try {
-            const response = await CapacitorHttp.post({
-                url: `${API_URL}/auth/resend-verification`,
-                headers: { 'Content-Type': 'application/json' },
-                data,
-                webFetchExtra: { credentials: 'include' }
-            });
-
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors du renvoi du code');
-            }
-
-            return response.data;
-        } catch (error: any) {
-            console.error('Resend verification error:', error);
-            throw error;
-        }
+        return this.makeRequest('post', '/auth/resend-verification', data);
     }
 
-    // POST /auth/forgot-password
+    // Demande de réinitialisation de mot de passe
     async requestPasswordReset(data: ForgotPasswordRequest): Promise<AuthResponse<{ message: string }>> {
-        try {
-            const response = await CapacitorHttp.post({
-                url: `${API_URL}/auth/forgot-password`,
-                headers: { 'Content-Type': 'application/json' },
-                data,
-                webFetchExtra: { credentials: 'include' }
-            });
-
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de la demande de réinitialisation');
-            }
-
-            return response.data;
-        } catch (error: any) {
-            console.error('Request password reset error:', error);
-            throw error;
-        }
+        return this.makeRequest('post', '/auth/forgot-password', data);
     }
 
-    // POST /auth/verify-reset-code
+    // Vérification du code de réinitialisation
     async verifyResetCode(data: VerifyResetCodeRequest): Promise<AuthResponse<{ message: string }>> {
-        try {
-            const response = await CapacitorHttp.post({
-                url: `${API_URL}/auth/verify-reset-code`,
-                headers: { 'Content-Type': 'application/json' },
-                data,
-                webFetchExtra: { credentials: 'include' }
-            });
-
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de la vérification du code');
-            }
-
-            return response.data;
-        } catch (error: any) {
-            console.error('Verify reset code error:', error);
-            throw error;
-        }
+        return this.makeRequest('post', '/auth/verify-reset-code', data);
     }
 
-    // POST /auth/reset-password
+    // Réinitialisation du mot de passe
     async resetPassword(data: ResetPasswordRequest): Promise<AuthResponse<{ message: string }>> {
-        try {
-            const response = await CapacitorHttp.post({
-                url: `${API_URL}/auth/reset-password`,
-                headers: { 'Content-Type': 'application/json' },
-                data,
-                webFetchExtra: { credentials: 'include' }
-            });
-
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de la réinitialisation du mot de passe');
-            }
-
-            return response.data;
-        } catch (error: any) {
-            console.error('Reset password error:', error);
-            throw error;
-        }
+        return this.makeRequest('post', '/auth/reset-password', data);
     }
 
-    // POST /auth/logout
+    // Déconnexion
     async logout(): Promise<AuthResponse<LogoutResponse>> {
-        try {
-            const response = await CapacitorHttp.post({
-                url: `${API_URL}/auth/logout`,
-                webFetchExtra: { credentials: 'include' }
-            });
-
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de la déconnexion');
-            }
-
-            return response.data;
-        } catch (error: any) {
-            console.error('Logout error:', error);
-            throw error;
-        }
+        return this.makeRequest('post', '/auth/logout');
     }
 }
 
-export const authService = new AuthService(); 
+export const authService = new AuthService();
