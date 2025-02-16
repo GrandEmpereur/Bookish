@@ -45,7 +45,7 @@
     "ansi-styles": "^6.2.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "cmdk": "1.0.0",
+    "cmdk": "^1.0.4",
     "date-fns": "3",
     "embla-carousel-react": "^8.5.2",
     "gsap": "^3.12.7",
