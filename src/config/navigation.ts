@@ -95,6 +95,11 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
             }
         ]
     },
+    '/profile/stats': {
+        variant: 'back',
+        title: 'statistiques',
+        showBack: true
+    },
 
     // Configuration par défaut
     default: {
