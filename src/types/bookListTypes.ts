@@ -21,7 +21,6 @@ export interface BookList {
         title: string;
         author: string;
         coverImage: string;
-        genres: string[];
     }>;
 }
 

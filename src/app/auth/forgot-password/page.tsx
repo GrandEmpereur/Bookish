@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { ChevronLeft, Loader2, Mail } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { forgotPasswordSchema, type ForgotPasswordInput } from "@/lib/validations/auth";
+import { forgotPasswordSchema, type ForgotPasswordInput } from "@/validations/auth";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/auth-context";
 import type { ForgotPasswordRequest } from "@/types/authTypes";

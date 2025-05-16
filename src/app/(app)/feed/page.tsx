@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import { FloatingActionButton } from "@/components/ui/floating-action-button";
 import { useRouter } from "next/navigation";
 import { Post } from "@/types/postTypes";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // Fonction utilitaire pour gérer les mises à jour optimistes
 const handleOptimisticUpdate = (
@@ -169,140 +170,189 @@ export default function Feed() {
 
     if (isLoading) {
         return (
-            <div className="flex-1 flex items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <div className="flex-1 px-4 md:px-8 lg:px-0 pb-[120px] pt-[100px]">
+                <div className="max-w-2xl mx-auto space-y-6">
+                    {[...Array(3)].map((_, index) => (
+                        <div 
+                            key={index}
+                            className="bg-card rounded-lg p-4 md:p-6 shadow-sm space-y-4"
+                        >
+                            {/* En-tête du skeleton */}
+                            <div className="flex gap-3">
+                                <Skeleton className="h-10 w-10 md:h-12 md:w-12 rounded-full" />
+                                <div className="flex-1 space-y-2">
+                                    <div className="flex items-center justify-between">
+                                        <Skeleton className="h-5 w-32" />
+                                        <Skeleton className="h-4 w-24" />
+                                    </div>
+                                    <Skeleton className="h-4 w-48" />
+                                </div>
+                            </div>
+
+                            {/* Contenu du skeleton */}
+                            <div className="space-y-2">
+                                <Skeleton className="h-4 w-full" />
+                                <Skeleton className="h-4 w-[90%]" />
+                                <Skeleton className="h-4 w-[80%]" />
+                            </div>
+
+                            {/* Image du skeleton */}
+                            <div className="relative aspect-[4/3] md:aspect-[16/9] rounded-lg overflow-hidden">
+                                <Skeleton className="h-full w-full" />
+                            </div>
+
+                            {/* Actions du skeleton */}
+                            <div className="flex items-center gap-6 pt-2">
+                                <Skeleton className="h-8 w-16" />
+                                <Skeleton className="h-8 w-16" />
+                                <Skeleton className="h-8 w-8" />
+                                <Skeleton className="h-8 w-8 ml-auto" />
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
         );
     }
 
     return (
         <>
-            <div className="flex-1 px-5 pb-[120px] pt-[100px]">
-                <div className="space-y-6">
-                    {posts && posts.length > 0 ? (
-                        posts.map((post) => (
-                            <article
-                                key={post.id}
-                                className="bg-card rounded-lg p-4 shadow-sm space-y-4"
-                            >
-                                <div className="flex gap-3">
-                                    <Avatar>
-                                        <AvatarFallback>
-                                            {post.user?.username.charAt(0).toUpperCase()}
-                                        </AvatarFallback>
-                                    </Avatar>
-                                    <div className="flex-1">
-                                        <div className="flex items-center justify-between">
-                                            <span className="font-medium">
-                                                {post.user?.username}
-                                            </span>
-                                            <span className="text-sm text-muted-foreground">
-                                                {formatDistanceToNow(new Date(post.createdAt), {
-                                                    addSuffix: false,
-                                                    locale: fr
-                                                })}
-                                            </span>
+            <div className="flex-1 px-4 md:px-8 lg:px-0 pb-[120px] pt-[100px]">
+                {/* Container principal centré avec largeur max */}
+                <div className="max-w-2xl mx-auto">
+                    <main className="space-y-6">
+                        {posts && posts.length > 0 ? (
+                            posts.map((post) => (
+                                <article
+                                    key={post.id}
+                                    className="bg-card rounded-lg p-4 md:p-6 shadow-sm space-y-4"
+                                >
+                                    {/* En-tête du post */}
+                                    <div className="flex gap-3">
+                                        <Avatar className="h-10 w-10 md:h-12 md:w-12">
+                                            <AvatarFallback>
+                                                {post.user?.username.charAt(0).toUpperCase()}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <div className="flex-1">
+                                            <div className="flex items-center justify-between">
+                                                <span className="font-medium text-base md:text-lg">
+                                                    {post.user?.username}
+                                                </span>
+                                                <span className="text-sm text-muted-foreground">
+                                                    {formatDistanceToNow(new Date(post.createdAt), {
+                                                        addSuffix: false,
+                                                        locale: fr
+                                                    })}
+                                                </span>
+                                            </div>
+                                            <h2 className="text-sm md:text-base text-muted-foreground mt-0.5">
+                                                {post.title}
+                                            </h2>
                                         </div>
-                                        <h2 className="text-sm text-muted-foreground mt-0.5">
-                                            {post.title}
-                                        </h2>
                                     </div>
-                                </div>
 
-                                <div className="text-sm">
-                                    {post.content}
-                                </div>
+                                    {/* Contenu du post */}
+                                    <div className="text-sm md:text-base">
+                                        {post.content}
+                                    </div>
 
-                                {post.media && post.media.length > 0 && (
-                                    <div className="flex flex-col">
-                                        <div className="relative aspect-[4/3] rounded-lg overflow-hidden">
-                                            <Image
-                                                src={post.media[0].url}
-                                                alt={post.title}
-                                                fill
-                                                className="object-cover"
+                                    {/* Media du post */}
+                                    {post.media && post.media.length > 0 && (
+                                        <div className="flex flex-col">
+                                            <div className="relative aspect-[4/3] md:aspect-[16/9] rounded-lg overflow-hidden">
+                                                <Image
+                                                    src={post.media[0].url}
+                                                    alt={post.title}
+                                                    fill
+                                                    className="object-cover"
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Actions du post */}
+                                    <div className="flex items-center gap-6 pt-2">
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className={cn(
+                                                "text-muted-foreground hover:text-primary flex items-center gap-1.5 group md:text-base",
+                                                likedPosts.has(post.id) && "text-primary"
+                                            )}
+                                            onClick={() => handleLike(post.id)}
+                                        >
+                                            <Heart
+                                                className={cn(
+                                                    "h-5 w-5 md:h-6 md:w-6 transition-all duration-300",
+                                                    likedPosts.has(post.id)
+                                                        ? "scale-110 fill-current"
+                                                        : "scale-100 fill-none"
+                                                )}
+                                                strokeWidth={2}
                                             />
-                                        </div>
+                                            <span className="text-sm md:text-base transition-all duration-300">
+                                                {post.likesCount}
+                                            </span>
+                                        </Button>
+
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="text-muted-foreground hover:text-primary flex items-center gap-1.5"
+                                            onClick={() => handleComment(post.id)}
+                                        >
+                                            <MessageCircle className="h-5 w-5" />
+                                            <span className="text-sm">{post.commentsCount}</span>
+                                        </Button>
+
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className={cn(
+                                                "text-muted-foreground hover:text-primary flex items-center gap-1.5 group md:text-base",
+                                                bookmarkedPosts.has(post.id) && "text-primary"
+                                            )}
+                                            onClick={() => handleBookmark(post.id)}
+                                        >
+                                            <Bookmark
+                                                className={cn(
+                                                    "h-5 w-5 md:h-6 md:w-6 transition-all duration-300",
+                                                    bookmarkedPosts.has(post.id)
+                                                        ? "scale-110 fill-current"
+                                                        : "scale-100 fill-none"
+                                                )}
+                                                strokeWidth={2}
+                                            />
+                                        </Button>
+
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="text-muted-foreground hover:text-primary ml-auto"
+                                            onClick={() => handleShare(post)}
+                                        >
+                                            <Share2 className="h-5 w-5" />
+                                        </Button>
                                     </div>
-                                )}
-
-                                <div className="flex items-center gap-6">
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className={cn(
-                                            "text-muted-foreground hover:text-primary flex items-center gap-1.5 group",
-                                            likedPosts.has(post.id) && "text-primary"
-                                        )}
-                                        onClick={() => handleLike(post.id)}
-                                    >
-                                        <Heart
-                                            className={cn(
-                                                "h-5 w-5 transition-all duration-300",
-                                                likedPosts.has(post.id)
-                                                    ? "scale-110 fill-current"
-                                                    : "scale-100 fill-none"
-                                            )}
-                                            strokeWidth={2}
-                                        />
-                                        <span className="text-sm transition-all duration-300">
-                                            {post.likesCount}
-                                        </span>
-                                    </Button>
-
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="text-muted-foreground hover:text-primary flex items-center gap-1.5"
-                                        onClick={() => handleComment(post.id)}
-                                    >
-                                        <MessageCircle className="h-5 w-5" />
-                                        <span className="text-sm">{post.commentsCount}</span>
-                                    </Button>
-
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className={cn(
-                                            "text-muted-foreground hover:text-primary flex items-center gap-1.5 group",
-                                            bookmarkedPosts.has(post.id) && "text-primary"
-                                        )}
-                                        onClick={() => handleBookmark(post.id)}
-                                    >
-                                        <Bookmark
-                                            className={cn(
-                                                "h-5 w-5 transition-all duration-300",
-                                                bookmarkedPosts.has(post.id)
-                                                    ? "scale-110 fill-current"
-                                                    : "scale-100 fill-none"
-                                            )}
-                                            strokeWidth={2}
-                                        />
-                                    </Button>
-
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="text-muted-foreground hover:text-primary ml-auto"
-                                        onClick={() => handleShare(post)}
-                                    >
-                                        <Share2 className="h-5 w-5" />
-                                    </Button>
-                                </div>
-                            </article>
-                        ))
-                    ) : (
-                        <div className="text-center text-muted-foreground py-8">
-                            Aucun post à afficher
-                        </div>
-                    )}
+                                </article>
+                            ))
+                        ) : (
+                            <div className="text-center text-muted-foreground py-8">
+                                Aucun post à afficher
+                            </div>
+                        )}
+                    </main>
                 </div>
             </div>
 
-            <FloatingActionButton
-                onClick={() => router.push('/feed/create')}
-                className="bottom-[110px]"
-            />
+            {/* Bouton flottant - masqué sur desktop */}
+            <div className="lg:hidden">
+                <FloatingActionButton
+                    onClick={() => router.push('/feed/create')}
+                    className="bottom-[110px]"
+                />
+            </div>
         </>
     );
 } 

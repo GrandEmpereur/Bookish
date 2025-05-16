@@ -64,7 +64,7 @@ const App: React.FC = () => {
     <div className="flex items-center justify-center w-full h-[100dvh] bg-primary safe-area-p">
       <div ref={containerRef} className="flex flex-col items-center gap-y-6 px-4">
         <Image 
-          src="/bookish.svg" 
+          src="/Bookish.svg" 
           width={80}
           height={68} 
           alt="Logo" 
