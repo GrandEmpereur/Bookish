@@ -110,6 +110,14 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
         title: 'Objectifs',
         showBack: true
     },
+
+    // Notifications
+    '/notifications': {
+        variant: 'back',
+        title: 'Notifications',
+        showBack: true
+    },
+
     // Configuration par défaut
     default: {
         variant: 'standard',
@@ -139,7 +147,7 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
     },
     '/profile/settings/notifications': {
         variant: 'back',
-        title: 'Notifications',
+        title: 'Notificationsss',
         showBack: true
     },
     '/profile/settings/help': {
