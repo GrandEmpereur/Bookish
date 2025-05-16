@@ -95,12 +95,21 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
             }
         ]
     },
-    '/profile/stats': {
+    '/profile/suivie': {
         variant: 'back',
-        title: 'statistiques',
+        title: 'Suivie',
         showBack: true
     },
-
+    '/profile/suivie/classements': {
+        variant: 'back',
+        title: 'Classements',
+        showBack: true
+    },
+    '/profile/suivie/objectifs': {
+        variant: 'back',
+        title: 'Objectifs',
+        showBack: true
+    },
     // Configuration par défaut
     default: {
         variant: 'standard',
