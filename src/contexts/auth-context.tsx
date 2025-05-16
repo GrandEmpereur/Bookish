@@ -19,7 +19,6 @@ import type {
     RegisterResponse,
     AuthResponse 
 } from "@/types/authTypes";
-import { useToast } from "@/hooks/use-toast";
 
 interface AuthContextType {
     user: User | null;
@@ -45,7 +44,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
-    const { toast } = useToast();
 
     // Vérification initiale de l'authentification
     useEffect(() => {
@@ -80,19 +78,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             
             const userResponse = await userService.getAuthenticatedProfile();
             setUser(userResponse.data);
-            
-            toast({
-                title: "Connexion réussie",
-                description: "Bienvenue sur Bookish !",
-            });
 
             router.replace("/feed");
         } catch (error: any) {
-            toast({
-                variant: "destructive",
-                title: "Erreur de connexion",
-                description: error.message || "Une erreur est survenue lors de la connexion",
-            });
             throw error;
         } finally {
             setIsLoading(false);
@@ -104,11 +92,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const response = await authService.register(data);
             return response;
         } catch (error: any) {
-            toast({
-                variant: "destructive",
-                title: "Erreur d'inscription",
-                description: error.message || "Une erreur est survenue lors de l'inscription",
-            });
             throw error;
         }
     };
@@ -119,16 +102,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             await authService.logout();
             setUser(null);
             router.replace("/auth/login");
-            toast({
-                title: "Déconnexion réussie",
-                description: "À bientôt !",
-            });
         } catch (error: any) {
-            toast({
-                variant: "destructive",
-                title: "Erreur de déconnexion",
-                description: error.message || "Une erreur est survenue lors de la déconnexion",
-            });
+            throw error;
         } finally {
             setIsLoading(false);
         }
@@ -150,11 +125,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             await authService.verifyEmail(data);
         } catch (error: any) {
-            toast({
-                variant: "destructive",
-                title: "Erreur de vérification",
-                description: error.message || "Une erreur est survenue lors de la vérification"
-            });
             throw error;
         }
     };
@@ -163,11 +133,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             await authService.resendVerification(data);
         } catch (error: any) {
-            toast({
-                variant: "destructive",
-                title: "Erreur",
-                description: error.message || "Une erreur est survenue lors du renvoi du code"
-            });
             throw error;
         }
     };
@@ -176,11 +141,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             await authService.completeStep1(data);
         } catch (error: any) {
-            toast({
-                variant: "destructive",
-                title: "Erreur",
-                description: error.message || "Une erreur est survenue lors de la sélection"
-            });
             throw error;
         }
     };
@@ -189,11 +149,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             await authService.completeStep2(data);
         } catch (error: any) {
-            toast({
-                variant: "destructive",
-                title: "Erreur",
-                description: error.message || "Une erreur est survenue lors de la sélection"
-            });
             throw error;
         }
     };
@@ -202,11 +157,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             await authService.completeStep3(data);
         } catch (error: any) {
-            toast({
-                variant: "destructive",
-                title: "Erreur",
-                description: error.message || "Une erreur est survenue lors de la sélection"
-            });
             throw error;
         }
     };
@@ -215,11 +165,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             await authService.requestPasswordReset(data);
         } catch (error: any) {
-            toast({
-                variant: "destructive",
-                title: "Erreur",
-                description: error.message || "Une erreur est survenue"
-            });
             throw error;
         }
     };
@@ -228,28 +173,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             await authService.verifyResetCode(data);
         } catch (error: any) {
-            toast({
-                variant: "destructive",
-                title: "Erreur",
-                description: error.message || "Code invalide"
-            });
             throw error;
         }
     };
 
     const resetPassword = async (data: ResetPasswordRequest) => {
         try {
-            await authService.resetPassword(data);
-            toast({
-                title: "Succès",
-                description: "Votre mot de passe a été réinitialisé"
-            });
+            await authService.resetPassword(data);  
         } catch (error: any) {
-            toast({
-                variant: "destructive",
-                title: "Erreur",
-                description: error.message || "Une erreur est survenue"
-            });
             throw error;
         }
     };

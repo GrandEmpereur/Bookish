@@ -236,7 +236,7 @@ export function BookListDetail({ id }: BookListDetailProps) {
                                 <Card key={book.id} className="p-4">
                                     <div className="flex gap-4">
                                         {book.coverImage ? (
-                                            <div className="relative w-16 h-24 flex-shrink-0">
+                                            <div className="relative w-16 h-24 shrink-0">
                                                 <Image
                                                     src={book.coverImage}
                                                     alt={book.title}
@@ -245,7 +245,7 @@ export function BookListDetail({ id }: BookListDetailProps) {
                                                 />
                                             </div>
                                         ) : (
-                                            <div className="w-16 h-24 flex-shrink-0 bg-muted flex items-center justify-center rounded">
+                                            <div className="w-16 h-24 shrink-0 bg-muted flex items-center justify-center rounded">
                                                 <Book className="h-6 w-6 text-muted-foreground" />
                                             </div>
                                         )}

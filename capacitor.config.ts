@@ -1,12 +1,12 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'bookish.test.app',
-  appName: 'bookish-test',
+  appId: 'bookish.dev.app',
+  appName: 'bookish',
   webDir: 'src/app',
   server: {
     androidScheme: 'http',
-    url: 'bookish-git-main-grandemepreurs-projects.vercel.app',
+    url: 'http://192.168.1.86:3000',
     cleartext: true
   },
   plugins: {

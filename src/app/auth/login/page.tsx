@@ -3,11 +3,10 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Eye, EyeOff, Loader2 } from "lucide-react";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { loginSchema, type LoginInput } from "@/validations/auth";
+import type { LoginInput } from "@/validations/auth";
 import type { LoginRequest } from "@/types/authTypes";
-import { useToast } from "@/hooks/use-toast";
+
 import { useAuth } from '@/contexts/auth-context';
 
 import { Button } from "@/components/ui/button";
@@ -21,12 +20,10 @@ import {
 import { Input } from "@/components/ui/input";
 
 export default function Login() {
-    const { toast } = useToast();
     const [showPassword, setShowPassword] = useState(false);
     const { login } = useAuth();
 
     const form = useForm<LoginInput>({
-        resolver: zodResolver(loginSchema),
         defaultValues: {
             email: "",
             password: "",
@@ -49,11 +46,6 @@ export default function Login() {
                 navigator.vibrate(100);
             }
         } catch (error: any) {
-            toast({
-                variant: "destructive",
-                title: "Erreur de connexion",
-                description: error.message || "Vérifiez vos identifiants et réessayez"
-            });
             console.error('Login error:', error);
         }
     };

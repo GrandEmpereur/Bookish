@@ -87,7 +87,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                 className="w-full text-left transition-colors hover:bg-accent rounded-lg overflow-hidden group"
             >
                 <div className="p-4 flex gap-4">
-                    <div className="relative h-[100px] w-[70px] flex-shrink-0 overflow-hidden rounded-md">
+                    <div className="relative h-[100px] w-[70px] shrink-0 overflow-hidden rounded-md">
                         {library.coverImage ? (
                             <Image
                                 src={library.coverImage}
