@@ -95,6 +95,28 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
             }
         ]
     },
+    '/profile/suivie': {
+        variant: 'back',
+        title: 'Suivie',
+        showBack: true
+    },
+    '/profile/suivie/classements': {
+        variant: 'back',
+        title: 'Classements',
+        showBack: true
+    },
+    '/profile/suivie/objectifs': {
+        variant: 'back',
+        title: 'Objectifs',
+        showBack: true
+    },
+
+    // Notifications
+    '/notifications': {
+        variant: 'back',
+        title: 'Notifications',
+        showBack: true
+    },
 
     // Configuration par défaut
     default: {
@@ -125,7 +147,7 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
     },
     '/profile/settings/notifications': {
         variant: 'back',
-        title: 'Notifications',
+        title: 'Notificationsss',
         showBack: true
     },
     '/profile/settings/help': {
