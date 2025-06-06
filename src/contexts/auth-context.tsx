@@ -124,7 +124,7 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
   const logoutMutation = useMutation({
     mutationFn: () => authService.logout(),
     onSuccess: () => {
-      // Nettoyer uniquement les cookies d'authentification
+      // Nettoyer TOUS les cookies
       const cookies = document.cookie.split(";");
 
       for (let i = 0; i < cookies.length; i++) {
@@ -133,14 +133,12 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
         const name =
           eqPos > -1 ? cookie.substring(0, eqPos).trim() : cookie.trim();
 
-        // Supprimer uniquement les cookies d'authentification spécifiques
-        if (
-          name &&
-          (name.includes("adonis-session") ||
-            name.includes("rememberMe") ||
-            name.includes("remember_"))
-        ) {
-          document.cookie = `${name}=; Path=/;`;
+        // Supprimer TOUS les cookies
+        if (name) {
+          // Supprimer avec différents chemins et domaines pour être sûr
+          document.cookie = `${name}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
+          document.cookie = `${name}=; Path=/; Domain=${window.location.hostname}; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
+          document.cookie = `${name}=; Path=/; Domain=.${window.location.hostname}; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
         }
       }
 
