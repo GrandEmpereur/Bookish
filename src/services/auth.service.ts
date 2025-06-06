@@ -134,7 +134,35 @@ class AuthService {
 
     // Déconnexion
     async logout(): Promise<AuthResponse<LogoutResponse>> {
-        return this.makeRequest('POST', '/auth/logout');
+        try {
+            // Appel API pour déconnexion côté serveur
+            const response = await this.makeRequest<LogoutResponse>('POST', '/auth/logout');
+
+            // Nettoyage supplémentaire des cookies côté client
+            this.clearAllCookies();
+
+            return response;
+        } catch (error) {
+            // Même en cas d'erreur, on tente de nettoyer les cookies
+            this.clearAllCookies();
+            throw error;
+        }
+    }
+
+    // Méthode pour nettoyer les cookies d'authentification
+    private clearAllCookies(): void {
+        const cookies = document.cookie.split(";");
+
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i];
+            const eqPos = cookie.indexOf("=");
+            const name = eqPos > -1 ? cookie.substring(0, eqPos).trim() : cookie.trim();
+
+            // Supprimer uniquement les cookies d'authentification spécifiques
+            if (name && (name.includes("adonis-session") || name.includes("rememberMe") || name.includes("remember_"))) {
+                document.cookie = `${name}=; Path=/;`;
+            }
+        }
     }
 }
 
