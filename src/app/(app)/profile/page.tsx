@@ -456,8 +456,7 @@ export default function Profile() {
                   </div>
                 </div>
 
-                {/* Keep all the other sections you added from stats page x`*/}
-                {/* Monthly reading progress - Merged from stats page */}
+                {/* Monthly reading progress */}
                 <div
                   className="rounded-lg p-6 mb-8 mx-auto"
                   style={{
@@ -502,7 +501,7 @@ export default function Profile() {
                   </div>
                 </div>
 
-                {/* Genre pie chart - Merged from stats page */}
+                {/* Genre pie chart */}
                 <div
                   className="rounded-lg p-6 mb-8 mx-auto"
                   style={{
@@ -557,7 +556,7 @@ export default function Profile() {
                   </div>
                 </div>
 
-                {/* Most read authors - Merged from stats page */}
+                {/* Most read authors */}
                 <div
                   className="rounded-lg p-6 mx-auto"
                   style={{

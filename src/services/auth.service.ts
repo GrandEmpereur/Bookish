@@ -17,6 +17,7 @@ import {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 console.log(API_URL)
+console.log(API_URL)
 
 class AuthService {
     /**
@@ -45,7 +46,6 @@ class AuthService {
 
         try {
             const res = await fetch(`${API_URL}${endpoint}`, fetchOptions);
-
             const responseData = (await res.json()) as AuthResponse<T>;
 
             switch (res.status) {
