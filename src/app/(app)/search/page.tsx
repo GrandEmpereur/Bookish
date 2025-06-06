@@ -1,9 +1,8 @@
-
 "use client";
 import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { searchService } from "@/services/search.service";
+import { searchService } from "../../../services/search.service";
 import { UserProfile } from "@/types/userTypes";
 import { Book } from "@/types/bookTypes";
 import { BookList } from "@/types/bookListTypes";
@@ -15,22 +14,10 @@ import { Badge } from "@/components/ui/badge";
 import { Book as BookIcon, Users } from "lucide-react";
 
 interface SearchResults {
-  bookLists: {
-    data: BookList[];
-    pagination: any;
-  };
-  books: {
-    data: Book[];
-    pagination: any;
-  };
-  clubs: {
-    data: Club[];
-    pagination: any;
-  };
-  users: {
-    data: UserProfile[];
-    pagination: any;
-  };
+  bookLists: any;
+  books: any;
+  clubs: any;
+  users: any;
 }
 
 interface SearchState {
@@ -73,16 +60,25 @@ const SearchPage: React.FC = () => {
     setError(null);
 
     try {
+      console.log("Recherche en cours avec la valeur:", searchValue);
       const response = await searchService.searchGeneral({ query: searchValue });
+      console.log("Réponse complète du serveur:", response);
       
       if (response.status === "success") {
+        console.log("Données de recherche reçues:", response.data);
         setResults({
-          results: response.data.results,
+          results: {
+            bookLists: response.data.results.grouped.book_lists,
+            books: response.data.results.grouped.books,
+            clubs: response.data.results.grouped.clubs,
+            users: response.data.results.grouped.users
+          },
           totals: response.data.totals
         });
+        console.log("État des résultats mis à jour:", results);
       }
     } catch (error) {
-      console.error("Erreur lors de la recherche:", error);
+      console.error("Erreur détaillée lors de la recherche:", error);
       setError("Une erreur est survenue lors de la recherche.");
     } finally {
       setLoading(false);
@@ -192,9 +188,9 @@ const SearchPage: React.FC = () => {
                 {results.results.clubs.data.map((club) => (
                   <div key={club.id} className="flex gap-4 p-4 border rounded-lg hover:bg-accent/50 transition-colors">
                     <div className="relative min-w-[120px] h-[120px] overflow-hidden rounded-md">
-                      {club.coverImage ? (
+                      {club.club_picture ? (
                         <Image
-                          src={club.coverImage}
+                          src={club.club_picture}
                           alt={club.name}
                           fill
                           className="object-cover"
@@ -210,7 +206,7 @@ const SearchPage: React.FC = () => {
                       <p className="text-sm text-muted-foreground line-clamp-2">{club.description}</p>
                       <div className="mt-auto pt-2 flex items-center gap-2 text-sm text-muted-foreground">
                         <Users className="h-4 w-4" />
-                        <span>{club.memberCount} membre{club.memberCount > 1 ? 's' : ''}</span>
+                        <span>{club.member_count} membre{club.member_count > 1 ? 's' : ''}</span>
                       </div>
                     </div>
                   </div>
@@ -309,9 +305,9 @@ const SearchPage: React.FC = () => {
                 {results.results.clubs.data.map((club) => (
                   <div key={club.id} className="flex gap-4 p-4 border rounded-lg hover:bg-accent/50 transition-colors">
                     <div className="relative min-w-[120px] h-[120px] overflow-hidden rounded-md">
-                      {club.coverImage ? (
+                      {club.club_picture ? (
                         <Image
-                          src={club.coverImage}
+                          src={club.club_picture}
                           alt={club.name}
                           fill
                           className="object-cover"
@@ -327,7 +323,7 @@ const SearchPage: React.FC = () => {
                       <p className="text-sm text-muted-foreground line-clamp-2">{club.description}</p>
                       <div className="mt-auto pt-2 flex items-center gap-2 text-sm text-muted-foreground">
                         <Users className="h-4 w-4" />
-                        <span>{club.memberCount} membre{club.memberCount > 1 ? 's' : ''}</span>
+                        <span>{club.member_count} membre{club.member_count > 1 ? 's' : ''}</span>
                       </div>
                     </div>
                   </div>
