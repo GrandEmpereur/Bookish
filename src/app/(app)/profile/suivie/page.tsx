@@ -1,6 +1,6 @@
-"use client"
-import React from 'react';
-import { useRouter } from 'next/navigation';
+"use client";
+import React from "react";
+import { useRouter } from "next/navigation";
 import {
   ChevronLeft,
   ChevronRight,
@@ -12,13 +12,28 @@ import {
   Users,
   User,
   MessageCircle,
-} from 'lucide-react';
-import Link from 'next/link';
+} from "lucide-react";
+import Link from "next/link";
 
 const friendsData = [
-  { name: 'Maren Workman', points: 325, bg: 'bg-purple-100', iconColor: 'text-purple-600' },
-  { name: 'Brandon Matroys', points: 124, bg: 'bg-yellow-100', iconColor: 'text-yellow-600' },
-  { name: 'Manuela Lipshutz', points: 437, bg: 'bg-green-100', iconColor: 'text-green-600' },
+  {
+    name: "Maren Workman",
+    points: 325,
+    bg: "bg-purple-100",
+    iconColor: "text-purple-600",
+  },
+  {
+    name: "Brandon Matroys",
+    points: 124,
+    bg: "bg-yellow-100",
+    iconColor: "text-yellow-600",
+  },
+  {
+    name: "Manuela Lipshutz",
+    points: 437,
+    bg: "bg-green-100",
+    iconColor: "text-green-600",
+  },
 ];
 
 export default function Suivies() {
@@ -40,8 +55,8 @@ export default function Suivies() {
         <section>
           <h2 className="text-gray-800 font-semibold mb-3">Battle</h2>
           <div className="space-y-3">
-          <Link href="classements" passHref>
-          <div className="flex items-center bg-white rounded-lg border border-gray-200 p-4 cursor-pointer">
+            <Link href="classements" passHref>
+              <div className="flex items-center bg-white rounded-lg border border-gray-200 p-4 cursor-pointer">
                 <div className="p-3 rounded-lg bg-blue-100">
                   <BarChart2 className="text-blue-600" size={20} />
                 </div>
@@ -53,19 +68,18 @@ export default function Suivies() {
               </div>
             </Link>
             <Link
-  href="objectifs"
-  className="flex items-center bg-white rounded-lg border border-gray-200 p-4 hover:bg-gray-50 transition"
->
-  <div className="p-3 rounded-lg bg-pink-100">
-    <Target className="text-pink-600" size={20} />
-  </div>
-  <div className="flex-1 ml-3">
-    <div className="font-medium text-gray-800">Mes objectifs</div>
-    <div className="text-gray-500 text-sm">Avez-vous bien lu ?</div>
-  </div>
-  <ChevronRight className="text-gray-400" />
-</Link>
-
+              href="objectifs"
+              className="flex items-center bg-white rounded-lg border border-gray-200 p-4 hover:bg-gray-50 transition"
+            >
+              <div className="p-3 rounded-lg bg-pink-100">
+                <Target className="text-pink-600" size={20} />
+              </div>
+              <div className="flex-1 ml-3">
+                <div className="font-medium text-gray-800">Mes objectifs</div>
+                <div className="text-gray-500 text-sm">Avez-vous bien lu ?</div>
+              </div>
+              <ChevronRight className="text-gray-400" />
+            </Link>
           </div>
         </section>
 
@@ -79,7 +93,7 @@ export default function Suivies() {
                 className="flex items-center justify-between bg-white rounded-lg border border-gray-200 p-4"
               >
                 <div className="flex items-center">
-                  <div className={`p-3 rounded-full ${bg}`}> 
+                  <div className={`p-3 rounded-full ${bg}`}>
                     <User className={`${iconColor}`} size={20} />
                   </div>
                   <span className="ml-3 font-medium text-gray-800">{name}</span>
@@ -112,7 +126,7 @@ export default function Suivies() {
         </button>
         <button className="flex flex-col items-center text-gray-400">
           <User size={20} />
-          <span className="text-xs">Profile</span>
+          <span className="text-xs">Profil</span>
         </button>
       </nav>
     </div>

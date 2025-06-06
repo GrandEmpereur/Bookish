@@ -9,7 +9,7 @@ import gsap from 'gsap';
 export default function Onboarding() {
     const [currentStep, setCurrentStep] = useState(0);
     const router = useRouter();
-    
+
     // Refs pour les animations
     const imageRef = useRef(null);
     const titleRef = useRef(null);
@@ -23,7 +23,7 @@ export default function Onboarding() {
                 highlight: "mondes"
             },
             description: "Plongez dans l'univers fascinant des livres et découvrez des histoires captivantes. Rejoignez notre communauté.",
-            image: "/img/onboarding/step1.jpg"
+            image: "/img/onboarding/presentation1.png"
         },
         {
             title: {
@@ -31,7 +31,7 @@ export default function Onboarding() {
                 highlight: "préférées"
             },
             description: "Partagez vos avis, vos recommandations et découvrez de nouveaux livres grâce aux suggestions de notre communauté",
-            image: "/img/onboarding/step2.png"
+            image: "/img/onboarding/presentation2.png"
         },
         {
             title: {
@@ -39,16 +39,16 @@ export default function Onboarding() {
                 highlight: "passionnés"
             },
             description: "Engagez-vous dans des discussions passionnantes avec d'autres amateurs de littérature. Partagez vos réflexions.",
-            image: "/img/onboarding/step3.png"
+            image: "/img/onboarding/presentation3.png"
         }
     ];
 
     // Animation de transition
     const animateContent = (direction: 'next' | 'prev') => {
         const xOffset = direction === 'next' ? 100 : -100;
-        
+
         const tl = gsap.timeline();
-        
+
         // Fade out
         tl.to([titleRef.current, descriptionRef.current], {
             opacity: 0,
@@ -67,13 +67,13 @@ export default function Onboarding() {
 
         // Changement de step
         tl.add(() => {
-            setCurrentStep(prev => 
+            setCurrentStep(prev =>
                 direction === 'next' ? prev + 1 : prev - 1
             );
         });
 
         // Fade in du nouveau contenu
-        tl.fromTo([titleRef.current, descriptionRef.current], 
+        tl.fromTo([titleRef.current, descriptionRef.current],
             {
                 opacity: 0,
                 x: xOffset,
@@ -122,31 +122,10 @@ export default function Onboarding() {
         }
     };
 
-    const handleSkip = () => {
-        // Animation de sortie rapide
-        gsap.to([titleRef.current, descriptionRef.current, imageRef.current], {
-            opacity: 0,
-            scale: 0.9,
-            duration: 0.3,
-            ease: "power2.inOut",
-            onComplete: () => {
-                localStorage.setItem('hasSeenOnboarding', 'true');
-                router.push('/auth/login');
-            }
-        });
-    };
-
     return (
         <div className="min-h-[100dvh] flex flex-col bg-background overflow-hidden">
             {/* Section Image avec bouton Skip */}
             <div className="h-[45vh] relative w-full bg-primary/5 overflow-hidden">
-                <Button
-                    variant="link"
-                    onClick={handleSkip}
-                    className="absolute top-[60px] right-5 z-10 text-black font-medium safe-area-pt"
-                >
-                    Skip
-                </Button>
                 <div ref={imageRef} className="w-full h-full">
                     <Image
                         src={onboardingSteps[currentStep].image}
@@ -194,25 +173,24 @@ export default function Onboarding() {
                         {onboardingSteps.map((_, index) => (
                             <div
                                 key={index}
-                                className={`h-2 rounded-full transition-all duration-300 ease-in-out ${
-                                    index === currentStep 
+                                className={`h-2 rounded-full transition-all duration-300 ease-in-out ${index === currentStep
                                         ? 'w-8 bg-primary-800'
-                                        : index < currentStep 
+                                        : index < currentStep
                                             ? 'w-2 bg-primary-400'
                                             : 'w-2 bg-primary-200'
-                                }`}
+                                    }`}
                             />
                         ))}
                     </div>
 
                     {/* Bouton Suivant */}
                     <div ref={buttonRef} className="pb-[63px] safe-area-pb">
-                        <Button
-                            onClick={handleNext}
-                            className="w-full h-12 text-base"
-                        >
-                            {currentStep === onboardingSteps.length - 1 ? 'Commencer' : 'Suivant'}
-                        </Button>
+                    <Button
+                    onClick={handleNext}
+                         className="w-full h-12 text-base shadow-md shadow-black/30"
+                    >
+                    {currentStep === onboardingSteps.length - 1 ? 'Commencer' : 'Suivant'}
+                    </Button>
                     </div>
                 </div>
             </div>

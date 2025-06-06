@@ -26,7 +26,7 @@ export interface RegisterStep3Request {
 export interface LoginRequest {
     email: string;
     password: string;
-    rememberMe?: boolean;
+    rememberMe: boolean;
 }
 
 export interface ResetPasswordRequest {

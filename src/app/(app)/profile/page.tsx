@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/auth-context";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { bookListService } from "@/services/book-list.service";
 import type { BookList } from "@/types/bookListTypes";
 import {
@@ -185,7 +185,6 @@ const MOCK_CLUBS = [
 
 export default function Profile() {
   const { user, logout } = useAuth();
-  const { toast } = useToast();
   const router = useRouter();
   const [bookLists, setBookLists] = useState<BookList[]>([]);
   const [isLoadingLists, setIsLoadingLists] = useState(false);
@@ -193,17 +192,10 @@ export default function Profile() {
   const handleLogout = async () => {
     try {
       await logout();
-      toast({
-        title: "Déconnexion réussie",
-        description: "À bientôt sur Bookish !",
-      });
+      toast.success("Déconnexion réussie");
       router.push("/auth/login");
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Une erreur est survenue lors de la déconnexion",
-      });
+      toast.error("Une erreur est survenue lors de la déconnexion");
     }
   };
 
@@ -214,11 +206,7 @@ export default function Profile() {
       setBookLists(response.data);
     } catch (error) {
       console.error("Error fetching book lists:", error);
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Impossible de charger vos listes",
-      });
+      toast.error("Impossible de charger vos listes");
     } finally {
       setIsLoadingLists(false);
     }
@@ -244,7 +232,7 @@ export default function Profile() {
   );
 
   return (
-    <div className="min-h-[100dvh] bg-background">
+    <div className="min-h-dvh bg-background">
       <main className="container mx-auto pt-8 px-5 pb-[120px] max-w-md">
         {/* Header with profile info */}
         <div className="flex items-start space-x-4 mb-2 mt-20">
@@ -473,46 +461,48 @@ export default function Profile() {
                 {/* Keep all the other sections you added from stats page x`*/}
                 {/* Monthly reading progress - Merged from stats page */}
                 <div
-      className="rounded-lg p-6 mb-8 mx-auto"
-      style={{
-        background: 'linear-gradient(to right, #6DA37F, #416E54)',
-      }}
-    >
-      <div className="text-4xl font-bold text-white mb-1">24</div>
-      <div className="text-md text-white/90 mb-4">
-        Livres lus depuis le début d'année
-      </div>
-
-      <div className="space-y-3">
-        {MONTHS_DATA.map(({ month, width, images }) => (
-          <div key={month} className="flex items-center gap-3">
-            <div className="w-10 text-sm font-medium text-white/90">{month}</div>
-
-            <div className="flex-1 bg-white/10 h-6 rounded-md relative overflow-hidden">
-              <div
-                className="absolute left-0 top-0 h-6 bg-white/40"
-                style={{ width }}
-              />
-
-              {images.map((src, i) => (
-                <div
-                  key={i}
-                  className="absolute h-8 w-8 rounded-full overflow-hidden -top-1"
-                  style={{ left: `${10 + i * 30}px` }}
+                  className="rounded-lg p-6 mb-8 mx-auto"
+                  style={{
+                    background: "linear-gradient(to right, #6DA37F, #416E54)",
+                  }}
                 >
-                  <Image
-                    src={src}
-                    alt={`cover-${i}`}
-                    fill
-                    className="object-cover"
-                  />
+                  <div className="text-4xl font-bold text-white mb-1">24</div>
+                  <div className="text-md text-white/90 mb-4">
+                    Livres lus depuis le début d'année
+                  </div>
+
+                  <div className="space-y-3">
+                    {MONTHS_DATA.map(({ month, width, images }) => (
+                      <div key={month} className="flex items-center gap-3">
+                        <div className="w-10 text-sm font-medium text-white/90">
+                          {month}
+                        </div>
+
+                        <div className="flex-1 bg-white/10 h-6 rounded-md relative overflow-hidden">
+                          <div
+                            className="absolute left-0 top-0 h-6 bg-white/40"
+                            style={{ width }}
+                          />
+
+                          {images.map((src, i) => (
+                            <div
+                              key={i}
+                              className="absolute h-8 w-8 rounded-full overflow-hidden -top-1"
+                              style={{ left: `${10 + i * 30}px` }}
+                            >
+                              <Image
+                                src={src}
+                                alt={`cover-${i}`}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
 
                 {/* Genre pie chart - Merged from stats page */}
                 <div

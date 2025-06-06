@@ -6,7 +6,6 @@ import Image from "next/image";
 import { formatDistance } from "date-fns";
 import { fr } from "date-fns/locale";
 
-
 const MOCK_NOTIFICATIONS = [
   {
     id: "1",
@@ -19,14 +18,14 @@ const MOCK_NOTIFICATIONS = [
       profile: {
         first_name: "Théo",
         last_name: "",
-        profile_picture_url: "/img/memoji1.jpeg"
-      }
+        profile_picture_url: "/img/memoji1.jpeg",
+      },
     },
     data: {
       post_id: "post1",
       post_title: "Mon premier post",
-      image_url: "/img/meal.jpg"
-    }
+      image_url: "/img/meal.jpg",
+    },
   },
   {
     id: "2",
@@ -39,14 +38,14 @@ const MOCK_NOTIFICATIONS = [
       profile: {
         first_name: "Lucas",
         last_name: "",
-        profile_picture_url: "/img/memoji2.jpg"
-      }
+        profile_picture_url: "/img/memoji2.jpg",
+      },
     },
     data: {
       post_id: "post2",
       post_title: "Mon deuxième post",
-      image_url: "/img/meal.jpg"
-    }
+      image_url: "/img/meal.jpg",
+    },
   },
   {
     id: "3",
@@ -59,15 +58,15 @@ const MOCK_NOTIFICATIONS = [
       profile: {
         first_name: "Jeanne",
         last_name: "",
-        profile_picture_url: "/img/memoji3.png"
-      }
+        profile_picture_url: "/img/memoji3.png",
+      },
     },
     data: {
       post_id: "post3",
       post_title: "Mon troisième post",
-      image_url: "/img/meal.jpg"
-    }
-  }
+      image_url: "/img/meal.jpg",
+    },
+  },
 ];
 
 export default function NotificationsPage() {
@@ -90,32 +89,42 @@ export default function NotificationsPage() {
   const formatNotificationTime = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
-    
+
     if (date.toDateString() === now.toDateString()) {
       return formatDistance(date, now, { addSuffix: false, locale: fr });
     }
-    
-    const weekday = date.toLocaleString('fr-FR', { weekday: 'short' });
+
+    const weekday = date.toLocaleString("fr-FR", { weekday: "short" });
     return weekday;
   };
 
-
   const avatarBgColors = {
-    "Théo": "bg-yellow-100",
-    "Jeanne": "bg-blue-100",
-    "Lucas": "bg-green-100"
+    Théo: "bg-yellow-100",
+    Jeanne: "bg-blue-100",
+    Lucas: "bg-green-100",
   };
 
   return (
     <div className="flex flex-col h-full bg-white">
       {/* En-tête simple comme dans l'image des notifications */}
       <header className="flex items-center justify-between p-6 relative border-b">
-        <button 
-          onClick={() => router.back()} 
+        <button
+          onClick={() => router.back()}
           className="absolute left-6 text-black"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="currentColor"
+            className="w-6 h-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15.75 19.5L8.25 12l7.5-7.5"
+            />
           </svg>
         </button>
         <h1 className="text-4xl font-bold w-full text-center">Notifications</h1>
@@ -129,41 +138,54 @@ export default function NotificationsPage() {
         ) : (
           <ul className="bg-gray-50">
             {MOCK_NOTIFICATIONS.map((notification) => (
-              <li 
+              <li
                 key={notification.id}
-                onClick={() => handleNotificationClick(notification.data.post_id)}
+                onClick={() =>
+                  handleNotificationClick(notification.data.post_id)
+                }
                 className="flex items-center p-4 bg-gray-50 cursor-pointer"
               >
-             
-                <div className={`h-14 w-14 rounded-full overflow-hidden ${avatarBgColors[notification.user.profile.first_name as keyof typeof avatarBgColors] || "bg-gray-100"} mr-3 flex-shrink-0`}>
-                  <Image 
+                <div
+                  className={`h-14 w-14 rounded-full overflow-hidden ${
+                    avatarBgColors[
+                      notification.user.profile
+                        .first_name as keyof typeof avatarBgColors
+                    ] || "bg-gray-100"
+                  } mr-3 shrink-0`}
+                >
+                  <Image
                     src={notification.user.profile.profile_picture_url}
                     alt={notification.user.profile.first_name}
-                    width={56} 
+                    width={56}
                     height={56}
                     className="h-full w-full object-cover"
                   />
                 </div>
-                
-                
+
                 <div className="flex-1 mr-3">
                   <div className="flex flex-col">
                     <div>
-                      <span className="font-bold text-lg">{notification.user.profile.first_name}</span>
-                      <span className="text-gray-500"> {notification.type === 'comment' ? 'a commenté votre post.' : 'a liké votre post.'}</span>
+                      <span className="font-bold text-lg">
+                        {notification.user.profile.first_name}
+                      </span>
+                      <span className="text-gray-500">
+                        {" "}
+                        {notification.type === "comment"
+                          ? "a commenté votre post."
+                          : "a liké votre post."}
+                      </span>
                     </div>
                     <div className="text-gray-500">
                       {formatNotificationTime(notification.created_at)}
                     </div>
                   </div>
                 </div>
-                
-             
-                <div className="h-16 w-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                  <Image 
-                    src="/img/meal.jpg" 
-                    alt="Post thumbnail" 
-                    width={64} 
+
+                <div className="h-16 w-16 rounded-lg overflow-hidden bg-gray-100 shrink-0">
+                  <Image
+                    src="/img/meal.jpg"
+                    alt="Post thumbnail"
+                    width={64}
                     height={64}
                     className="h-full w-full object-cover"
                   />
