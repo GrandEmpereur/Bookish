@@ -84,7 +84,7 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
   },
   "/messages": {
     variant: "back",
-    title: "Messages",
+    title: "Nouvelle librairie",
     showBack: true,
   },
 
