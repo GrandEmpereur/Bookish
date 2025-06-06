@@ -1,6 +1,6 @@
-"use client"
-import React from 'react';
-import { useRouter } from 'next/navigation';
+"use client";
+import React from "react";
+import { useRouter } from "next/navigation";
 import {
   ChevronLeft,
   ChevronRight,
@@ -12,13 +12,28 @@ import {
   Users,
   User,
   MessageCircle,
-} from 'lucide-react';
-import Link from 'next/link';
+} from "lucide-react";
+import Link from "next/link";
 
 const friendsData = [
-  { name: 'Maren Workman', points: 325, bg: 'bg-purple-100', iconColor: 'text-purple-600' },
-  { name: 'Brandon Matroys', points: 124, bg: 'bg-yellow-100', iconColor: 'text-yellow-600' },
-  { name: 'Manuela Lipshutz', points: 437, bg: 'bg-green-100', iconColor: 'text-green-600' },
+  {
+    name: "Maren Workman",
+    points: 325,
+    bg: "bg-purple-100",
+    iconColor: "text-purple-600",
+  },
+  {
+    name: "Brandon Matroys",
+    points: 124,
+    bg: "bg-yellow-100",
+    iconColor: "text-yellow-600",
+  },
+  {
+    name: "Manuela Lipshutz",
+    points: 437,
+    bg: "bg-green-100",
+    iconColor: "text-green-600",
+  },
 ];
 
 export default function Suivies() {
@@ -65,7 +80,6 @@ export default function Suivies() {
               </div>
               <ChevronRight className="text-gray-400" />
             </Link>
-
           </div>
         </section>
 
