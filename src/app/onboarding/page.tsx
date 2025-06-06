@@ -115,7 +115,7 @@ export default function Onboarding() {
                 stagger: 0.1,
                 ease: "power2.inOut",
                 onComplete: () => {
-                    localStorage.setItem('hasSeenOnboarding', 'false');
+                    localStorage.setItem('hasSeenOnboarding', 'true');
                     router.push('/auth/login');
                 }
             });
