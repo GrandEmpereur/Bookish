@@ -82,7 +82,7 @@ const otherUsers = allUsers.filter(u => u.position > 3);
       </div>
 
       {/* your rank */}
-      <div className="bg-[#FF8960] text-white rounded-2xl px-5 py-4 mb-8 shadow-sm">
+      <div className="bg-[#FF8960] text-white rounded-2xl px-5 py-4 mb-8 shadow-xs">
         <div className="flex items-center gap-3">
           <div className="font-bold text-lg">#{currentUserRank}</div>
           <div className="text-sm">
@@ -140,7 +140,7 @@ const otherUsers = allUsers.filter(u => u.position > 3);
   {/* ALWAYS show this */}
   <button
     onClick={() => setIsOpen(o => !o)}
-    className="w-full bg-white rounded-xl flex items-center justify-between px-5 py-4 shadow-sm z-10"
+    className="w-full bg-white rounded-xl flex items-center justify-between px-5 py-4 shadow-xs z-10"
   >
     <div className="flex items-center gap-3">
       <Avatar className="w-8 h-8">

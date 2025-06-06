@@ -134,7 +134,7 @@ export default function AddBookToList({ params }: PageProps) {
         <div className="space-y-4">
             {[1, 2, 3].map((i) => (
                 <div key={i} className="flex gap-4 p-4 border rounded-lg">
-                    <Skeleton className="w-16 h-24 flex-shrink-0" />
+                    <Skeleton className="w-16 h-24 shrink-0" />
                     <div className="flex-1 space-y-2">
                         <Skeleton className="h-4 w-3/4" />
                         <Skeleton className="h-4 w-1/2" />
@@ -178,7 +178,7 @@ export default function AddBookToList({ params }: PageProps) {
                                         >
                                             <div className="flex gap-4">
                                                 {book.coverImage ? (
-                                                    <div className="relative w-16 h-24 flex-shrink-0">
+                                                    <div className="relative w-16 h-24 shrink-0">
                                                         <Image
                                                             src={book.coverImage}
                                                             alt={book.title}
@@ -187,7 +187,7 @@ export default function AddBookToList({ params }: PageProps) {
                                                         />
                                                     </div>
                                                 ) : (
-                                                    <div className="w-16 h-24 flex-shrink-0 bg-muted flex items-center justify-center rounded">
+                                                    <div className="w-16 h-24 shrink-0 bg-muted flex items-center justify-center rounded">
                                                         <Book className="h-6 w-6 text-muted-foreground" />
                                                     </div>
                                                 )}
@@ -234,7 +234,7 @@ export default function AddBookToList({ params }: PageProps) {
                                         <Card key={book.id} className="p-4">
                                             <div className="flex gap-4">
                                                 {book.coverImage ? (
-                                                    <div className="relative w-16 h-24 flex-shrink-0">
+                                                    <div className="relative w-16 h-24 shrink-0">
                                                         <Image
                                                             src={book.coverImage}
                                                             alt={book.title}
@@ -243,7 +243,7 @@ export default function AddBookToList({ params }: PageProps) {
                                                         />
                                                     </div>
                                                 ) : (
-                                                    <div className="w-16 h-24 flex-shrink-0 bg-muted flex items-center justify-center rounded">
+                                                    <div className="w-16 h-24 shrink-0 bg-muted flex items-center justify-center rounded">
                                                         <Book className="h-6 w-6 text-muted-foreground" />
                                                     </div>
                                                 )}

@@ -95,7 +95,7 @@ export default function Verification() {
     };
 
     return (
-        <div className="min-h-[100dvh] flex flex-col px-5 bg-background">
+        <div className="min-h-dvh flex flex-col px-5 bg-background">
             <div className="flex-1 flex flex-col items-center justify-center max-w-md mx-auto w-full -mt-20">
                 {isVerifying ? (
                     <div className="flex flex-col items-center gap-4">

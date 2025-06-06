@@ -86,7 +86,7 @@ export default function Genres() {
     };
 
     return (
-        <div className="min-h-[100dvh] flex flex-col px-5 bg-background pt-[60px]">
+        <div className="min-h-dvh flex flex-col px-5 bg-background pt-[60px]">
             <div className="flex-1 flex flex-col max-w-md mx-auto w-full justify-center items-center">
                 <h1 className="text-2xl font-heading mb-2 text-center">
                     Vos genres préférés
@@ -99,7 +99,7 @@ export default function Genres() {
                     {genres.map((genre) => (
                         <Badge
                             key={genre.id}
-                            variant={preferredGenres.includes(genre.id) ? "default" : "outline"}
+                            variant={preferredGenres.includes(genre.id) ? "default" : "outline-solid"}
                             className={`cursor-pointer text-sm py-2 px-4
                                 ${preferredGenres.includes(genre.id)
                                     ? 'bg-primary hover:bg-primary/90' 

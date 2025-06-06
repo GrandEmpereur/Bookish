@@ -78,7 +78,7 @@ export default function ForgotPassword() {
     };
 
     return (
-        <div className="min-h-[100dvh] flex flex-col px-5 bg-background safe-area-pt">
+        <div className="min-h-dvh flex flex-col px-5 bg-background safe-area-pt">
             <div className="flex-1 flex flex-col max-w-md mx-auto w-full justify-center">
             <Link
                 href="/auth/login"

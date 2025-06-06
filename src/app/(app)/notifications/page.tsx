@@ -135,7 +135,7 @@ export default function NotificationsPage() {
                 className="flex items-center p-4 bg-gray-50 cursor-pointer"
               >
              
-                <div className={`h-14 w-14 rounded-full overflow-hidden ${avatarBgColors[notification.user.profile.first_name as keyof typeof avatarBgColors] || "bg-gray-100"} mr-3 flex-shrink-0`}>
+                <div className={`h-14 w-14 rounded-full overflow-hidden ${avatarBgColors[notification.user.profile.first_name as keyof typeof avatarBgColors] || "bg-gray-100"} mr-3 shrink-0`}>
                   <Image 
                     src={notification.user.profile.profile_picture_url}
                     alt={notification.user.profile.first_name}
@@ -159,7 +159,7 @@ export default function NotificationsPage() {
                 </div>
                 
              
-                <div className="h-16 w-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                <div className="h-16 w-16 rounded-lg overflow-hidden bg-gray-100 shrink-0">
                   <Image 
                     src="/img/meal.jpg" 
                     alt="Post thumbnail" 

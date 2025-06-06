@@ -77,7 +77,7 @@ export default function Purpose() {
     };
 
     return (
-        <div className="min-h-[100dvh] flex flex-col px-5 bg-background pt-[60px]">
+        <div className="min-h-dvh flex flex-col px-5 bg-background pt-[60px]">
             <div className="flex-1 flex flex-col max-w-md mx-auto w-full justify-center items-center">
                 <h1 className="text-2xl font-heading mb-2 text-center">
                     Pourquoi rejoignez-vous Bookish ?

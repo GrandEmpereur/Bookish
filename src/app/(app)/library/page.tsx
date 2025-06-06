@@ -64,7 +64,7 @@ export default function Library() {
                             >
                                 <div className="flex">
                                     {list.coverImage ? (
-                                        <div className="relative w-24 h-32 flex-shrink-0">
+                                        <div className="relative w-24 h-32 shrink-0">
                                             <Image
                                                 src={list.coverImage}
                                                 alt={list.name}
@@ -73,7 +73,7 @@ export default function Library() {
                                             />
                                         </div>
                                     ) : (
-                                        <div className="w-24 h-32 flex-shrink-0 bg-muted flex items-center justify-center">
+                                        <div className="w-24 h-32 shrink-0 bg-muted flex items-center justify-center">
                                             <Book className="h-8 w-8 text-muted-foreground" />
                                         </div>
                                     )}
