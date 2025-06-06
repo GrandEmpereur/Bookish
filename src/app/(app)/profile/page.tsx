@@ -1,10 +1,8 @@
 "use client";
-"use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/auth-context";
@@ -25,105 +23,7 @@ import {
   Key,
   Sparkles,
 } from "lucide-react";
-import {
-  Book,
-  Eye,
-  EyeOff,
-  Heart,
-  MessageCircle,
-  Star,
-  Globe,
-  Settings,
-  User2,
-  CircleDashed,
-  Key,
-  Sparkles,
-} from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import {
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  Legend,
-} from "recharts";
-
-// Mock data from stats page
-const MONTHS_DATA = [
-  {
-    month: "Jan",
-    width: "40%",
-    images: ["/cover1.jpg", "/cover2.jpg"],
-  },
-  {
-    month: "Feb",
-    width: "20%",
-    images: ["/cover3.jpg"],
-  },
-  {
-    month: "Mar",
-    width: "60%",
-    images: ["/cover4.jpg"],
-  },
-  {
-    month: "Apr",
-    width: "45%",
-    images: ["/cover5.jpg", "/cover6.jpg"],
-  },
-  {
-    month: "May",
-    width: "80%",
-    images: ["/cover7.jpg"],
-  },
-  {
-    month: "Jun",
-    width: "55%",
-    images: [],
-  },
-  {
-    month: "Jul",
-    width: "70%",
-    images: [],
-  },
-  {
-    month: "Aug",
-    width: "30%",
-    images: ["/cover8.jpg"],
-  },
-  {
-    month: "Sep",
-    width: "50%",
-    images: [],
-  },
-  {
-    month: "Oct",
-    width: "0%",
-    images: [],
-  },
-  {
-    month: "Nov",
-    width: "0%",
-    images: [],
-  },
-  {
-    month: "Dec",
-    width: "0%",
-    images: [],
-  },
-];
-
-const GENRE_DATA = [
-  { name: "Romance", value: 10 },
-  { name: "Thriller", value: 6 },
-  { name: "Fantasy", value: 4 },
-  { name: "Autres", value: 2 },
-];
-
-const PIE_COLORS = ["#ec4899", "#dc2626", "#22c55e", "#ffffff"];
-
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
@@ -235,32 +135,6 @@ const MOCK_POSTS = [
       profile_picture_url: "/avatar.png",
     },
   },
-  {
-    id: "1",
-    content:
-      "Je viens de finir 'L'Étranger' de Camus, un chef-d'œuvre absolu ! Qu'en pensez-vous ?",
-    created_at: "2024-03-15T10:30:00Z",
-    likes_count: 24,
-    comments_count: 8,
-    author: {
-      id: "1",
-      username: "Alice",
-      profile_picture_url: "/avatar.png",
-    },
-  },
-  {
-    id: "2",
-    content:
-      "Ma nouvelle collection de romans policiers commence à prendre forme ! Je vous partage mes dernières acquisitions.",
-    created_at: "2024-03-14T15:20:00Z",
-    likes_count: 15,
-    comments_count: 3,
-    author: {
-      id: "2",
-      username: "Bob",
-      profile_picture_url: "/avatar.png",
-    },
-  },
 ];
 
 const MOCK_REVIEWS = [
@@ -288,49 +162,9 @@ const MOCK_REVIEWS = [
     created_at: "2024-03-08T14:30:00Z",
     likes_count: 18,
   },
-  {
-    id: "1",
-    book: {
-      title: "1984",
-      author: "George Orwell",
-      coverImage: "https://example.com/1984.jpg",
-    },
-    rating: 4.5,
-    content: "Une dystopie fascinante et toujours d'actualité...",
-    created_at: "2024-03-10T09:00:00Z",
-    likes_count: 12,
-  },
-  {
-    id: "2",
-    book: {
-      title: "Dune",
-      author: "Frank Herbert",
-      coverImage: "https://example.com/dune.jpg",
-    },
-    rating: 5,
-    content: "Un chef-d'œuvre de la science-fiction...",
-    created_at: "2024-03-08T14:30:00Z",
-    likes_count: 18,
-  },
 ];
 
 const MOCK_CLUBS = [
-  {
-    id: "1",
-    name: "Club des Classiques",
-    members_count: 156,
-    current_book: "Les Misérables",
-    next_meeting: "2024-03-20T18:00:00Z",
-    image: "/club1.jpg",
-  },
-  {
-    id: "2",
-    name: "Science-Fiction Fans",
-    members_count: 89,
-    current_book: "Fondation",
-    next_meeting: "2024-03-22T19:00:00Z",
-    image: "/club2.jpg",
-  },
   {
     id: "1",
     name: "Club des Classiques",
@@ -381,24 +215,7 @@ export default function Profile() {
   useEffect(() => {
     fetchBookLists();
   }, []);
-  useEffect(() => {
-    fetchBookLists();
-  }, []);
 
-  const renderBookListSkeleton = () => (
-    <div className="space-y-4">
-      {[1, 2, 3].map((i) => (
-        <div key={i} className="flex gap-4 p-4 border rounded-lg">
-          <Skeleton className="h-[120px] w-[80px]" />
-          <div className="flex-1 space-y-2">
-            <Skeleton className="h-6 w-3/4" />
-            <Skeleton className="h-4 w-1/2" />
-            <Skeleton className="h-4 w-1/4" />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
   const renderBookListSkeleton = () => (
     <div className="space-y-4">
       {[1, 2, 3].map((i) => (
@@ -621,16 +438,6 @@ export default function Profile() {
                       <span className="text-[#2F4739] text-[16px] font-bold mt-7 text-center">
                         Livres
                       </span>
-                      </div>
-                      <span className="text-[#2F4739] text-[10px]  mb-3 text-center font-semibold">
-                        2024 goal
-                      </span>
-                      <div className="text-[#ffffff] text-sm font-semibold mt-1 text-center whitespace-nowrap">
-                        20 sur 50
-                      </div>
-                      <span className="text-[#2F4739] text-[16px] font-bold mt-7 text-center">
-                        Livres
-                      </span>
                     </div>
 
                     {/* Note moyenne */}
@@ -797,18 +604,6 @@ export default function Profile() {
                   </div>
                 </div>
               </TabsContent>
-                  <div className="flex justify-between text-sm">
-                    <span>Madeline Miller</span>
-                    <span>2 livres</span>
-                  </div>
-                  <div className="relative w-full bg-white/20 h-2 rounded-full">
-                    <div
-                      className="bg-white absolute top-0 left-0 h-2 rounded-full"
-                      style={{ width: "20%" }}
-                    />
-                  </div>
-                </div>
-              </TabsContent>
 
               {/* Other tab contents */}
               <TabsContent value="listes" className="w-full">
@@ -887,123 +682,7 @@ export default function Profile() {
                   )}
                 </div>
               </TabsContent>
-              {/* Other tab contents */}
-              <TabsContent value="listes" className="w-full">
-                <div className="space-y-4">
-                  {isLoadingLists ? (
-                    renderBookListSkeleton()
-                  ) : bookLists.length === 0 ? (
-                    <div className="text-center py-8">
-                      <Book className="w-12 h-12 mx-auto text-muted-foreground opacity-50" />
-                      <p className="mt-4 text-muted-foreground">
-                        Vous n'avez pas encore créé de liste
-                      </p>
-                      <Button
-                        variant="outline"
-                        className="mt-4"
-                        onClick={() => router.push("/library/create")}
-                      >
-                        Créer une liste
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="grid gap-4">
-                      {bookLists.map((list) => (
-                        <button
-                          key={list.id}
-                          onClick={() => router.push(`/library/${list.id}`)}
-                          className="w-full text-left"
-                        >
-                          <div className="flex gap-4 p-4 border rounded-lg hover:bg-accent transition-colors">
-                            <div className="relative h-[120px] w-[80px] overflow-hidden rounded-md">
-                              {list.coverImage ? (
-                                <Image
-                                  src={list.coverImage}
-                                  alt={list.name}
-                                  fill
-                                  className="object-cover"
-                                />
-                              ) : (
-                                <div className="w-full h-full bg-muted flex items-center justify-center">
-                                  <Book className="h-8 w-8 text-muted-foreground" />
-                                </div>
-                              )}
-                            </div>
-                            <div className="flex-1">
-                              <div className="flex items-center justify-between">
-                                <h3 className="font-semibold text-lg">
-                                  {list.name}
-                                </h3>
-                                <Badge
-                                  variant={
-                                    list.visibility === "private"
-                                      ? "secondary"
-                                      : "outline"
-                                  }
-                                >
-                                  {list.visibility === "private"
-                                    ? "Privé"
-                                    : "Public"}
-                                </Badge>
-                              </div>
-                              <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                                {list.description}
-                              </p>
-                              <div className="flex items-center gap-2 mt-2">
-                                <Badge variant="secondary">
-                                  {list.bookCount} livre
-                                  {list.bookCount > 1 ? "s" : ""}
-                                </Badge>
-                                <Badge variant="outline">{list.genre}</Badge>
-                              </div>
-                            </div>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </TabsContent>
 
-              <TabsContent value="posts" className="w-full">
-                <div className="grid gap-4">
-                  {MOCK_POSTS.map((post) => (
-                    <div
-                      key={post.id}
-                      className="p-4 border rounded-lg hover:bg-accent/50 transition-colors"
-                    >
-                      <div className="flex items-center gap-3 mb-3">
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage
-                            src={post.author.profile_picture_url}
-                            alt={post.author.username}
-                          />
-                          <AvatarFallback>
-                            {post.author.username[0]}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium">{post.author.username}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {new Date(post.created_at).toLocaleDateString()}
-                          </p>
-                        </div>
-                      </div>
-                      <p className="text-sm">{post.content}</p>
-                      <div className="flex items-center gap-4 mt-3">
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                          <Heart className="w-4 h-4" />
-                          {post.likes_count}
-                        </div>
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                          <MessageCircle className="w-4 h-4" />
-                          {post.comments_count}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </TabsContent>
               <TabsContent value="posts" className="w-full">
                 <div className="grid gap-4">
                   {MOCK_POSTS.map((post) => (
@@ -1052,7 +731,7 @@ export default function Profile() {
                       className="p-4 border rounded-lg hover:bg-accent/50 transition-colors"
                     >
                       <div className="flex gap-4">
-                        <div className="relative h-[100px] w-[70px] shrink-0">
+                        <div className="relative h-[100px] w-[70px] flex-shrink-0">
                           <Image
                             src={review.book.coverImage}
                             alt={review.book.title}
