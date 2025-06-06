@@ -184,20 +184,10 @@ const MOCK_CLUBS = [
 ];
 
 export default function Profile() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
   const [bookLists, setBookLists] = useState<BookList[]>([]);
   const [isLoadingLists, setIsLoadingLists] = useState(false);
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      toast.success("Déconnexion réussie");
-      router.push("/auth/login");
-    } catch (error) {
-      toast.error("Une erreur est survenue lors de la déconnexion");
-    }
-  };
 
   const fetchBookLists = async () => {
     try {
@@ -259,6 +249,14 @@ export default function Profile() {
                 <span className="bg-[#F5F5F5] text-xs rounded-full px-3 py-1">
                   {user?.profile?.preferred_genres?.[1] ?? "Fiction"}
                 </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => router.push("/profile/settings")}
+                  className="p-2"
+                >
+                  <Settings className="w-4 h-4" />
+                </Button>
               </div>
             </div>
 
@@ -458,8 +456,7 @@ export default function Profile() {
                   </div>
                 </div>
 
-                {/* Keep all the other sections you added from stats page x`*/}
-                {/* Monthly reading progress - Merged from stats page */}
+                {/* Monthly reading progress */}
                 <div
                   className="rounded-lg p-6 mb-8 mx-auto"
                   style={{
@@ -504,7 +501,7 @@ export default function Profile() {
                   </div>
                 </div>
 
-                {/* Genre pie chart - Merged from stats page */}
+                {/* Genre pie chart */}
                 <div
                   className="rounded-lg p-6 mb-8 mx-auto"
                   style={{
@@ -559,7 +556,7 @@ export default function Profile() {
                   </div>
                 </div>
 
-                {/* Most read authors - Merged from stats page */}
+                {/* Most read authors */}
                 <div
                   className="rounded-lg p-6 mx-auto"
                   style={{

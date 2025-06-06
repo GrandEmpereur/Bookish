@@ -17,6 +17,7 @@ import {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 console.log(API_URL)
+console.log(API_URL)
 
 class AuthService {
     /**
@@ -45,7 +46,6 @@ class AuthService {
 
         try {
             const res = await fetch(`${API_URL}${endpoint}`, fetchOptions);
-
             const responseData = (await res.json()) as AuthResponse<T>;
 
             switch (res.status) {
@@ -150,7 +150,7 @@ class AuthService {
         }
     }
 
-    // Méthode pour nettoyer les cookies d'authentification
+    // Méthode pour nettoyer TOUS les cookies
     private clearAllCookies(): void {
         const cookies = document.cookie.split(";");
 
@@ -159,9 +159,12 @@ class AuthService {
             const eqPos = cookie.indexOf("=");
             const name = eqPos > -1 ? cookie.substring(0, eqPos).trim() : cookie.trim();
 
-            // Supprimer uniquement les cookies d'authentification spécifiques
-            if (name && (name.includes("adonis-session") || name.includes("rememberMe") || name.includes("remember_"))) {
-                document.cookie = `${name}=; Path=/;`;
+            // Supprimer TOUS les cookies
+            if (name) {
+                // Supprimer avec différents chemins et domaines pour être sûr
+                document.cookie = `${name}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
+                document.cookie = `${name}=; Path=/; Domain=${window.location.hostname}; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
+                document.cookie = `${name}=; Path=/; Domain=.${window.location.hostname}; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
             }
         }
     }
