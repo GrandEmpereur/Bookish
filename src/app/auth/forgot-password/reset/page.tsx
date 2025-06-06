@@ -74,7 +74,7 @@ export default function ResetPassword() {
     };
 
     return (
-        <div className="min-h-[100dvh] flex flex-col px-5 bg-background safe-area-pt">
+        <div className="min-h-dvh flex flex-col px-5 bg-background safe-area-pt">
             <div className="flex-1 flex flex-col max-w-md mx-auto w-full justify-center">
                 <h1 className="text-[32px] font-heading leading-tight mb-4">
                     Nouveau mot de passe

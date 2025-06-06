@@ -61,7 +61,7 @@ const App: React.FC = () => {
   }, [router, toast]);
 
   return (
-    <div className="flex items-center justify-center w-full h-[100dvh] bg-primary safe-area-p">
+    <div className="flex items-center justify-center w-full h-dvh bg-primary safe-area-p">
       <div ref={containerRef} className="flex flex-col items-center gap-y-6 px-4">
         <Image 
           src="/Bookish.svg" 

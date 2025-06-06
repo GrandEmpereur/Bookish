@@ -175,7 +175,7 @@ export default function Feed() {
                     {[...Array(3)].map((_, index) => (
                         <div 
                             key={index}
-                            className="bg-card rounded-lg p-4 md:p-6 shadow-sm space-y-4"
+                            className="bg-card rounded-lg p-4 md:p-6 shadow-xs space-y-4"
                         >
                             {/* En-tête du skeleton */}
                             <div className="flex gap-3">
@@ -197,7 +197,7 @@ export default function Feed() {
                             </div>
 
                             {/* Image du skeleton */}
-                            <div className="relative aspect-[4/3] md:aspect-[16/9] rounded-lg overflow-hidden">
+                            <div className="relative aspect-4/3 md:aspect-video rounded-lg overflow-hidden">
                                 <Skeleton className="h-full w-full" />
                             </div>
 
@@ -225,7 +225,7 @@ export default function Feed() {
                             posts.map((post) => (
                                 <article
                                     key={post.id}
-                                    className="bg-card rounded-lg p-4 md:p-6 shadow-sm space-y-4"
+                                    className="bg-card rounded-lg p-4 md:p-6 shadow-xs space-y-4"
                                 >
                                     {/* En-tête du post */}
                                     <div className="flex gap-3">
@@ -260,7 +260,7 @@ export default function Feed() {
                                     {/* Media du post */}
                                     {post.media && post.media.length > 0 && (
                                         <div className="flex flex-col">
-                                            <div className="relative aspect-[4/3] md:aspect-[16/9] rounded-lg overflow-hidden">
+                                            <div className="relative aspect-4/3 md:aspect-video rounded-lg overflow-hidden">
                                                 <Image
                                                     src={post.media[0].url}
                                                     alt={post.title}

@@ -14,7 +14,7 @@ export default function FeedLayout({
     const topBarConfig = getTopBarConfig(pathname);
 
     return (
-        <div className="min-h-[100dvh] flex flex-col bg-background w-full">
+        <div className="min-h-dvh flex flex-col bg-background w-full">
             <TopBar config={topBarConfig} />
             <main className="">
                 {children}
