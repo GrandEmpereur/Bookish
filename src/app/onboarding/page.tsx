@@ -137,7 +137,7 @@ export default function Onboarding() {
     };
 
     return (
-        <div className="min-h-dvh flex flex-col bg-background overflow-hidden">
+        <div className="min-h-[100dvh] flex flex-col bg-background overflow-hidden">
             {/* Section Image avec bouton Skip */}
             <div className="h-[45vh] relative w-full bg-primary/5 overflow-hidden">
                 <Button
@@ -145,7 +145,7 @@ export default function Onboarding() {
                     onClick={handleSkip}
                     className="absolute top-[60px] right-5 z-10 text-black font-medium safe-area-pt"
                 >
-                    Passer
+                    Skip
                 </Button>
                 <div ref={imageRef} className="w-full h-full">
                     <Image
