@@ -5,9 +5,9 @@ import Link from "next/link";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { loginSchema, type LoginInput } from "@/validations/auth";
+import { loginSchema, type LoginInput } from "@/lib/validations/auth";
 import type { LoginRequest } from "@/types/authTypes";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useAuth } from "@/contexts/auth-context";
 
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,6 @@ import {
 import { Input } from "@/components/ui/input";
 
 export default function Login() {
-  const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
 
@@ -41,21 +40,15 @@ export default function Login() {
         password: formData.password,
         rememberMe: formData.rememberMe,
       };
-      console.log(loginData);
 
-      const response = await login(loginData);
-      console.log(response);
+      await login(loginData);
 
       // Retour haptique sur mobile
       if (navigator.vibrate) {
         navigator.vibrate(100);
       }
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Erreur de connexion",
-        description: error.message || "Vérifiez vos identifiants et réessayez",
-      });
+      toast.error(error.message || "Vérifiez vos identifiants et réessayez");
       console.error("Login error:", error);
     }
   };

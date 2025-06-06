@@ -3,7 +3,7 @@
 import React from 'react';
 import { DM_Serif_Display, Inter } from 'next/font/google'; // Correct import for Google fonts
 import './globals.css';
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/sonner"
 import { AuthProvider } from '@/contexts/auth-context';
 
 // Configure DM Serif Display font

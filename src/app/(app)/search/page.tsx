@@ -2,22 +2,30 @@
 import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { searchService } from "../../../services/search.service";
-import { UserProfile } from "@/types/userTypes";
-import { Book } from "@/types/bookTypes";
-import { BookList } from "@/types/bookListTypes";
-import { Club } from "@/types/clubTypes";
+import { searchService } from "@/services/search.service";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Book as BookIcon, Users } from "lucide-react";
+import { BookList } from "@/types/bookListTypes";
+import { Book } from "@/types/bookTypes";
+import { Club } from "@/types/clubTypes";
+import { UserProfile } from "@/types/userTypes";
 
 interface SearchResults {
-  bookLists: any;
-  books: any;
-  clubs: any;
-  users: any;
+  bookLists: {
+    data: BookList[];
+  };
+  books: {
+    data: Book[];
+  };
+  clubs: {
+    data: Club[];
+  };
+  users: {
+    data: UserProfile[];
+  };
 }
 
 interface SearchState {
@@ -37,7 +45,9 @@ const SearchPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [debouncedQuery, setDebouncedQuery] = useState<string>("");
-  const [activeTab, setActiveTab] = useState<'all' | 'users' | 'books' | 'clubs' | 'lists'>('all');
+  const [activeTab, setActiveTab] = useState<
+    "all" | "users" | "books" | "clubs" | "lists"
+  >("all");
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -61,19 +71,21 @@ const SearchPage: React.FC = () => {
 
     try {
       console.log("Recherche en cours avec la valeur:", searchValue);
-      const response = await searchService.searchGeneral({ query: searchValue });
+      const response = await searchService.searchGeneral({
+        query: searchValue,
+      });
       console.log("Réponse complète du serveur:", response);
-      
+
       if (response.status === "success") {
         console.log("Données de recherche reçues:", response.data);
         setResults({
           results: {
-            bookLists: response.data.results.grouped.book_lists,
-            books: response.data.results.grouped.books,
-            clubs: response.data.results.grouped.clubs,
-            users: response.data.results.grouped.users
+            bookLists: response.data.results.BookLists,
+            books: response.data.results.Books,
+            clubs: response.data.results.Clubs,
+            users: response.data.results.Users,
           },
-          totals: response.data.totals
+          totals: response.data.totals,
         });
         console.log("État des résultats mis à jour:", results);
       }
@@ -106,11 +118,12 @@ const SearchPage: React.FC = () => {
           <Skeleton className="w-full h-40" />
         </div>
       ) : results?.results ? (
-        <Tabs value={activeTab} onValueChange={(value: any) => setActiveTab(value)}>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value: any) => setActiveTab(value)}
+        >
           <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="all">
-              Tout ({results.totals.total})
-            </TabsTrigger>
+            <TabsTrigger value="all">Tout ({results.totals.total})</TabsTrigger>
             <TabsTrigger value="users">
               Utilisateurs ({results.totals.users})
             </TabsTrigger>
@@ -129,16 +142,23 @@ const SearchPage: React.FC = () => {
             {results.results.users?.data?.length > 0 && (
               <div className="space-y-4">
                 <h2 className="font-bold">Utilisateurs</h2>
-                {results.results.users.data.map((user) => (
-                  <div key={user.id} className="flex items-center gap-4 p-4 border rounded-lg hover:bg-accent/50 transition-colors">
+                {results.results.users.data.map((user: UserProfile) => (
+                  <div
+                    key={user.id}
+                    className="flex items-center gap-4 p-4 border rounded-lg hover:bg-accent/50 transition-colors"
+                  >
                     <Avatar className="h-12 w-12">
-                      <AvatarImage src={user.profile?.profile_picture_url || ""} />
+                      <AvatarImage
+                        src={user.profile?.profile_picture_url || ""}
+                      />
                       <AvatarFallback>{user.username[0]}</AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
                       <p className="font-medium text-lg">{user.username}</p>
                       {user.profile?.bio && (
-                        <p className="text-sm text-muted-foreground line-clamp-2">{user.profile.bio}</p>
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {user.profile.bio}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -149,8 +169,11 @@ const SearchPage: React.FC = () => {
             {results.results.books?.data?.length > 0 && (
               <div className="space-y-4">
                 <h2 className="font-bold">Livres</h2>
-                {results.results.books.data.map((book) => (
-                  <div key={book.id} className="flex gap-4 p-4 border rounded-lg hover:bg-accent/50 transition-colors">
+                {results.results.books.data.map((book: Book) => (
+                  <div
+                    key={book.id}
+                    className="flex gap-4 p-4 border rounded-lg hover:bg-accent/50 transition-colors"
+                  >
                     <div className="relative min-w-[100px] h-[150px] overflow-hidden rounded-md">
                       {book.coverImage ? (
                         <Image
@@ -167,10 +190,14 @@ const SearchPage: React.FC = () => {
                     </div>
                     <div className="flex flex-col flex-1">
                       <h3 className="font-medium text-lg">{book.title}</h3>
-                      <p className="text-sm text-muted-foreground">{book.author}</p>
-                      <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{book.description}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {book.author}
+                      </p>
+                      <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                        {book.description}
+                      </p>
                       <div className="flex gap-2 mt-auto pt-2">
-                        {book.genres?.map((genre) => (
+                        {book.genres?.map((genre: string) => (
                           <Badge key={genre} variant="secondary">
                             {genre}
                           </Badge>
@@ -185,8 +212,11 @@ const SearchPage: React.FC = () => {
             {results.results.clubs?.data?.length > 0 && (
               <div className="space-y-4">
                 <h2 className="font-bold">Clubs</h2>
-                {results.results.clubs.data.map((club) => (
-                  <div key={club.id} className="flex gap-4 p-4 border rounded-lg hover:bg-accent/50 transition-colors">
+                {results.results.clubs.data.map((club: Club) => (
+                  <div
+                    key={club.id}
+                    className="flex gap-4 p-4 border rounded-lg hover:bg-accent/50 transition-colors"
+                  >
                     <div className="relative min-w-[120px] h-[120px] overflow-hidden rounded-md">
                       {club.club_picture ? (
                         <Image
@@ -203,10 +233,15 @@ const SearchPage: React.FC = () => {
                     </div>
                     <div className="flex flex-col flex-1">
                       <h3 className="font-medium text-lg">{club.name}</h3>
-                      <p className="text-sm text-muted-foreground line-clamp-2">{club.description}</p>
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {club.description}
+                      </p>
                       <div className="mt-auto pt-2 flex items-center gap-2 text-sm text-muted-foreground">
                         <Users className="h-4 w-4" />
-                        <span>{club.member_count} membre{club.member_count > 1 ? 's' : ''}</span>
+                        <span>
+                          {club.member_count} membre
+                          {club.member_count > 1 ? "s" : ""}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -217,14 +252,21 @@ const SearchPage: React.FC = () => {
             {results.results.bookLists?.data?.length > 0 && (
               <div className="space-y-4">
                 <h2 className="font-bold">Listes de lecture</h2>
-                {results.results.bookLists.data.map((list) => (
-                  <div key={list.id} className="flex gap-4 p-4 border rounded-lg hover:bg-accent/50 transition-colors">
+                {results.results.bookLists.data.map((list: BookList) => (
+                  <div
+                    key={list.id}
+                    className="flex gap-4 p-4 border rounded-lg hover:bg-accent/50 transition-colors"
+                  >
                     <div className="flex flex-col flex-1">
                       <h3 className="font-medium text-lg">{list.name}</h3>
-                      <p className="text-sm text-muted-foreground line-clamp-2">{list.description}</p>
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {list.description}
+                      </p>
                       <div className="mt-auto pt-2 flex items-center gap-2 text-sm text-muted-foreground">
                         <BookIcon className="h-4 w-4" />
-                        <span>{list.bookCount} livre{list.bookCount > 1 ? 's' : ''}</span>
+                        <span>
+                          {list.bookCount} livre{list.bookCount > 1 ? "s" : ""}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -236,16 +278,23 @@ const SearchPage: React.FC = () => {
           <TabsContent value="users" className="space-y-6">
             {results.results.users?.data?.length > 0 ? (
               <div className="space-y-4">
-                {results.results.users.data.map((user) => (
-                  <div key={user.id} className="flex items-center gap-4 p-4 border rounded-lg hover:bg-accent/50 transition-colors">
+                {results.results.users.data.map((user: UserProfile) => (
+                  <div
+                    key={user.id}
+                    className="flex items-center gap-4 p-4 border rounded-lg hover:bg-accent/50 transition-colors"
+                  >
                     <Avatar className="h-12 w-12">
-                      <AvatarImage src={user.profile?.profile_picture_url || ""} />
+                      <AvatarImage
+                        src={user.profile?.profile_picture_url || ""}
+                      />
                       <AvatarFallback>{user.username[0]}</AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
                       <p className="font-medium text-lg">{user.username}</p>
                       {user.profile?.bio && (
-                        <p className="text-sm text-muted-foreground line-clamp-2">{user.profile.bio}</p>
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {user.profile.bio}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -261,8 +310,11 @@ const SearchPage: React.FC = () => {
           <TabsContent value="books" className="space-y-6">
             {results.results.books?.data?.length > 0 ? (
               <div className="space-y-4">
-                {results.results.books.data.map((book) => (
-                  <div key={book.id} className="flex gap-4 p-4 border rounded-lg hover:bg-accent/50 transition-colors">
+                {results.results.books.data.map((book: Book) => (
+                  <div
+                    key={book.id}
+                    className="flex gap-4 p-4 border rounded-lg hover:bg-accent/50 transition-colors"
+                  >
                     <div className="relative min-w-[100px] h-[150px] overflow-hidden rounded-md">
                       {book.coverImage ? (
                         <Image
@@ -279,10 +331,14 @@ const SearchPage: React.FC = () => {
                     </div>
                     <div className="flex flex-col flex-1">
                       <h3 className="font-medium text-lg">{book.title}</h3>
-                      <p className="text-sm text-muted-foreground">{book.author}</p>
-                      <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{book.description}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {book.author}
+                      </p>
+                      <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                        {book.description}
+                      </p>
                       <div className="flex gap-2 mt-auto pt-2">
-                        {book.genres?.map((genre) => (
+                        {book.genres?.map((genre: string) => (
                           <Badge key={genre} variant="secondary">
                             {genre}
                           </Badge>
@@ -302,8 +358,11 @@ const SearchPage: React.FC = () => {
           <TabsContent value="clubs" className="space-y-6">
             {results.results.clubs?.data?.length > 0 ? (
               <div className="space-y-4">
-                {results.results.clubs.data.map((club) => (
-                  <div key={club.id} className="flex gap-4 p-4 border rounded-lg hover:bg-accent/50 transition-colors">
+                {results.results.clubs.data.map((club: Club) => (
+                  <div
+                    key={club.id}
+                    className="flex gap-4 p-4 border rounded-lg hover:bg-accent/50 transition-colors"
+                  >
                     <div className="relative min-w-[120px] h-[120px] overflow-hidden rounded-md">
                       {club.club_picture ? (
                         <Image
@@ -320,10 +379,15 @@ const SearchPage: React.FC = () => {
                     </div>
                     <div className="flex flex-col flex-1">
                       <h3 className="font-medium text-lg">{club.name}</h3>
-                      <p className="text-sm text-muted-foreground line-clamp-2">{club.description}</p>
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {club.description}
+                      </p>
                       <div className="mt-auto pt-2 flex items-center gap-2 text-sm text-muted-foreground">
                         <Users className="h-4 w-4" />
-                        <span>{club.member_count} membre{club.member_count > 1 ? 's' : ''}</span>
+                        <span>
+                          {club.member_count} membre
+                          {club.member_count > 1 ? "s" : ""}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -339,13 +403,18 @@ const SearchPage: React.FC = () => {
           <TabsContent value="lists" className="space-y-6">
             {results.results.bookLists?.data?.length > 0 ? (
               <div className="space-y-4">
-                {results.results.bookLists.data.map((list) => (
-                  <div key={list.id} className="flex gap-4 p-4 border rounded-lg">
+                {results.results.bookLists.data.map((list: BookList) => (
+                  <div
+                    key={list.id}
+                    className="flex gap-4 p-4 border rounded-lg"
+                  >
                     <div>
                       <h3 className="font-medium">{list.name}</h3>
-                      <p className="text-sm text-muted-foreground">{list.description}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {list.description}
+                      </p>
                       <p className="text-sm mt-2">
-                        {list.bookCount} livre{list.bookCount > 1 ? 's' : ''}
+                        {list.bookCount} livre{list.bookCount > 1 ? "s" : ""}
                       </p>
                     </div>
                   </div>

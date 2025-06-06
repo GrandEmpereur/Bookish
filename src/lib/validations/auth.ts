@@ -23,8 +23,6 @@ export const loginSchema = z.object({
     password: z.string()
         .min(1, "Le mot de passe est requis"),
     rememberMe: z.boolean()
-        .optional()
-        .default(true)
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;

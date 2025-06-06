@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/auth-context";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { bookListService } from "@/services/book-list.service";
 import type { BookList } from "@/types/bookListTypes";
 import {
@@ -185,7 +185,6 @@ const MOCK_CLUBS = [
 
 export default function Profile() {
   const { user, logout } = useAuth();
-  const { toast } = useToast();
   const router = useRouter();
   const [bookLists, setBookLists] = useState<BookList[]>([]);
   const [isLoadingLists, setIsLoadingLists] = useState(false);
@@ -193,17 +192,10 @@ export default function Profile() {
   const handleLogout = async () => {
     try {
       await logout();
-      toast({
-        title: "Déconnexion réussie",
-        description: "À bientôt sur Bookish !",
-      });
+      toast.success("Déconnexion réussie");
       router.push("/auth/login");
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Une erreur est survenue lors de la déconnexion",
-      });
+      toast.error("Une erreur est survenue lors de la déconnexion");
     }
   };
 
@@ -214,11 +206,7 @@ export default function Profile() {
       setBookLists(response.data);
     } catch (error) {
       console.error("Error fetching book lists:", error);
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Impossible de charger vos listes",
-      });
+      toast.error("Impossible de charger vos listes");
     } finally {
       setIsLoadingLists(false);
     }
