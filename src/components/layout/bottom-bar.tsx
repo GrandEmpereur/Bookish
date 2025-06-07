@@ -38,7 +38,7 @@ export function BottomBar() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-background border-t pb-5 rounded-t-[30px] shadow-lg">
+    <nav className="z-100 fixed bottom-0 left-0 right-0 bg-background border-t pb-5 rounded-t-[30px] shadow-lg">
       <div className="flex justify-around items-end py-4 relative">
         {navigationItems.map((item) => (
           <Link
