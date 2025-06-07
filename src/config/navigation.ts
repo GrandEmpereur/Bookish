@@ -83,6 +83,12 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
         showBack: true
     },
 
+    '/books/[id]': {
+        variant: 'back',
+        title: 'Livre',
+        showBack: true,
+    },
+
     // Profile
     '/profile': {
         variant: 'back',

@@ -86,7 +86,7 @@ class BookService {
         }
     }
 
-    async getBook(id: string): Promise<ApiResponse<GetBookResponse>> {
+    async getBook(id: string): Promise<ApiResponse<Book>> {
         try {
             const response = await CapacitorHttp.get({
                 url: `${API_URL}/books/${id}`,
