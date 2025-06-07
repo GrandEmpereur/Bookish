@@ -4,11 +4,22 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Star, Bookmark } from "lucide-react";
+
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+
 import { bookService } from "@/services/book.service";
-import { Star } from "lucide-react";
+import { bookListService } from "@/services/book-list.service";
+
 import type { Book } from "@/types/bookTypes";
+import type { BookList } from "@/types/bookListTypes";
+
 interface BookProps {
   id: string;
 }
@@ -16,11 +27,13 @@ interface BookProps {
 export default function BookDetail({ id }: BookProps) {
   const [book, setBook] = useState<Book | null>(null);
   const [relatedBooks, setRelatedBooks] = useState<Book[]>([]);
+  const [bookLists, setBookLists] = useState<BookList[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
     fetchBookDetails(id);
+    fetchBookLists();
   }, [id]);
 
   const fetchBookDetails = async (bookId: string) => {
@@ -34,7 +47,7 @@ export default function BookDetail({ id }: BookProps) {
       } else {
         toast.error("Livre non trouvé");
       }
-    } catch (error) {
+    } catch {
       toast.error("Erreur de chargement du livre");
     } finally {
       setIsLoading(false);
@@ -44,19 +57,47 @@ export default function BookDetail({ id }: BookProps) {
   const fetchBooksByGenre = async (genre: string, currentBookId: string) => {
     try {
       const res = await bookService.getBooks();
-
-      console.log("Fetched books:", res);
-
       const filtered = res.data
         .filter((b: Book) => b.genre === genre && b.id !== currentBookId)
         .slice(0, 10);
-
-      console.log("Filtered related books:", filtered);
       setRelatedBooks(filtered);
     } catch {
       toast.error("Erreur lors du chargement des livres similaires");
     }
   };
+
+  const fetchBookLists = async () => {
+    try {
+      const res = await bookListService.getBookLists();
+      setBookLists(res.data);
+    } catch {
+      toast.error("Impossible de récupérer les listes");
+    }
+  };
+
+  const isBookInList = (list: BookList) =>
+    list.books?.some((b) => b.id === book?.id);
+
+  const handleToggleBookInList = async (list: BookList) => {
+    if (!book) return;
+    const alreadyIn = isBookInList(list);
+    try {
+      if (alreadyIn) {
+        await bookListService.removeBookFromList(list.id, book.id);
+        toast.success(`Retiré de "${list.name}"`);
+      } else {
+        await bookListService.addBookToList(list.id, {
+          bookIds: [book.id],
+        });
+        toast.success(`Ajouté à "${list.name}"`);
+      }
+      await fetchBookLists();
+    } catch {
+      toast.error("Erreur lors de la mise à jour de la liste");
+    }
+  };
+
+  const isBookInAnyList = () => bookLists.some((list) => isBookInList(list));
 
   if (isLoading) {
     return (
@@ -72,6 +113,7 @@ export default function BookDetail({ id }: BookProps) {
 
   return (
     <div className="flex-1 px-5 space-y-6 mb-[120px] pt-[120px]">
+      {/* Image + bouton ajout */}
       <div className="w-[160px] h-[240px] relative shadow-lg mx-auto">
         <Image
           src={book.coverImage || "/placeholder.png"}
@@ -79,19 +121,50 @@ export default function BookDetail({ id }: BookProps) {
           fill
           className="object-cover"
         />
+
+        <div className="absolute right-[-30]">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Bookmark
+                className="w-6 h-6 text-gray-500"
+                fill={isBookInAnyList() ? "currentColor" : "none"}
+              />
+            </PopoverTrigger>
+            <PopoverContent className="p-2 space-y-1 w-48">
+              {bookLists.map((list) => {
+                const active = isBookInList(list);
+                return (
+                  <Button
+                    key={list.id}
+                    variant={active ? "default" : "ghost"}
+                    size="sm"
+                    className="w-full justify-start text-sm"
+                    onClick={() => handleToggleBookInList(list)}
+                  >
+                    {list.name}
+                  </Button>
+                );
+              })}
+            </PopoverContent>
+          </Popover>
+        </div>
       </div>
 
+      {/* Titre / auteur / note */}
       <div className="flex flex-col gap-2">
-        <div className="flex gap-2 width-full ">
+        <div className="flex gap-2">
           <h1 className="text-2xl font-bold">{book.title}</h1>
-          <p className="mt-2 text-muted-foreground text-sm">
-            {book.publicationYear}
-          </p>
+          {book.publicationYear && (
+            <p className="text-muted-foreground text-sm mt-2">
+              {book.publicationYear}
+            </p>
+          )}
         </div>
 
-        <p className="text-muted-foreground text-sm ">
-          par <span className="underline"> {book.author}</span>
+        <p className="text-muted-foreground text-sm">
+          par <span className="underline">{book.author}</span>
         </p>
+
         <p className="flex items-center gap-2 text-sm text-muted-foreground">
           <span className="flex items-center gap-1 font-bold">
             <Star className="w-4 h-4 text-yellow-500" fill="currentColor" />
@@ -101,14 +174,15 @@ export default function BookDetail({ id }: BookProps) {
         </p>
       </div>
 
+      {/* Tags + description */}
       <div className="flex flex-col pt-2 gap-2">
-        <div className="flex gap-2  flex-wrap">
-          {book.genre && (
+        {book.genre && (
+          <div className="flex gap-2 flex-wrap">
             <Badge variant="default" className="capitalize">
               {book.genre}
             </Badge>
-          )}
-        </div>
+          </div>
+        )}
 
         <h2 className="text-lg font-bold">Description</h2>
         <p className="text-sm text-muted-foreground whitespace-pre-line">
@@ -116,6 +190,7 @@ export default function BookDetail({ id }: BookProps) {
         </p>
       </div>
 
+      {/* Suggestions */}
       <div className="flex flex-col pt-2 gap-2">
         {relatedBooks.length > 0 && (
           <div className="flex flex-col gap-2">
@@ -132,7 +207,7 @@ export default function BookDetail({ id }: BookProps) {
                   onClick={() => router.push(`/books/${related.id}`)}
                 >
                   <Image
-                    src={related.coverImage}
+                    src={related.coverImage || "/placeholder.png"}
                     alt={related.title}
                     fill
                     className="object-cover"
@@ -141,7 +216,7 @@ export default function BookDetail({ id }: BookProps) {
               ))}
             </div>
           </div>
-        )}{" "}
+        )}
       </div>
     </div>
   );
