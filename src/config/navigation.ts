@@ -3,16 +3,18 @@ import { Bell, Send, Search, Settings } from "lucide-react";
 type ModalType = 'drawer' | 'dialog';
 
 export type TopBarConfig = {
-    variant: 'standard' | 'back';
-    title?: string;
-    showBack?: boolean;
-    showLogo?: boolean;
-    rightIcons?: {
-        icon: typeof Bell | typeof Send | typeof Search | typeof Settings;
-        onClick?: () => void;
-        href?: string;
-        modalType?: ModalType;
-    }[];
+  variant: 'standard' | 'back';
+  title?: string;
+  showBack?: boolean;
+  showLogo?: boolean;
+  hideTopBar?: boolean;
+  showBackAbsolute?: boolean;
+  rightIcons?: {
+    icon: typeof Bell | typeof Send | typeof Search | typeof Settings;
+    onClick?: () => void;
+    href?: string;
+    modalType?: ModalType;
+  }[];
 };
 
 export const topBarConfigs: Record<string, TopBarConfig> = {
@@ -83,11 +85,12 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
         showBack: true
     },
 
-    '/books/[id]': {
-        variant: 'back',
-        title: 'Livre',
-        showBack: true,
-    },
+// Books
+'/books/[id]': {
+    showBackAbsolute: true,
+    // variant: 'standard',
+    // hideTopBar: true,
+},
 
     // Profile
     '/profile': {
@@ -219,6 +222,11 @@ export function getTopBarConfig(path: string): TopBarConfig {
     // Pour les clubs avec UUID
     if (/^\/clubs\/[\w-]+$/.test(cleanPath)) {
         return topBarConfigs['/clubs/[clubId]'];
+    }
+
+    // Pour les book avec UUID
+    if (/^\/books\/[\w-]+$/.test(cleanPath)) {
+        return topBarConfigs['/books/[id]'];
     }
 
     // Pour les bibliothèques avec UUID
