@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'bookish.test.app',
-  appName: 'bookish-test',
+  appId: 'bookish.app',
+  appName: 'bookish',
   webDir: 'src/app',
   server: {
     url: 'http://192.168.1.68:3000',

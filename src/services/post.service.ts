@@ -30,12 +30,13 @@ class PostService {
         formData.append('content', data.content);
 
         if (data.media && data.media.length > 0) {
-            data.media.forEach(file => {
+            data.media.forEach((file, index) => {
                 formData.append('media', file);
             });
         }
 
-        return await apiRequest<GetPostResponse>('POST', '/posts', { data: formData });
+        const result = await apiRequest<GetPostResponse>('POST', '/posts', { data: formData });
+        return result;
     }
 
     async updatePost(id: string, data: UpdatePostRequest): Promise<ApiResponse<UpdatePostResponse>> {
