@@ -3,6 +3,7 @@
 // basic retry / error-handling logic that can be shared by every service.
 
 import { CapacitorHttp } from '@capacitor/core';
+import { Capacitor } from '@capacitor/core';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
 
@@ -31,14 +32,33 @@ export async function apiRequest<T>(
         });
     }
 
-    // CapacitorHttp is available on both web & mobile – it falls back to fetch under the hood on web
-    const response = await CapacitorHttp.request({
+    // Configuration spécifique pour mobile (cookies)
+    const isNative = Capacitor.isNativePlatform();
+
+    // Gestion spéciale pour FormData (uploads de fichiers)
+    const isFormData = data instanceof FormData;
+    const requestHeaders = isFormData
+        ? { ...headers } // Ne pas inclure Content-Type pour FormData
+        : { 'Content-Type': 'application/json', 'Accept': 'application/json', ...headers };
+
+    const requestConfig: any = {
         method,
         url: url.toString(),
-        headers: { 'Content-Type': 'application/json', ...headers },
+        headers: requestHeaders,
         data,
-        webFetchExtra: { credentials: 'include' },
-    });
+        // Configuration critique pour les cookies sur mobile
+        webFetchExtra: {
+            credentials: 'include'
+        },
+    };
+
+    // Options supplémentaires pour améliorer la gestion des cookies sur mobile
+    if (isNative) {
+        requestConfig.connectTimeout = 10000;
+        requestConfig.readTimeout = 10000;
+    }
+
+    const response = await CapacitorHttp.request(requestConfig);
 
     // Retry on 429 (rate-limit) if header present
     if (response.status === 429 && retries > 0) {

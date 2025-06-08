@@ -33,6 +33,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 interface AuthContextType {
   user: User | null;

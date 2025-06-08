@@ -72,6 +72,7 @@
   "devDependencies": {
     "@capacitor/cli": "^7.3.0",
     "@tailwindcss/postcss": "^4.1.8",
+    "@tanstack/eslint-plugin-query": "^5.78.0",
     "@types/node": "^22.15.30",
     "@types/react": "^19.0.9",
     "@types/react-dom": "^19.1.6",

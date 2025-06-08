@@ -1,4 +1,4 @@
-import { CapacitorHttp } from '@capacitor/core';
+import { apiRequest } from '@/lib/api-client';
 import { ApiResponse } from '@/types/api';
 import {
     BaseSearchOptions,
@@ -18,165 +18,117 @@ import {
     SearchOptions
 } from '@/types/searchTypes';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
 class SearchService {
     async searchUsers(options: UserSearchOptions): Promise<ApiResponse<UserSearchResponse>> {
-        try {
-            const queryParams = new URLSearchParams();
-            if (options.query) queryParams.append('query', options.query);
-            if (options.page) queryParams.append('page', options.page.toString());
-            if (options.limit) queryParams.append('limit', options.limit.toString());
-            if (options.role) queryParams.append('role', options.role);
-            if (options.preferred_genres) {
-                options.preferred_genres.forEach(genre => {
-                    queryParams.append('genres[]', genre);
-                });
-            }
-            if (options.location) queryParams.append('location', options.location);
-            if (options.sort_by) queryParams.append('sort_by', options.sort_by);
-            if (options.order) queryParams.append('order', options.order);
+        const params: Record<string, string | number | boolean> = {};
+        if (options.query) params.query = options.query;
+        if (options.page) params.page = options.page;
+        if (options.limit) params.limit = options.limit;
+        if (options.role) params.role = options.role;
+        if (options.location) params.location = options.location;
+        if (options.sort_by) params.sort_by = options.sort_by;
+        if (options.order) params.order = options.order;
 
-            const response = await CapacitorHttp.get({
-                url: `${API_URL}/search/users?${queryParams.toString()}`,
-                webFetchExtra: { credentials: 'include' }
+        // Gérer les genres séparément avec apiRequest pour array
+        const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/search/users`);
+        Object.entries(params).forEach(([key, value]) => {
+            url.searchParams.append(key, String(value));
+        });
+        if (options.preferred_genres) {
+            options.preferred_genres.forEach(genre => {
+                url.searchParams.append('genres[]', genre);
             });
-
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de la recherche d\'utilisateurs');
-            }
-
-            return response.data;
-        } catch (error: any) {
-            console.error('Search users error:', error);
-            throw error;
         }
+
+        return await apiRequest<ApiResponse<UserSearchResponse>>('GET', url.pathname + url.search.replace(process.env.NEXT_PUBLIC_API_URL!, ''));
     }
 
     async searchBooks(options: BookSearchOptions): Promise<ApiResponse<BookSearchResponse>> {
-        try {
-            const queryParams = new URLSearchParams();
-            if (options.query) queryParams.append('query', options.query);
-            if (options.page) queryParams.append('page', options.page.toString());
-            if (options.limit) queryParams.append('limit', options.limit.toString());
-            if (options.author) queryParams.append('author', options.author);
-            if (options.isbn) queryParams.append('isbn', options.isbn);
-            if (options.genres) {
-                options.genres.forEach(genre => {
-                    queryParams.append('genres[]', genre);
-                });
-            }
-            if (options.publisher) queryParams.append('publisher', options.publisher);
-            if (options.publication_year) queryParams.append('year', options.publication_year.toString());
-            if (options.language) queryParams.append('language', options.language);
-            if (options.format) queryParams.append('format', options.format);
-            if (options.rating_min) queryParams.append('rating_min', options.rating_min.toString());
-            if (options.rating_max) queryParams.append('rating_max', options.rating_max.toString());
-            if (options.sort_by) queryParams.append('sort_by', options.sort_by);
-            if (options.order) queryParams.append('order', options.order);
+        const params: Record<string, string | number | boolean> = {};
+        if (options.query) params.query = options.query;
+        if (options.page) params.page = options.page;
+        if (options.limit) params.limit = options.limit;
+        if (options.author) params.author = options.author;
+        if (options.isbn) params.isbn = options.isbn;
+        if (options.publisher) params.publisher = options.publisher;
+        if (options.publication_year) params.year = options.publication_year;
+        if (options.language) params.language = options.language;
+        if (options.format) params.format = options.format;
+        if (options.rating_min) params.rating_min = options.rating_min;
+        if (options.rating_max) params.rating_max = options.rating_max;
+        if (options.sort_by) params.sort_by = options.sort_by;
+        if (options.order) params.order = options.order;
 
-            const response = await CapacitorHttp.get({
-                url: `${API_URL}/search/books?${queryParams.toString()}`,
-                webFetchExtra: { credentials: 'include' }
+        // Gérer les genres séparément
+        const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/search/books`);
+        Object.entries(params).forEach(([key, value]) => {
+            url.searchParams.append(key, String(value));
+        });
+        if (options.genres) {
+            options.genres.forEach(genre => {
+                url.searchParams.append('genres[]', genre);
             });
-
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de la recherche de livres');
-            }
-
-            return response.data;
-        } catch (error: any) {
-            console.error('Search books error:', error);
-            throw error;
         }
+
+        return await apiRequest<ApiResponse<BookSearchResponse>>('GET', url.pathname + url.search.replace(process.env.NEXT_PUBLIC_API_URL!, ''));
     }
 
     async searchClubs(options: ClubSearchOptions): Promise<ApiResponse<ClubSearchResponse>> {
-        try {
-            const queryParams = new URLSearchParams();
-            if (options.query) queryParams.append('query', options.query);
-            if (options.page) queryParams.append('page', options.page.toString());
-            if (options.limit) queryParams.append('limit', options.limit.toString());
-            if (options.genres) {
-                options.genres.forEach(genre => {
-                    queryParams.append('genres[]', genre);
-                });
-            }
-            if (options.member_count) queryParams.append('member_count', options.member_count.toString());
-            if (options.visibility) queryParams.append('visibility', options.visibility);
-            if (options.sort_by) queryParams.append('sort_by', options.sort_by);
-            if (options.order) queryParams.append('order', options.order);
+        const params: Record<string, string | number | boolean> = {};
+        if (options.query) params.query = options.query;
+        if (options.page) params.page = options.page;
+        if (options.limit) params.limit = options.limit;
+        if (options.member_count) params.member_count = options.member_count;
+        if (options.visibility) params.visibility = options.visibility;
+        if (options.sort_by) params.sort_by = options.sort_by;
+        if (options.order) params.order = options.order;
 
-            const response = await CapacitorHttp.get({
-                url: `${API_URL}/search/clubs?${queryParams.toString()}`,
-                webFetchExtra: { credentials: 'include' }
+        // Gérer les genres séparément
+        const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/search/clubs`);
+        Object.entries(params).forEach(([key, value]) => {
+            url.searchParams.append(key, String(value));
+        });
+        if (options.genres) {
+            options.genres.forEach(genre => {
+                url.searchParams.append('genres[]', genre);
             });
-
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de la recherche de clubs');
-            }
-
-            return response.data;
-        } catch (error: any) {
-            console.error('Search clubs error:', error);
-            throw error;
         }
+
+        return await apiRequest<ApiResponse<ClubSearchResponse>>('GET', url.pathname + url.search.replace(process.env.NEXT_PUBLIC_API_URL!, ''));
     }
 
     async searchBookLists(options: BookListSearchOptions): Promise<ApiResponse<BookListSearchResponse>> {
-        try {
-            const queryParams = new URLSearchParams();
-            if (options.query) queryParams.append('query', options.query);
-            if (options.page) queryParams.append('page', options.page.toString());
-            if (options.limit) queryParams.append('limit', options.limit.toString());
-            if (options.genres) {
-                options.genres.forEach(genre => {
-                    queryParams.append('genres[]', genre);
-                });
-            }
-            if (options.created_by) queryParams.append('created_by', options.created_by);
-            if (options.book_count) queryParams.append('book_count', options.book_count.toString());
-            if (options.visibility) queryParams.append('visibility', options.visibility);
-            if (options.sort_by) queryParams.append('sort_by', options.sort_by);
-            if (options.order) queryParams.append('order', options.order);
+        const params: Record<string, string | number | boolean> = {};
+        if (options.query) params.query = options.query;
+        if (options.page) params.page = options.page;
+        if (options.limit) params.limit = options.limit;
+        if (options.created_by) params.created_by = options.created_by;
+        if (options.book_count) params.book_count = options.book_count;
+        if (options.visibility) params.visibility = options.visibility;
+        if (options.sort_by) params.sort_by = options.sort_by;
+        if (options.order) params.order = options.order;
 
-            const response = await CapacitorHttp.get({
-                url: `${API_URL}/search/book-lists?${queryParams.toString()}`,
-                webFetchExtra: { credentials: 'include' }
+        // Gérer les genres séparément
+        const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/search/book-lists`);
+        Object.entries(params).forEach(([key, value]) => {
+            url.searchParams.append(key, String(value));
+        });
+        if (options.genres) {
+            options.genres.forEach(genre => {
+                url.searchParams.append('genres[]', genre);
             });
-
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de la recherche de listes');
-            }
-
-            return response.data;
-        } catch (error: any) {
-            console.error('Search book lists error:', error);
-            throw error;
         }
+
+        return await apiRequest<ApiResponse<BookListSearchResponse>>('GET', url.pathname + url.search.replace(process.env.NEXT_PUBLIC_API_URL!, ''));
     }
 
     async searchGeneral(options: SearchOptions): Promise<GeneralSearchResponse> {
-        try {
-            const queryParams = new URLSearchParams();
-            if (options.query) queryParams.append('query', options.query);
-            if (options.page) queryParams.append('page', options.page.toString());
-            if (options.limit) queryParams.append('limit', options.limit.toString());
+        const params: Record<string, string | number | boolean> = {};
+        if (options.query) params.query = options.query;
+        if (options.page) params.page = options.page;
+        if (options.limit) params.limit = options.limit;
 
-            const response = await CapacitorHttp.get({
-                url: `${API_URL}/search/general?${queryParams.toString()}`,
-                webFetchExtra: { credentials: 'include' }
-            });
-
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de la recherche générale');
-            }
-
-            return response.data;
-        } catch (error: any) {
-            console.error('General search error:', error);
-            throw error;
-        }
+        return await apiRequest<GeneralSearchResponse>('GET', '/search/general', { params });
     }
 }
 
