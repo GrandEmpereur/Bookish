@@ -55,3 +55,6 @@ android
 
 # Postman
 postman/
+
+# Sentry Config File
+.env.sentry-build-plugin

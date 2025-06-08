@@ -24,7 +24,7 @@ import {
   DialogFooter,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog"; // Assurez-vous que ces composants sont disponibles
 import { useRouter, usePathname } from "next/navigation";
 
 const SettingItem = ({
