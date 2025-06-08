@@ -63,25 +63,7 @@ const SettingsPage: React.FC = () => {
       router.push("/auth/login");
     } catch (error) {
       console.error("Error logging out:", error);
-
-      // En cas d'erreur avec l'API, on essaie quand même de nettoyer TOUS les cookies
-      const cookies = document.cookie.split(";");
-      for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i];
-        const eqPos = cookie.indexOf("=");
-        const name =
-          eqPos > -1 ? cookie.substring(0, eqPos).trim() : cookie.trim();
-
-        // Supprimer TOUS les cookies
-        if (name) {
-          // Supprimer avec différents chemins et domaines pour être sûr
-          document.cookie = `${name}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
-          document.cookie = `${name}=; Path=/; Domain=${window.location.hostname}; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
-          document.cookie = `${name}=; Path=/; Domain=.${window.location.hostname}; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
-        }
-      }
-
-      // Rediriger malgré l'erreur
+      // En cas d'erreur côté API, on redirige simplement l'utilisateur
       router.push("/auth/login");
     }
   };

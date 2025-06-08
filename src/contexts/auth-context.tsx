@@ -124,24 +124,7 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
   const logoutMutation = useMutation({
     mutationFn: () => authService.logout(),
     onSuccess: () => {
-      // Nettoyer TOUS les cookies
-      const cookies = document.cookie.split(";");
-
-      for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i];
-        const eqPos = cookie.indexOf("=");
-        const name =
-          eqPos > -1 ? cookie.substring(0, eqPos).trim() : cookie.trim();
-
-        // Supprimer TOUS les cookies
-        if (name) {
-          // Supprimer avec différents chemins et domaines pour être sûr
-          document.cookie = `${name}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
-          document.cookie = `${name}=; Path=/; Domain=${window.location.hostname}; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
-          document.cookie = `${name}=; Path=/; Domain=.${window.location.hostname}; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
-        }
-      }
-
+      // L'API gère l'invalidation des cookies, on se contente de nettoyer le cache et rediriger
       setUser(null);
       queryClient.clear();
       router.replace("/auth/login");
