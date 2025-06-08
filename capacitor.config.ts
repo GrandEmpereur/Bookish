@@ -1,21 +1,25 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'bookish.app',
-  appName: 'bookish',
+  appId: 'com.patrick.bookish',
+  appName: 'Bookish',
   webDir: 'src/app',
   server: {
     url: 'http://192.168.1.68:3000',
-    cleartext: true
+    cleartext: true,
   },
   plugins: {
     CapacitorHttp: {
-      enabled: true
+      enabled: true,
     },
     CapacitorCookies: {
       enabled: true,
     },
-  }
+  },
+  ios: {
+    scheme: 'Bookish',
+    path: 'ios',
+  },
 };
 
 export default config;
