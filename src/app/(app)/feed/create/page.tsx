@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Loader2, ImagePlus } from "lucide-react";
+import { CameraSelector } from "@/components/ui/camera-selector";
 import { postService } from "@/services/post.service";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
@@ -54,31 +55,37 @@ export default function CreatePost() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Vérifier le type de fichier
-      if (
-        !file.type.match(
-          /^(image\/(jpeg|png|gif|webp)|video\/(mp4|quicktime))$/
-        )
-      ) {
-        toast.error("Type de fichier non supporté");
-        return;
-      }
-
-      // Vérifier la taille du fichier (10MB max)
-      if (file.size > 10 * 1024 * 1024) {
-        toast.error("La taille du fichier ne doit pas dépasser 10MB");
-        return;
-      }
-
-      setSelectedImage(file);
-      form.setValue("media", [file]);
-
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      handleImageSelected(file);
     }
+  };
+
+  const handleImageSelected = (file: File) => {
+    console.log("handleImageSelected appelé avec:", file); // Debug
+
+    // Vérifier le type de fichier
+    if (
+      !file.type.match(/^(image\/(jpeg|png|gif|webp)|video\/(mp4|quicktime))$/)
+    ) {
+      toast.error("Type de fichier non supporté");
+      return;
+    }
+
+    // Vérifier la taille du fichier (10MB max)
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("La taille du fichier ne doit pas dépasser 10MB");
+      return;
+    }
+
+    console.log("Fichier valide, mise à jour du state..."); // Debug
+    setSelectedImage(file);
+    form.setValue("media", [file]);
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      console.log("Preview généré"); // Debug
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
   const onSubmit = async (data: CreatePostFormData) => {
@@ -179,23 +186,16 @@ export default function CreatePost() {
           <div className="space-y-2">
             <Label htmlFor="image">Image</Label>
             <div className="flex items-center gap-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => document.getElementById("image")?.click()}
+              <CameraSelector
+                onImageSelected={handleImageSelected}
+                onError={(error) => toast.error(error)}
                 disabled={isLoading}
               >
-                <ImagePlus className="h-5 w-5 mr-2" />
-                Ajouter une image
-              </Button>
-              <input
-                id="image"
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="hidden"
-                disabled={isLoading}
-              />
+                <Button type="button" variant="outline" disabled={isLoading}>
+                  <ImagePlus className="h-5 w-5 mr-2" />
+                  Ajouter une image
+                </Button>
+              </CameraSelector>
             </div>
             {imagePreview && (
               <div className="relative aspect-video mt-4 rounded-lg overflow-hidden">

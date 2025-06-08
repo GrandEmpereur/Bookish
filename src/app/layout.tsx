@@ -38,7 +38,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               {children}
             </div>
           </main>
-          <Toaster position="top-right" />
+          <Toaster position="bottom-right" />
         </AuthProvider>
       </body>
     </html>

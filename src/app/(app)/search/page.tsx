@@ -70,14 +70,11 @@ const SearchPage: React.FC = () => {
     setError(null);
 
     try {
-      console.log("Recherche en cours avec la valeur:", searchValue);
       const response = await searchService.searchGeneral({
         query: searchValue,
       });
-      console.log("Réponse complète du serveur:", response);
 
       if (response.status === "success") {
-        console.log("Données de recherche reçues:", response.data);
         setResults({
           results: {
             bookLists: response.data.results.BookLists,
@@ -87,10 +84,8 @@ const SearchPage: React.FC = () => {
           },
           totals: response.data.totals,
         });
-        console.log("État des résultats mis à jour:", results);
       }
     } catch (error) {
-      console.error("Erreur détaillée lors de la recherche:", error);
       setError("Une erreur est survenue lors de la recherche.");
     } finally {
       setLoading(false);
