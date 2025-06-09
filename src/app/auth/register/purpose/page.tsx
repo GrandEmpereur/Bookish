@@ -19,19 +19,25 @@ const purposes: Array<{
     id: "find_books",
     label: "Découvrir de nouveaux livres",
     description: "Trouvez des recommandations personnalisées",
-    icon: "/img/onbordingRegisterSetp/Book_Lover.png",
+    icon: "/img/onbordingRegisterSetp/bear_book.png",
   },
   {
     id: "find_community",
     label: "Rejoindre une communauté",
     description: "Partagez et échangez avec d'autres lecteurs",
-    icon: "/img/onbordingRegisterSetp/Notebook_Design.png",
+    icon: "/img/onbordingRegisterSetp/bear_community.png",
   },
   {
     id: "both",
-    label: "Les deux",
+    label: "Trouver de nouveaux livres et rejoindre une communauté",
     description: "Découvrez et partagez en même temps",
-    icon: "/img/onbordingRegisterSetp/Bookshelves_design.png",
+    icon: "/img/onbordingRegisterSetp/bear_book_community.png",
+  },
+  {
+    id: "créer_compte_professionel",
+    label: "Créer un compte professionel",
+    description: "Je souhaite créer un compte pour professionel",
+    icon: "/img/onbordingRegisterSetp/bear_pro.png",
   },
 ];
 
