@@ -5,6 +5,7 @@ import { DM_Serif_Display, Inter } from "next/font/google"; // Correct import fo
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/contexts/auth-context";
+import { Analytics } from "@vercel/analytics/next";
 
 // Configure DM Serif Display font
 const dmSerif = DM_Serif_Display({
@@ -40,6 +41,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           </main>
           <Toaster position="bottom-right" />
         </AuthProvider>
+        <Analytics />
       </body>
     </html>
   );
