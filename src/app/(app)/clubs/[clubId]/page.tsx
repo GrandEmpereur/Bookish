@@ -1,11 +1,11 @@
 import ClubDetails from "@/components/club/club-details";
 
 export default async function Page({
-    params,
+  params,
 }: {
-    params: Promise<{ clubId: string }>
+  params: Promise<{ clubId: string }>;
 }) {
-    const { clubId } = await params;
-    
-    return <ClubDetails clubId={clubId} />;
-} 
+  const { clubId } = await params;
+
+  return <ClubDetails clubId={clubId} />;
+}
