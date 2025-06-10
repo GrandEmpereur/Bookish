@@ -3,10 +3,12 @@ import { Bell, Send, Search, Settings } from "lucide-react";
 type ModalType = "drawer" | "dialog";
 
 export type TopBarConfig = {
-  variant: "standard" | "back";
+  variant: 'standard' | 'back';
   title?: string;
   showBack?: boolean;
   showLogo?: boolean;
+  hideTopBar?: boolean;
+  showBackAbsolute?: boolean;
   rightIcons?: {
     icon: typeof Bell | typeof Send | typeof Search | typeof Settings;
     onClick?: () => void;
@@ -109,6 +111,13 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
     variant: "back",
     title: "Objectifs",
     showBack: true,
+  },
+
+  // Books
+  '/books/[id]': {
+      variant: 'back',
+      showBackAbsolute: true,
+      // hideTopBar: true,
   },
 
   // Notifications
@@ -215,13 +224,15 @@ export function getTopBarConfig(path: string): TopBarConfig {
     return topBarConfigs["/clubs/[clubId]"];
   }
 
-  // Pour les bibliothèques avec UUID
-  if (
-    /^\/library\/[\w-]+$/.test(cleanPath) &&
-    cleanPath !== "/library/create"
-  ) {
-    return topBarConfigs["/library/[id]"];
-  }
+    // Pour les book avec UUID
+    if (/^\/books\/[\w-]+$/.test(cleanPath)) {
+        return topBarConfigs['/books/[id]'];
+    }
+
+    // Pour les bibliothèques avec UUID
+    if (/^\/library\/[\w-]+$/.test(cleanPath) && cleanPath !== '/library/create') {
+        return topBarConfigs['/library/[id]'];
+    }
 
   // Pour les autres routes
   const exactConfig = topBarConfigs[cleanPath];

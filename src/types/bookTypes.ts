@@ -53,11 +53,9 @@ export interface GetBookResponse {
 }
 
 export interface GetBooksResponse {
-  status: string;
-  message: string;
-  data: {
-    books: Book[];
-  };
+    status: string;
+    message: string;
+    data: Book[];
 }
 
 export interface CreateBookResponse {

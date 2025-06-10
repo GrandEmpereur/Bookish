@@ -117,6 +117,22 @@ export function TopBar({ config, className, dynamicTitle }: TopBarProps) {
     return currentConfig.title;
   };
 
+  if (currentConfig.showBackAbsolute) {
+    return (
+      <Button
+        variant="ghost"
+        onClick={() => router.back()}
+        className="w-8 h-8 flex items-center justify-center absolute top-12 left-5 z-50"
+      >
+        <ChevronLeft size={24} />
+      </Button>
+    );
+  }
+
+  if (currentConfig.hideTopBar) {
+    return null;
+  }
+
   return (
     <>
       <header
