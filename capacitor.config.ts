@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: "Bookish",
   webDir: "src/app",
   server: {
-    url: "http://192.168.1.68:3000",
+    url: "https://bookish.bartosik.fr",
     cleartext: true,
   },
   plugins: {
