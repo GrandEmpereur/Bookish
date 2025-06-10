@@ -1,7 +1,5 @@
-import React from 'react'
+import React from "react";
 
 export default function BookListDetail() {
-  return (
-    <div>BookListDetail</div>
-  )
+  return <div>BookListDetail</div>;
 }
