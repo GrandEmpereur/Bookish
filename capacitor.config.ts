@@ -1,11 +1,11 @@
-import type { CapacitorConfig } from '@capacitor/cli';
+import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  appId: 'com.patrick.bookish',
-  appName: 'Bookish',
-  webDir: 'src/app',
+  appId: "com.patrick.bookish",
+  appName: "Bookish",
+  webDir: "src/app",
   server: {
-    url: 'https://bookish.bartosik.fr',
+    url: "http://192.168.1.68:3000",
     cleartext: true,
   },
   plugins: {
@@ -17,8 +17,8 @@ const config: CapacitorConfig = {
     },
   },
   ios: {
-    scheme: 'Bookish',
-    path: 'ios',
+    scheme: "Bookish",
+    path: "ios",
   },
 };
 

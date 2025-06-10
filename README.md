@@ -1,7 +1,7 @@
 # 📚 Bookish - Plateforme Sociale de Lecture
 
 <div align="center">
-  <img src="public/cover/Icône IOS - Bookish Design.jpg" alt="Bookish Logo" width="200" style="padding: 30px 0;"/>
+  <img src="public/cover/Ios.jpg" alt="Bookish Logo" width="200" style="padding: 30px 0;"/>
   
   [![Next.js](https://img.shields.io/badge/Next.js-15.3-black)](https://nextjs.org/)
   [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue)](https://www.typescriptlang.org/)
@@ -11,31 +11,35 @@
 
 ## 🎯 Introduction
 
-**Bookish** est une plateforme sociale dédiée à la lecture qui permet aux utilisateurs de découvrir, discuter, partager et organiser leurs lectures dans une communauté passionnée de littérature. 
+**Bookish** est une plateforme sociale dédiée à la lecture qui permet aux utilisateurs de découvrir, discuter, partager et organiser leurs lectures dans une communauté passionnée de littérature.
 
 Ce projet a été développé dans le cadre de l'axe **Coding & Digital Innovation** de la promotion 2023-2025 à l'**IIM Digital School**, avec pour objectif de créer une application complète alliant développement web moderne et expérience utilisateur optimale.
 
 ## ✨ Fonctionnalités Principales
 
 ### 📖 Gestion de Bibliothèque
+
 - **Bibliothèque personnelle** : Créez et organisez votre collection de livres
 - **Suivi de lecture** : Marquez vos livres comme lus, en cours ou à lire
 - **Notes et critiques** : Rédigez vos propres critiques et notes de lecture
 - **Objectifs de lecture** : Fixez-vous des défis et suivez vos progrès
 
 ### 👥 Aspect Social
+
 - **Feed communautaire** : Découvrez les activités de vos amis lecteurs
 - **Clubs de lecture** : Rejoignez ou créez des clubs thématiques
 - **Discussions** : Participez à des conversations autour de vos livres favoris
 - **Système de suivi** : Suivez d'autres lecteurs et leurs recommandations
 
 ### 🔍 Découverte
+
 - **Recherche avancée** : Trouvez des livres par genre, auteur, popularité
 - **Recommandations personnalisées** : Algorithme intelligent basé sur vos goûts
 - **Classements** : Explorez les tendances et les best-sellers
 - **Notifications** : Restez informé des nouveautés et activités
 
 ### 📊 Analytics & Profil
+
 - **Statistiques de lecture** : Visualisez vos habitudes et progrès
 - **Profil personnalisable** : Présentez votre passion pour la lecture
 - **Badges et récompenses** : Système de gamification motivant
@@ -43,6 +47,7 @@ Ce projet a été développé dans le cadre de l'axe **Coding & Digital Innovati
 ## 🛠️ Stack Technique
 
 ### Frontend
+
 - **Framework** : Next.js 15 avec App Router
 - **Langage** : TypeScript
 - **Styling** : Tailwind CSS + shadcn/ui
@@ -50,17 +55,20 @@ Ce projet a été développé dans le cadre de l'axe **Coding & Digital Innovati
 - **Animations** : Framer Motion
 
 ### Backend
+
 - **API** : AdonisJS (API REST)
 - **Runtime** : Node.js 20
 - **Base de données** : Supabase (PostgreSQL)
 - **Containerisation** : Docker
 
 ### Mobile
+
 - **Framework Hybride** : Capacitor
 - **Plateforme** : iOS uniquement
 - **Distribution** : iOS App Store
 
 ### DevOps & Outils
+
 - **Hébergement** : Vercel (Frontend) + Heroku (Backend)
 - **Package Manager** : Bun
 - **Contrôle de version** : Git
@@ -73,6 +81,7 @@ Ce projet a été développé dans le cadre de l'axe **Coding & Digital Innovati
 ## 🚀 Installation et Développement
 
 ### Prérequis
+
 - Node.js 20+
 - Bun (package manager)
 - Git
@@ -366,11 +375,13 @@ Bookish/
 ## 👥 Équipe de Développement
 
 ### Maîtrise d'Œuvre
+
 - **Benjamin AMRAM** - Product Owner
-- **Sizley ANTILE** - Chef de projet  
+- **Sizley ANTILE** - Chef de projet
 - **Alya BEN AHMED** - Scrum Master
 
 ### Équipe Technique
+
 - **Patrick BARTOSIK** - Dev Leader & Développeur Backend
 - **Youssef CHARAFEDDINE** - Développeur Frontend
 - **Enas ELMERSHATI** - UI/UX Designer & Développeur Frontend
@@ -379,6 +390,7 @@ Bookish/
 - **Ricardo TCHAMGOUE** - Développeur Frontend
 
 ### Encadrement Pédagogique
+
 - **Allan GERME** - Responsable de projet
 - **Clément HAMEAU** - Responsable de projet
 - **Arnaud PALIN SAINTE AGATHE** - Responsable Technique
@@ -386,6 +398,7 @@ Bookish/
 ## 🎨 Design System
 
 Notre application utilise un design system cohérent basé sur :
+
 - **Palette de couleurs** : Tons chauds inspirés des bibliothèques classiques
 - **Typographie** : Fonts lisibles optimisées pour la lecture
 - **Composants** : Bibliothèque shadcn/ui personnalisée
@@ -403,18 +416,21 @@ Notre application utilise un design system cohérent basé sur :
 ## 📱 Applications Mobiles
 
 L'application est disponible sur :
+
 - **iOS** : App Store (com.patrick.bookish)
 - **Web** : [bookish.bartosik.fr](https://bookish.bartosik.fr)
 
 ## 🚀 Déploiement
 
 ### Environnement de Production
+
 - **URL** : https://bookish.bartosik.fr
 - **CDN** : Vercel Edge Network
 - **SSL** : Certificat automatique
 - **Monitoring** : Uptime et performance 24/7
 
 ### Processus de Déploiement
+
 1. Push sur la branche `main`
 2. CI/CD automatique via GitHub Actions
 3. Tests automatisés
@@ -424,6 +440,7 @@ L'application est disponible sur :
 ## 📊 Métriques et Objectifs
 
 ### Objectifs Techniques
+
 - ✅ Performance : Score Lighthouse > 90
 - ✅ Accessibilité : WCAG 2.1 AA
 - ✅ SEO : Optimisation complète
@@ -431,6 +448,7 @@ L'application est disponible sur :
 - ✅ Offline : Fonctionnalités hors ligne
 
 ### Métriques Utilisateur
+
 - **Temps de chargement** : < 2 secondes
 - **Taux de conversion** : Inscription > 15%
 - **Engagement** : Session > 5 minutes
@@ -441,6 +459,7 @@ L'application est disponible sur :
 Ce projet étant un projet académique de l'IIM Digital School, les contributions sont actuellement limitées à l'équipe de développement mentionnée ci-dessus.
 
 ### Standards de Code
+
 - **Linting** : ESLint + Prettier
 - **Conventions** : Conventional Commits
 - **Tests** : Jest (tests unitaires)
@@ -454,6 +473,7 @@ Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de 
 ## 📞 Contact
 
 Pour toute question concernant le projet :
+
 - **Email** : contact@bartosik.fr
 - **Repository** : [GitHub Bookish](https://github.com/patrickbartosik/bookish)
 - **Documentation** : [Wiki du projet](https://github.com/patrickbartosik/bookish/wiki)
