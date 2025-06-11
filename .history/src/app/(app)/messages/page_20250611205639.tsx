@@ -61,43 +61,18 @@ const MessagesPage = () => {
 
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !selectedConversation) return;
-
-    const messageToSend = {
-      content: newMessage,
-      senderId: currentUserId,
-      recipientId: selectedConversation.user.id,
-      createdAt: new Date().toISOString(),
-      id: `temp-${Date.now()}`,
-    };
-
     try {
-      // Envoi API
       await axios.post(
         `${API_BASE_URL}/messages`,
-        {
-          recipientId: selectedConversation.user.id,
-          content: newMessage,
-        },
+        { recipientId: selectedConversation.user.id, content: newMessage },
         { withCredentials: true }
       );
-
-      // Ajout immédiat du message localement
-      setMessages((prev) => [...prev, messageToSend]);
-
-      // Mise à jour visuelle de la conversation
-      setConversations((prev) =>
-        prev.map((conv) =>
-          conv.user.id === selectedConversation.user.id
-            ? {
-                ...conv,
-                lastMessage: messageToSend,
-                messages: [...conv.messages, messageToSend],
-              }
-            : conv
-        )
-      );
-
       setNewMessage("");
+      await fetchConversations();
+      const updatedConv = conversations.find(
+        (c) => c.user.id === selectedConversation.user.id
+      );
+      loadConversation(updatedConv);
     } catch (err) {
       console.error(err);
     }
@@ -108,7 +83,7 @@ const MessagesPage = () => {
   }, []);
 
   return (
-    <div className="pt-[100px] px-4 pb-4 flex flex-col h-[90%] bg-white">
+    <div className="pt-[100px] px-4 pb-4 flex flex-col h-auto bg-white">
       {!selectedConversation ? (
         <div className="flex-1">
           <h1 className="text-xl font-semibold mb-4">Messages</h1>

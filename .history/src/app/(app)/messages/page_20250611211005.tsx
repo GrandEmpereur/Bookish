@@ -108,7 +108,7 @@ const MessagesPage = () => {
   }, []);
 
   return (
-    <div className="pt-[100px] px-4 pb-4 flex flex-col h-[90%] bg-white">
+    <div className="pt-[100px] px-4 pb-4 flex flex-col h-[x] bg-white">
       {!selectedConversation ? (
         <div className="flex-1">
           <h1 className="text-xl font-semibold mb-4">Messages</h1>
