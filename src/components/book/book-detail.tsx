@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Loader2, Star, Bookmark } from "lucide-react";
+import { Loader2, Star, Bookmark, Plus } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -114,37 +114,47 @@ export default function BookDetail({ id }: BookProps) {
   return (
     <div className="space-y-6 mb-[100px] pt-[56px] bg-accent-100">
       {/* Image + bouton ajout */}
-      <div className="w-[160px] h-[240px] relative shadow-lg mx-auto px-5 ">
+      <div className="w-[160px] h-[240px] relative mx-auto px-5 ">
         <Image
           src={book.coverImage || "/placeholder.png"}
           alt={book.title}
           fill
-          className="object-cover rounded-sm"
+          className="object-cover rounded-sm shadow-lg"
         />
 
         <div className="absolute right-[-40]">
           <Popover>
             <PopoverTrigger asChild>
               <Bookmark
-                className="w-7 h-7 text-gray-500"
+                className="w-7 h-7 text-primary"
                 fill={isBookInAnyList() ? "currentColor" : "none"}
               />
             </PopoverTrigger>
             <PopoverContent className="p-2 space-y-1 w-48">
-              {bookLists.map((list) => {
-                const active = isBookInList(list);
-                return (
-                  <Button
-                    key={list.id}
-                    variant={active ? "default" : "ghost"}
-                    size="sm"
-                    className="w-full justify-start text-sm"
-                    onClick={() => handleToggleBookInList(list)}
-                  >
-                    {list.name}
-                  </Button>
-                );
-              })}
+              {bookLists.length === 0 ? (
+                <p
+                  className="flex w-full align-center gap-1 justify-start text-sm"
+                  onClick={() => router.push("/library/create/")}
+                >
+                  <Plus className="h-4 w-4" />
+                  Créer une liste
+                </p>
+              ) : (
+                bookLists.map((list) => {
+                  const active = isBookInList(list);
+                  return (
+                    <Button
+                      key={list.id}
+                      variant={active ? "default" : "ghost"}
+                      size="sm"
+                      className="w-full justify-start text-sm"
+                      onClick={() => handleToggleBookInList(list)}
+                    >
+                      {list.name}
+                    </Button>
+                  );
+                })
+              )}
             </PopoverContent>
           </Popover>
         </div>
