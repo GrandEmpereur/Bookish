@@ -94,7 +94,7 @@ export interface CreatePostRequest {
   media?: File[];
 }
 
-export interface UpdatePostRequest extends Partial<CreatePostRequest> {}
+export interface UpdatePostRequest extends Partial<CreatePostRequest> { }
 
 export interface CreateCommentRequest {
   content: string;
@@ -222,5 +222,116 @@ export interface ReplyCommentResponse {
       id: string;
       username: string;
     };
+  };
+}
+
+// Types pour le système de signalement
+export type ReportType =
+  | "spam"
+  | "harassment"
+  | "hate_speech"
+  | "inappropriate"
+  | "violence"
+  | "misinformation"
+  | "copyright"
+  | "privacy"
+  | "other";
+
+export type ReportStatus =
+  | "pending"
+  | "in_review"
+  | "resolved"
+  | "dismissed"
+  | "escalated";
+
+export type ActionTaken =
+  | "none"
+  | "warning"
+  | "post_removed"
+  | "post_edited"
+  | "user_suspended"
+  | "user_banned"
+  | "other";
+
+export type ReportPriority =
+  | "low"
+  | "medium"
+  | "high"
+  | "critical";
+
+export interface PostReport {
+  id: string;
+  post_id: string;
+  reported_by: string;
+  reviewed_by?: string;
+  report_type: ReportType;
+  description?: string;
+  additional_context?: string;
+  status: ReportStatus;
+  action_taken?: ActionTaken;
+  admin_notes?: string;
+  resolution_notes?: string;
+  priority: ReportPriority;
+  user_agent?: string;
+  ip_address?: string;
+  metadata?: Record<string, any>;
+  reported_at: string;
+  reviewed_at?: string;
+  resolved_at?: string;
+  created_at: string;
+  updated_at: string;
+  // Relations
+  post?: Post;
+  reporter?: UserProfile;
+  reviewer?: UserProfile;
+}
+
+// Requêtes pour le signalement
+export interface CreateReportRequest {
+  postId: string;
+  reportType: ReportType;
+  description?: string;
+  additionalContext?: string;
+}
+
+export interface QuickReportRequest {
+  reportType: ReportType;
+  description?: string;
+}
+
+// Réponses pour le signalement
+export interface CreateReportResponse {
+  status: string;
+  message: string;
+  data: {
+    report: PostReport;
+  };
+}
+
+export interface GetReportsResponse {
+  status: string;
+  message: string;
+  data: {
+    reports: PostReport[];
+    pagination: {
+      current_page: number;
+      per_page: number;
+      total: number;
+      total_pages: number;
+      has_more: boolean;
+      next_page: number | null;
+      prev_page: number | null;
+    };
+  };
+}
+
+export interface ReportStatsResponse {
+  status: string;
+  message: string;
+  data: {
+    total: number;
+    by_status: Record<ReportStatus, number>;
+    by_type: Record<ReportType, number>;
+    by_priority: Record<ReportPriority, number>;
   };
 }

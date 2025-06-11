@@ -39,10 +39,10 @@ export default function BookDetail({ id }: BookProps) {
   const fetchBookDetails = async (bookId: string) => {
     try {
       const res = await bookService.getBook(bookId);
-      if (res.data) {
-        setBook(res.data);
-        if (res.data.genre) {
-          fetchBooksByGenre(res.data.genre, res.data.id);
+      if (res.data?.book) {
+        setBook(res.data.book);
+        if (res.data.book.genre) {
+          fetchBooksByGenre(res.data.book.genre, res.data.book.id);
         }
       } else {
         toast.error("Livre non trouvé");
@@ -57,7 +57,7 @@ export default function BookDetail({ id }: BookProps) {
   const fetchBooksByGenre = async (genre: string, currentBookId: string) => {
     try {
       const res = await bookService.getBooks();
-      const filtered = res.data
+      const filtered = res.data.data
         .filter((b: Book) => b.genre === genre && b.id !== currentBookId)
         .slice(0, 10);
       setRelatedBooks(filtered);

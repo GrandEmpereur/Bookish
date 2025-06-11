@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Home, Library, Search, Users, User } from "lucide-react";
+import { Capacitor } from "@capacitor/core";
 
 const navigationItems = [
   {
@@ -37,9 +38,23 @@ const navigationItems = [
 export function BottomBar() {
   const pathname = usePathname();
 
+  // Détection de la plateforme
+  const isNative = Capacitor.isNativePlatform();
+  const isBrowser = !isNative;
+
   return (
-    <nav className="z-100 fixed bottom-0 left-0 right-0 bg-background border-t pb-5 rounded-t-[30px] shadow-lg">
-      <div className="flex justify-around items-end py-4 relative">
+    <nav
+      className={cn(
+        "z-100 fixed bottom-0 left-0 right-0 bg-background border-t rounded-t-[30px] shadow-lg",
+        isNative ? "pb-[30px]" : "pb-[30px]"
+      )}
+    >
+      <div
+        className={cn(
+          "flex justify-around items-end relative",
+          isNative ? "py-2" : "py-3"
+        )}
+      >
         {navigationItems.map((item) => (
           <Link
             key={item.href}

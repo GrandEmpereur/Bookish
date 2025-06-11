@@ -9,6 +9,7 @@ import { getTopBarConfig, TopBarConfig } from "@/config/navigation";
 import { SearchDrawer } from "@/components/library/search-drawer";
 import { SearchDialog } from "@/components/library/search-dialog";
 import { useState } from "react";
+import { Capacitor } from "@capacitor/core";
 
 interface TopBarProps {
   config?: TopBarConfig;
@@ -21,6 +22,10 @@ export function TopBar({ config, className, dynamicTitle }: TopBarProps) {
   const router = useRouter();
   const [searchOpen, setSearchOpen] = useState(false);
   const [modalType, setModalType] = useState<"drawer" | "dialog" | null>(null);
+
+  // Détection de la plateforme
+  const isNative = Capacitor.isNativePlatform();
+  const isBrowser = !isNative;
 
   // On récupère la config de base
   const baseConfig = config || getTopBarConfig(pathname);
@@ -141,7 +146,12 @@ export function TopBar({ config, className, dynamicTitle }: TopBarProps) {
           className
         )}
       >
-        <div className="px-5 py-4 pt-12 flex items-center justify-between">
+        <div
+          className={cn(
+            "px-5 flex items-center justify-between",
+            isNative ? "py-2 pt-[70px]" : "py-3 pt-[30px]"
+          )}
+        >
           {/* Conteneur gauche - même largeur que la droite */}
           <div className="w-[72px]">{renderLeftSide()}</div>
 

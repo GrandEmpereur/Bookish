@@ -45,7 +45,7 @@ export default function AddBookToList({ params }: PageProps) {
       setIsSearching(true);
       try {
         const response = await bookService.searchBooks(query);
-        setSearchResults(response.data.books);
+        setSearchResults(response.data);
       } catch (error: any) {
         toast.error(error.message || "Impossible de rechercher des livres");
         setSearchResults([]);
