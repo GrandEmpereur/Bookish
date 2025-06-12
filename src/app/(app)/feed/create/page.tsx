@@ -60,8 +60,6 @@ export default function CreatePost() {
   };
 
   const handleImageSelected = (file: File) => {
-    console.log("handleImageSelected appelé avec:", file); // Debug
-
     // Vérifier le type de fichier
     if (
       !file.type.match(/^(image\/(jpeg|png|gif|webp)|video\/(mp4|quicktime))$/)
@@ -76,13 +74,11 @@ export default function CreatePost() {
       return;
     }
 
-    console.log("Fichier valide, mise à jour du state..."); // Debug
     setSelectedImage(file);
     form.setValue("media", [file]);
 
     const reader = new FileReader();
     reader.onloadend = () => {
-      console.log("Preview généré"); // Debug
       setImagePreview(reader.result as string);
     };
     reader.readAsDataURL(file);

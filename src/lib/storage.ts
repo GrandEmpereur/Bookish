@@ -227,11 +227,9 @@ export const storageMigration = {
 
         // Remove old data to avoid conflicts
         localStorage.removeItem("hasSeenOnboarding");
-
-        console.log("✅ Migration onboarding data terminée");
       }
     } catch (error) {
-      console.warn("⚠️ Erreur lors de la migration:", error);
+      console.error("⚠️ Erreur lors de la migration:", error);
     }
   },
 };
@@ -241,77 +239,57 @@ export const storageDebug = {
   // Log all stored preferences (useful for Xcode debugging)
   async logAllPreferences(): Promise<void> {
     const isNative = Capacitor.isNativePlatform();
-    const platformInfo = storage.getPlatformInfo();
-
-    console.log("🔍 === STORAGE DEBUG ===");
-    console.log("📱 Platform Info:", platformInfo);
 
     try {
       if (isNative) {
         // Get all Capacitor Preferences
         const allKeys = await Preferences.keys();
-        console.log("🗝️ All Preferences Keys:", allKeys.keys);
 
         // Get values for our platform
         const ourKeys = await storage.keys();
-        console.log("🎯 Our Platform Keys:", ourKeys);
 
         for (const key of ourKeys) {
           const value = await storage.getString(key);
-          console.log(`📄 ${key}: ${value}`);
         }
       } else {
         // Get all localStorage for web
         const allKeys = Object.keys(localStorage);
-        console.log("🗝️ All localStorage Keys:", allKeys);
 
         const ourKeys = await storage.keys();
-        console.log("🎯 Our Platform Keys:", ourKeys);
 
         for (const key of ourKeys) {
           const value = await storage.getString(key);
-          console.log(`📄 ${key}: ${value}`);
         }
       }
     } catch (error) {
       console.error("❌ Erreur debug storage:", error);
     }
-
-    console.log("🔍 === END DEBUG ===");
   },
 
   // Test storage functionality
   async testStorage(): Promise<void> {
-    console.log("🧪 === STORAGE TEST ===");
-
     try {
       // Test string
       await storage.setString("test_string", "Hello World");
       const testString = await storage.getString("test_string");
-      console.log("✅ String test:", testString);
 
       // Test boolean
       await storage.setBoolean("test_boolean", true);
       const testBoolean = await storage.getBoolean("test_boolean");
-      console.log("✅ Boolean test:", testBoolean);
 
       // Test object
       const testObj = { name: "John", age: 30 };
       await storage.setObject("test_object", testObj);
       const retrievedObj = await storage.getObject("test_object");
-      console.log("✅ Object test:", retrievedObj);
 
       // Clean up
       await storage.remove("test_string");
       await storage.remove("test_boolean");
       await storage.remove("test_object");
 
-      console.log("✅ Storage test completed successfully");
     } catch (error) {
       console.error("❌ Storage test failed:", error);
     }
-
-    console.log("🧪 === END TEST ===");
   },
 };
 
