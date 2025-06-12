@@ -1,4 +1,6 @@
+
 import { PostDetails } from "@/components/post/post-details";
+import { Unboarding } from "@/components/unboarding/unboarding-popup";
 
 export default async function Page({
   params,
@@ -7,5 +9,10 @@ export default async function Page({
 }) {
   const { postId } = await params;
 
-  return <PostDetails postId={postId} />;
+  return (
+    <>
+      <Unboarding />
+      <PostDetails postId={postId} />
+    </>
+  );
 }

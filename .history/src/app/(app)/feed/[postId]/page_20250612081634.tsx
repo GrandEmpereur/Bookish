@@ -1,5 +1,5 @@
 import { PostDetails } from "@/components/post/post-details";
-
+import { Unboarding } from "@/components/unboarding";
 export default async function Page({
   params,
 }: {
