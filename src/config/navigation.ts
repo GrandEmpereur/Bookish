@@ -132,6 +132,13 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
       // hideTopBar: true,
   },
 
+  // Authors
+  '/authors/[id]': {
+      variant: 'back',
+      showBackAbsolute: true,
+      // hideTopBar: true,
+  },
+
   // Notifications
   "/notifications": {
     variant: "back",
@@ -230,15 +237,20 @@ export function getTopBarConfig(path: string): TopBarConfig {
     return topBarConfigs["/clubs/[clubId]"];
   }
 
-    // Pour les book avec UUID
-    if (/^\/books\/[\w-]+$/.test(cleanPath)) {
-        return topBarConfigs['/books/[id]'];
-    }
+  // Pour les book avec UUID
+  if (/^\/books\/[\w-]+$/.test(cleanPath)) {
+      return topBarConfigs['/books/[id]'];
+  }
 
-    // Pour les bibliothèques avec UUID
-    if (/^\/library\/[\w-]+$/.test(cleanPath) && cleanPath !== '/library/create') {
-        return topBarConfigs['/library/[id]'];
-    }
+  // Pour les book avec UUID
+  if (/^\/authors\/[\w-]+$/.test(cleanPath)) {
+      return topBarConfigs['/authors/[id]'];
+  }
+
+  // Pour les bibliothèques avec UUID
+  if (/^\/library\/[\w-]+$/.test(cleanPath) && cleanPath !== '/library/create') {
+      return topBarConfigs['/library/[id]'];
+  }
 
   // Pour les autres routes
   const exactConfig = topBarConfigs[cleanPath];
