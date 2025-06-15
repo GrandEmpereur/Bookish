@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Loader2, Star, Bookmark, Plus } from "lucide-react";
 
+import { BookSuggestions } from "@/components/ui/book-suggestions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,6 +32,8 @@ export default function BookDetail({ id }: BookProps) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
+  const currentYear = new Date().getFullYear();
+
   useEffect(() => {
     fetchBookDetails(id);
     fetchBookLists();
@@ -39,15 +42,16 @@ export default function BookDetail({ id }: BookProps) {
   const fetchBookDetails = async (bookId: string) => {
     try {
       const res = await bookService.getBook(bookId);
-      if (res.data?.book) {
-        setBook(res.data.book);
-        if (res.data.book.genre) {
-          fetchBooksByGenre(res.data.book.genre, res.data.book.id);
+      if (res.data) {
+        setBook(res.data);
+        if (res.data.genre) {
+          fetchBooksByGenre(res.data.genre, res.data.id);
         }
       } else {
         toast.error("Livre non trouvé");
       }
-    } catch {
+    } catch (err) {
+      console.error(err);
       toast.error("Erreur de chargement du livre");
     } finally {
       setIsLoading(false);
@@ -57,11 +61,18 @@ export default function BookDetail({ id }: BookProps) {
   const fetchBooksByGenre = async (genre: string, currentBookId: string) => {
     try {
       const res = await bookService.getBooks();
-      const filtered = res.data.data
+
+      if (!res.data || !Array.isArray(res.data)) {
+        throw new Error("Liste de livres invalide");
+      }
+
+      const filtered = res.data
         .filter((b: Book) => b.genre === genre && b.id !== currentBookId)
         .slice(0, 10);
+
       setRelatedBooks(filtered);
-    } catch {
+    } catch (err) {
+      console.error(err);
       toast.error("Erreur lors du chargement des livres similaires");
     }
   };
@@ -112,14 +123,14 @@ export default function BookDetail({ id }: BookProps) {
   }
 
   return (
-    <div className="space-y-6 mb-[100px] pt-[56px] bg-accent-100">
+    <div className="space-y-6 pt-[56px] bg-accent-100 overflow-hidden">
       {/* Image + bouton ajout */}
       <div className="w-[160px] h-[240px] relative mx-auto px-5 ">
         <Image
           src={book.coverImage || "/placeholder.png"}
           alt={book.title}
           fill
-          className="object-cover rounded-sm shadow-lg"
+          className="object-cover shadow-lg"
         />
 
         <div className="absolute right-[-40]">
@@ -199,7 +210,7 @@ export default function BookDetail({ id }: BookProps) {
           </div>
 
           {/* Tags + description */}
-          <div className="flex flex-col pt-2 gap-2">
+          <div className="flex flex-col gap-2">
             {book.genre && (
               <div className="flex gap-2 flex-wrap">
                 <Badge variant="default" className="capitalize">
@@ -214,34 +225,16 @@ export default function BookDetail({ id }: BookProps) {
             </p>
           </div>
 
-          {/* Suggestions */}
-          <div className="flex flex-col pt-2 gap-2">
-            {relatedBooks.length > 0 && (
-              <div className="flex flex-col gap-2">
-                <h2 className="text-lg font-bold">
-                  {relatedBooks.length > 1
-                    ? "Livres du même genre"
-                    : "Livre du même genre"}
-                </h2>
-                <div className="flex gap-6 overflow-x-auto scrollbar-none py-1">
-                  {relatedBooks.map((related) => (
-                    <div
-                      key={related.id}
-                      className="min-w-[120px] h-[180px] cursor-pointer shrink-0 relative shadow-md"
-                      onClick={() => router.push(`/books/${related.id}`)}
-                    >
-                      <Image
-                        src={related.coverImage || "/placeholder.png"}
-                        alt={related.title}
-                        fill
-                        className="object-cover  rounded-sm "
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+          {relatedBooks.length > 0 && (
+            <BookSuggestions
+              books={relatedBooks}
+              title={
+                relatedBooks.length > 1
+                  ? "Livres du même genre"
+                  : "Livre du même genre"
+              }
+            />
+          )}
         </div>
       </div>
     </div>
