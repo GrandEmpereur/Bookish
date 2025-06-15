@@ -3,13 +3,17 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/auth-context";
 import { toast } from "sonner";
 import { bookListService } from "@/services/book-list.service";
+import BookListCards from "@/components/library/book-list-cards";
 import type { BookList } from "@/types/bookListTypes";
 import {
+  Lock,
+  BookOpen,
   Book,
   Eye,
   EyeOff,
@@ -206,21 +210,6 @@ export default function Profile() {
     fetchBookLists();
   }, []);
 
-  const renderBookListSkeleton = () => (
-    <div className="space-y-4">
-      {[1, 2, 3].map((i) => (
-        <div key={i} className="flex gap-4 p-4 border rounded-lg">
-          <Skeleton className="h-[120px] w-[80px]" />
-          <div className="flex-1 space-y-2">
-            <Skeleton className="h-6 w-3/4" />
-            <Skeleton className="h-4 w-1/2" />
-            <Skeleton className="h-4 w-1/4" />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-
   return (
     <div className="min-h-dvh bg-background">
       <main className="container mx-auto pt-8 px-5 pb-[120px] max-w-md">
@@ -249,14 +238,6 @@ export default function Profile() {
                 <span className="bg-[#F5F5F5] text-xs rounded-full px-3 py-1">
                   {user?.profile?.preferred_genres?.[1] ?? "Fiction"}
                 </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => router.push("/profile/settings")}
-                  className="p-2"
-                >
-                  <Settings className="w-4 h-4" />
-                </Button>
               </div>
             </div>
 
@@ -604,79 +585,11 @@ export default function Profile() {
 
               {/* Other tab contents */}
               <TabsContent value="listes" className="w-full">
-                <div className="space-y-4">
-                  {isLoadingLists ? (
-                    renderBookListSkeleton()
-                  ) : bookLists.length === 0 ? (
-                    <div className="text-center py-8">
-                      <Book className="w-12 h-12 mx-auto text-muted-foreground opacity-50" />
-                      <p className="mt-4 text-muted-foreground">
-                        Vous n'avez pas encore créé de liste
-                      </p>
-                      <Button
-                        variant="outline"
-                        className="mt-4"
-                        onClick={() => router.push("/library/create")}
-                      >
-                        Créer une liste
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="grid gap-4">
-                      {bookLists.map((list) => (
-                        <button
-                          key={list.id}
-                          onClick={() => router.push(`/library/${list.id}`)}
-                          className="w-full text-left"
-                        >
-                          <div className="flex gap-4 p-4 border rounded-lg hover:bg-accent transition-colors">
-                            <div className="relative h-[120px] w-[80px] overflow-hidden rounded-md">
-                              {list.coverImage ? (
-                                <Image
-                                  src={list.coverImage}
-                                  alt={list.name}
-                                  fill
-                                  className="object-cover"
-                                />
-                              ) : (
-                                <div className="w-full h-full bg-muted flex items-center justify-center">
-                                  <Book className="h-8 w-8 text-muted-foreground" />
-                                </div>
-                              )}
-                            </div>
-                            <div className="flex-1">
-                              <div className="flex items-center justify-between">
-                                <h3 className="font-semibold text-lg">
-                                  {list.name}
-                                </h3>
-                                <Badge
-                                  variant={
-                                    list.visibility === "private"
-                                      ? "secondary"
-                                      : "outline"
-                                  }
-                                >
-                                  {list.visibility === "private"
-                                    ? "Privé"
-                                    : "Public"}
-                                </Badge>
-                              </div>
-                              <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                                {list.description}
-                              </p>
-                              <div className="flex items-center gap-2 mt-2">
-                                <Badge variant="secondary">
-                                  {list.bookCount} livre
-                                  {list.bookCount > 1 ? "s" : ""}
-                                </Badge>
-                                <Badge variant="outline">{list.genre}</Badge>
-                              </div>
-                            </div>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                <div className="space-y-6">
+                  <BookListCards
+                    bookLists={bookLists}
+                    isLoadingLists={isLoadingLists}
+                  />
                 </div>
               </TabsContent>
 
