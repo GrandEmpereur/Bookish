@@ -36,10 +36,10 @@ export default function ClubDetails({ clubId }: ClubDetailsProps) {
           priority
         />
         <div className="absolute top-4 right-4 flex items-center gap-2">
-          <Button size="icon" variant="secondary" className="rounded-full">
+          <Button size="icon" variant="default" className="rounded-full">
             <Share2 className="h-4 w-4" />
           </Button>
-          <Button variant="default" className="rounded-full">
+          <Button variant="secondary" className="rounded-full">
             {club.isMember ? "Quitter" : "Rejoindre"}
           </Button>
         </div>

@@ -96,7 +96,7 @@ export default function Clubs() {
                   : "text-muted-foreground"
               )}
             >
-              Mes communautés
+              Mes clubs
             </button>
           </div>
 
@@ -115,7 +115,7 @@ export default function Clubs() {
 
       <FloatingActionButton
         onClick={() => router.push("/clubs/create")}
-        className="bottom-[110px]"
+        className="bottom-[110px] w-14 h-14"
       />
     </>
   );
