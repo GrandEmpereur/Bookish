@@ -123,25 +123,27 @@ export default function BookDetail({ id }: BookProps) {
   }
 
   return (
-    <div className="space-y-6 pt-[56px] bg-accent-100 overflow-hidden">
+    <div className="space-y-6 pt-[38px] bg-accent-100 overflow-hidden">
       {/* Image + bouton ajout */}
-      <div className="w-[160px] h-[240px] relative mx-auto px-5 ">
+      <div
+        className="w-[130px] h-[200px] relative mx-auto px-5 "
+      >
         <Image
           src={book.coverImage || "/placeholder.png"}
           alt={book.title}
           fill
-          className="object-cover shadow-lg"
+          className="object-cover [box-shadow:var(--shadow-strong)]"
         />
 
         <div className="absolute right-[-40]">
           <Popover>
             <PopoverTrigger asChild>
               <Bookmark
-                className="w-7 h-7 text-primary"
+                className="w-6 h-6 text-primary"
                 fill={isBookInAnyList() ? "currentColor" : "none"}
               />
             </PopoverTrigger>
-            <PopoverContent className="p-2 space-y-1 w-48">
+            <PopoverContent className="p-2 space-y-2 w-48">
               {bookLists.length === 0 ? (
                 <p
                   className="flex w-full align-center gap-1 justify-start text-sm"
@@ -156,12 +158,14 @@ export default function BookDetail({ id }: BookProps) {
                   return (
                     <Button
                       key={list.id}
-                      variant={active ? "default" : "ghost"}
+                      variant={active ? "default" : "outline"}
                       size="sm"
                       className="w-full justify-start text-sm"
                       onClick={() => handleToggleBookInList(list)}
                     >
-                      {list.name}
+                      <span className="block truncate max-w-full">
+                        {list.name}
+                      </span>
                     </Button>
                   );
                 })

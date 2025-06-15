@@ -1,4 +1,4 @@
-import BookListDetail from "@/components/book-list-detail";
+import { BookListDetail } from "@/components/book/book-list-detail";
 
 export default async function Page({
   params,
@@ -7,5 +7,5 @@ export default async function Page({
 }) {
   const { id } = await params;
 
-  return <BookListDetail />;
+  return <BookListDetail id={id} />;
 }

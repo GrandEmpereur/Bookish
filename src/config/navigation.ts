@@ -57,7 +57,7 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
   // Library
   "/library": {
     variant: "back",
-    title: "Librairie",
+    title: "Listes",
     showBack: true,
     rightIcons: [
       {
@@ -69,7 +69,7 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
   },
   "/library/[id]": {
     variant: "back",
-    title: "Librairie",
+    title: "Liste",
     showBack: true,
     rightIcons: [
       {
@@ -81,7 +81,7 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
   },
   "/library/create": {
     variant: "back",
-    title: "Nouvelle librairie",
+    title: "Nouvelle liste",
     showBack: true,
   },
 
