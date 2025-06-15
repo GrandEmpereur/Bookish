@@ -13,6 +13,7 @@ import {
   UserCheck,
 } from "lucide-react";
 
+import { BookSuggestions } from "@/components/ui/book-suggestions";
 import { Badge } from "@/components/ui/badge";
 
 import { bookService } from "@/services/book.service";
@@ -170,29 +171,9 @@ export default function AuthorDetail({ id }: BookProps) {
           </div>
 
           {/* Suggestions */}
-          <div className="flex flex-col gap-2">
-            {relatedBooks.length > 0 && (
-              <div className="flex flex-col gap-2">
-                <h2 className="text-lg font-bold">A publié</h2>
-                <div className="flex gap-6 overflow-x-auto scrollbar-none py-1 h-[290px]">
-                  {relatedBooks.map((related) => (
-                    <div
-                      key={related.id}
-                      className="min-w-[120px] h-[180px] cursor-pointer shrink-0 relative shadow-[0_10px_30px_-5px_rgba(0,0,0,0.3)]"
-                      onClick={() => router.push(`/books/${related.id}`)}
-                    >
-                      <Image
-                        src={related.coverImage || "/placeholder.png"}
-                        alt={related.title}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+          {relatedBooks.length > 0 && (
+            <BookSuggestions books={relatedBooks} title={"A publié"} />
+          )}
         </div>
       </div>
     </div>
