@@ -36,7 +36,7 @@ const friendsData = [
   },
 ];
 
-export default function Suivies() {
+export default function Statistiques() {
   const router = useRouter();
 
   return (
@@ -46,7 +46,7 @@ export default function Suivies() {
         <button onClick={() => router.back()} className="p-2">
           <ChevronLeft className="text-orange-500" />
         </button>
-        <h1 className="flex-1 text-center font-semibold text-lg">Suivies</h1>
+        <h1 className="flex-1 text-center font-semibold text-lg">Statistiques</h1>
         <div className="w-8" /> {/* placeholder */}
       </header>
 
