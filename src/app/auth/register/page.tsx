@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence } from "framer-motion";
 import { registerSchema, type RegisterInput } from "@/lib/validations/auth";
 import type { RegisterRequest } from "@/types/authTypes";
 import { useAuth } from "@/contexts/auth-context";
@@ -48,6 +48,8 @@ export default function Register() {
   const form = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
+      firstName: "",
+      lastName: "",
       username: "",
       email: "",
       password: "",
@@ -71,6 +73,8 @@ export default function Register() {
       const formattedDate = `${year}-${month}-${day}`;
 
       const requestData: RegisterRequest = {
+        firstName: data.firstName,
+        lastName: data.lastName,
         username: data.username,
         email: data.email,
         password: data.password,
@@ -102,7 +106,6 @@ export default function Register() {
       transition: {
         duration: 0.4,
         staggerChildren: 0.08,
-        ease: "easeOut",
       },
     },
     exit: {
@@ -110,7 +113,6 @@ export default function Register() {
       y: -20,
       transition: {
         duration: 0.3,
-        ease: "easeOut",
       },
     },
   };
@@ -122,7 +124,6 @@ export default function Register() {
       y: 0,
       transition: {
         duration: 0.4,
-        ease: "easeOut",
       },
     },
   };
@@ -135,7 +136,6 @@ export default function Register() {
       transition: {
         duration: 0.5,
         delay: 0.2,
-        ease: "easeOut",
       },
     },
   };
@@ -210,6 +210,55 @@ export default function Register() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.4, delay: 0.3 }}
+              >
+                <FormField
+                  control={form.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          placeholder="Prénom"
+                          className="h-12 sm:h-14 bg-accent-100 border-0 text-base"
+                          disabled={isLoading || isSuccess}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4, delay: 0.35 }}
+              >
+                <FormField
+                  control={form.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          placeholder="Nom"
+                          className="h-12 sm:h-14 bg-accent-100 border-0 text-base"
+                          disabled={isLoading || isSuccess}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </motion.div>
+
+              {/* Champ nom d'utilisateur */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4, delay: 0.4 }}
               >
                 <FormField
                   control={form.control}

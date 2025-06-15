@@ -7,10 +7,12 @@ import type {
 
 // Types pour les requêtes
 export interface RegisterRequest {
-  username: string;
-  email: string;
-  password: string;
-  birthDate: string;
+    firstName: string;
+    lastName: string;
+    username: string;
+    email: string;
+    password: string;
+    birthDate: string;
 }
 
 export interface RegisterStep1Request {
