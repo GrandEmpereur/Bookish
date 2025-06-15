@@ -22,7 +22,7 @@ export function SearchDrawer({ open, onOpenChange }: SearchDrawerProps) {
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:max-w-md">
         <SheetHeader>
-          <SheetTitle>Rechercher une librairie</SheetTitle>
+          <SheetTitle>Rechercher une liste</SheetTitle>
         </SheetHeader>
         <div className="mt-4">
           <div className="relative">

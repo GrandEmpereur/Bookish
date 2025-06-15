@@ -35,7 +35,7 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
   },
   "/feed/[id]": {
     variant: "back",
-    title: "Espace commentaire",
+    title: "Commentaires",
     showBack: true,
     rightIcons: [
       {
@@ -57,7 +57,7 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
   // Library
   "/library": {
     variant: "back",
-    title: "Librairie",
+    title: "Listes",
     showBack: true,
     rightIcons: [
       {
@@ -69,7 +69,7 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
   },
   "/library/[id]": {
     variant: "back",
-    title: "Librairie",
+    title: "Liste",
     showBack: true,
     rightIcons: [
       {
@@ -81,7 +81,7 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
   },
   "/library/create": {
     variant: "back",
-    title: "Nouvelle librairie",
+    title: "Nouvelle liste",
     showBack: true,
   },
 
@@ -120,6 +120,20 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
 
   // Books
   '/books/[id]': {
+      variant: 'back',
+      showBackAbsolute: true,
+      // hideTopBar: true,
+  },
+
+  // Books
+  '/books/[id]': {
+      variant: 'back',
+      showBackAbsolute: true,
+      // hideTopBar: true,
+  },
+
+  // Authors
+  '/authors/[id]': {
       variant: 'back',
       showBackAbsolute: true,
       // hideTopBar: true,
@@ -223,15 +237,20 @@ export function getTopBarConfig(path: string): TopBarConfig {
     return topBarConfigs["/clubs/[clubId]"];
   }
 
-    // Pour les book avec UUID
-    if (/^\/books\/[\w-]+$/.test(cleanPath)) {
-        return topBarConfigs['/books/[id]'];
-    }
+  // Pour les book avec UUID
+  if (/^\/books\/[\w-]+$/.test(cleanPath)) {
+      return topBarConfigs['/books/[id]'];
+  }
 
-    // Pour les bibliothèques avec UUID
-    if (/^\/library\/[\w-]+$/.test(cleanPath) && cleanPath !== '/library/create') {
-        return topBarConfigs['/library/[id]'];
-    }
+  // Pour les book avec UUID
+  if (/^\/authors\/[\w-]+$/.test(cleanPath)) {
+      return topBarConfigs['/authors/[id]'];
+  }
+
+  // Pour les bibliothèques avec UUID
+  if (/^\/library\/[\w-]+$/.test(cleanPath) && cleanPath !== '/library/create') {
+      return topBarConfigs['/library/[id]'];
+  }
 
   // Pour les autres routes
   const exactConfig = topBarConfigs[cleanPath];

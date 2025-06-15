@@ -56,7 +56,7 @@ class BookService {
     search?: string;
     sort?: string;
     order?: "asc" | "desc";
-  }): Promise<ApiResponse<GetBooksResponse>> {
+  }): Promise<ApiResponse<Book[]>> {
     const params: Record<string, string | number> = {};
     if (options?.page) params.page = options.page;
     if (options?.limit) params.limit = options.limit;
@@ -72,12 +72,9 @@ class BookService {
     });
   }
 
-  async getBook(id: string): Promise<ApiResponse<GetBookResponse>> {
-    return await apiRequest<ApiResponse<GetBookResponse>>(
-      "GET",
-      `/books/${id}`
-    );
-  }
+async getBook(id: string): Promise<ApiResponse<Book>> {
+  return await apiRequest<ApiResponse<Book>>("GET", `/books/${id}`);
+}
 
   async createBook(
     data: CreateBookRequest

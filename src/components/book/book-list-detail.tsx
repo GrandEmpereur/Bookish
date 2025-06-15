@@ -154,15 +154,11 @@ export function BookListDetail({ id }: BookListDetailProps) {
                   </p>
                 )}
               </div>
-              <Badge
-                variant={
-                  bookList.visibility === "public" ? "default" : "secondary"
-                }
-              >
+              <Badge variant={"outline"} className="mt-1">
                 {bookList.visibility === "public" ? (
-                  <Globe className="h-4 w-4 mr-1" />
+                  <Globe className="h-4 w-4" />
                 ) : (
-                  <Lock className="h-4 w-4 mr-1" />
+                  <Lock className="h-4 w-4" />
                 )}
                 {bookList.visibility === "public" ? "Public" : "Privé"}
               </Badge>

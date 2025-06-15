@@ -4,16 +4,17 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Loader2, Star, Bookmark, Plus } from "lucide-react";
+import {
+  Loader2,
+  Star,
+  Bookmark,
+  Plus,
+  UserPlus,
+  UserCheck,
+} from "lucide-react";
 
 import { BookSuggestions } from "@/components/ui/book-suggestions";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@/components/ui/popover";
 
 import { bookService } from "@/services/book.service";
 import { bookListService } from "@/services/book-list.service";
@@ -25,14 +26,12 @@ interface BookProps {
   id: string;
 }
 
-export default function BookDetail({ id }: BookProps) {
+export default function AuthorDetail({ id }: BookProps) {
   const [book, setBook] = useState<Book | null>(null);
   const [relatedBooks, setRelatedBooks] = useState<Book[]>([]);
   const [bookLists, setBookLists] = useState<BookList[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
-
-  const currentYear = new Date().getFullYear();
 
   useEffect(() => {
     fetchBookDetails(id);
@@ -50,8 +49,7 @@ export default function BookDetail({ id }: BookProps) {
       } else {
         toast.error("Livre non trouvé");
       }
-    } catch (err) {
-      console.error(err);
+    } catch {
       toast.error("Erreur de chargement du livre");
     } finally {
       setIsLoading(false);
@@ -61,18 +59,11 @@ export default function BookDetail({ id }: BookProps) {
   const fetchBooksByGenre = async (genre: string, currentBookId: string) => {
     try {
       const res = await bookService.getBooks();
-
-      if (!res.data || !Array.isArray(res.data)) {
-        throw new Error("Liste de livres invalide");
-      }
-
       const filtered = res.data
         .filter((b: Book) => b.genre === genre && b.id !== currentBookId)
         .slice(0, 10);
-
       setRelatedBooks(filtered);
-    } catch (err) {
-      console.error(err);
+    } catch {
       toast.error("Erreur lors du chargement des livres similaires");
     }
   };
@@ -123,60 +114,28 @@ export default function BookDetail({ id }: BookProps) {
   }
 
   return (
-    <div className="space-y-6 pt-[38px] bg-accent-100 overflow-hidden">
+    <div className="space-y-2  pt-[38px] bg-accent-100">
       {/* Image + bouton ajout */}
-      <div
-        className="w-[130px] h-[200px] relative mx-auto px-5 "
-      >
+      <div className="w-[160px] h-[160px] relative mx-auto px-5 ">
         <Image
           src={book.coverImage || "/placeholder.png"}
           alt={book.title}
           fill
-          className="object-cover [box-shadow:var(--shadow-strong)]"
+          className="object-cover rounded-[100%] shadow-lg"
         />
 
-        <div className="absolute right-[-40]">
-          <Popover>
-            <PopoverTrigger asChild>
-              <Bookmark
-                className="w-6 h-6 text-primary"
-                fill={isBookInAnyList() ? "currentColor" : "none"}
-              />
-            </PopoverTrigger>
-            <PopoverContent className="p-2 space-y-2 w-48">
-              {bookLists.length === 0 ? (
-                <p
-                  className="flex w-full align-center gap-1 justify-start text-sm"
-                  onClick={() => router.push("/library/create/")}
-                >
-                  <Plus className="h-4 w-4" />
-                  Créer une liste
-                </p>
-              ) : (
-                bookLists.map((list) => {
-                  const active = isBookInList(list);
-                  return (
-                    <Button
-                      key={list.id}
-                      variant={active ? "default" : "outline"}
-                      size="sm"
-                      className="w-full justify-start text-sm"
-                      onClick={() => handleToggleBookInList(list)}
-                    >
-                      <span className="block truncate max-w-full">
-                        {list.name}
-                      </span>
-                    </Button>
-                  );
-                })
-              )}
-            </PopoverContent>
-          </Popover>
-        </div>
+        {/* <div className="absolute right-[-40]">
+          <UserPlus className="w-7 h-7 text-muted-foreground" />
+          <UserCheck className="w-7 h-7 text-success-300" />
+        </div> */}
       </div>
 
-      <div className="relative ">
-        <div className="absolute top-[-130px]  -translate-x-1/2 w-full z-1  ">
+      <p className="text-sm flex justify-center">
+        <span className="font-semibold">6 &nbsp;</span> livres
+      </p>
+
+      <div className="relative">
+        <div className="absolute top-[-130px]  -translate-x-1/2 w-full z-1">
           <svg
             className="block w-[200%] h-[200px] drop-shadow-[0_8px_24px_rgba(0,0,0,0.25)]"
             viewBox="0 0 200 100"
@@ -187,30 +146,12 @@ export default function BookDetail({ id }: BookProps) {
           </svg>
         </div>
 
-        {/* Titre / auteur / note */}
+        {/* Auteur / Description */}
         <div className="space-y-6 bg-white mt-16 pt-2 px-5 z-[8] relative">
           <div className="flex flex-col gap-2 ">
             <div className="flex gap-2">
               <h1 className="text-2xl font-bold">{book.title}</h1>
-              {book.publicationYear && (
-                <p className="text-muted-foreground text-sm mt-2">
-                  ({book.publicationYear})
-                </p>
-              )}
             </div>
-
-            <p className="text-muted-foreground text-sm">
-              par <span className="underline">{book.author}</span>
-            </p>
-
-            {/* Etoiles */}
-            {/* <p className="flex items-center gap-1 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1 font-bold">
-                <Star className="w-4 h-4 text-yellow-500" fill="currentColor" />
-                4.5
-              </span>
-              <span>(2100)</span>
-            </p> */}
           </div>
 
           {/* Tags + description */}
@@ -229,15 +170,9 @@ export default function BookDetail({ id }: BookProps) {
             </p>
           </div>
 
+          {/* Suggestions */}
           {relatedBooks.length > 0 && (
-            <BookSuggestions
-              books={relatedBooks}
-              title={
-                relatedBooks.length > 1
-                  ? "Livres du même genre"
-                  : "Livre du même genre"
-              }
-            />
+            <BookSuggestions books={relatedBooks} title={"A publié"} />
           )}
         </div>
       </div>

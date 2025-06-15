@@ -55,7 +55,7 @@ export function TopBar({ config, className, dynamicTitle }: TopBarProps) {
           onClick={() => router.back()}
           className="w-8 h-8 flex items-center justify-center"
         >
-          <ChevronLeft size={24} />
+          <ChevronLeft style={{ width: "24px", height: "24px" }} />
         </Button>
       );
     }
@@ -115,10 +115,6 @@ export function TopBar({ config, className, dynamicTitle }: TopBarProps) {
   const renderTitle = () => {
     if (!currentConfig.title) return null;
 
-    if (pathname.startsWith("/library/") && pathname !== "/library/create") {
-      return dynamicTitle ? `Librairie - ${dynamicTitle}` : "Librairie";
-    }
-
     return currentConfig.title;
   };
 
@@ -127,9 +123,9 @@ export function TopBar({ config, className, dynamicTitle }: TopBarProps) {
       <Button
         variant="ghost"
         onClick={() => router.back()}
-        className="w-8 h-8 flex items-center justify-center absolute top-12 left-5 z-50"
+        className="w-8 h-8 flex items-center justify-center absolute top-[30px] left-5 z-50"
       >
-        <ChevronLeft size={24} />
+        <ChevronLeft style={{ width: "24px", height: "24px" }} />
       </Button>
     );
   }
