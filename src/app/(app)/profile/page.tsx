@@ -23,7 +23,7 @@ import type { Post } from "@/types/postTypes";
 import type {
   FriendshipStatus,
   UserProfile,
-  UserRelations
+  UserRelations,
 } from "@/types/userTypes";
 import {
   Lock,
@@ -41,7 +41,7 @@ import {
   Trophy,
   UserMinus,
   UserPlus,
-  Users
+  Users,
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -67,8 +67,9 @@ export default function Profile() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [relations, setRelations] = useState<UserRelations | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [friendshipStatus, setFriendshipStatus] = useState<FriendshipStatus | null>(null);
-  
+  const [friendshipStatus, setFriendshipStatus] =
+    useState<FriendshipStatus | null>(null);
+
   // New state for tabs content
   const [userPosts, setUserPosts] = useState<Post[]>([]);
   const [userClubs, setUserClubs] = useState<Club[]>([]);
@@ -85,8 +86,8 @@ export default function Profile() {
     averageRating: 0,
     readingGoal: {
       current: 0,
-      target: 50
-    }
+      target: 50,
+    },
   });
 
   const fetchProfileData = async () => {
@@ -94,12 +95,12 @@ export default function Profile() {
       setIsLoading(true);
       const [profileResponse, relationsResponse] = await Promise.all([
         userService.getAuthenticatedProfile(),
-        userService.getRelations()
+        userService.getRelations(),
       ]);
 
       // Handle the actual API response structure
       const responseData = profileResponse.data as any;
-      
+
       // Create a UserProfile-like object from the API response
       const userProfile = {
         id: responseData.user.id,
@@ -124,7 +125,7 @@ export default function Profile() {
           push_notifications: responseData.profile.pushNotifications,
           newsletter_subscribed: responseData.profile.newsletterSubscribed,
         },
-        stats: responseData.stats
+        stats: responseData.stats,
       };
 
       setProfile(userProfile);
@@ -138,8 +139,8 @@ export default function Profile() {
         averageRating: responseData.stats?.average_rating || 0,
         readingGoal: {
           current: responseData.stats?.current_reading_goal || 0,
-          target: responseData.stats?.target_reading_goal || 50
-        }
+          target: responseData.stats?.target_reading_goal || 50,
+        },
       });
     } catch (error) {
       console.error("Error fetching profile data:", error);
@@ -167,10 +168,9 @@ export default function Profile() {
       setIsLoadingPosts(true);
       const response = await postService.getPosts();
 
-      
       // Handle the actual API response structure
       const responseData = response.data as any;
-      
+
       // Check if response has posts (either in data directly or data.posts)
       let postsArray: Post[] = [];
       if (Array.isArray(responseData)) {
@@ -184,13 +184,13 @@ export default function Profile() {
         setUserPosts([]);
         return;
       }
-      
+
       // Filter posts by current user using post.userId
       const currentUserId = profile?.id;
       const currentUserPosts = postsArray.filter((post: Post) => {
         return post.userId === currentUserId;
       });
-      
+
       setUserPosts(currentUserPosts);
     } catch (error) {
       console.error("Error fetching user posts:", error);
@@ -219,10 +219,10 @@ export default function Profile() {
     try {
       setIsLoadingReviews(true);
       const response = await postService.getPosts();
-      
+
       // Handle the actual API response structure
       const responseData = response.data as any;
-      
+
       // Check if response has posts (either in data directly or data.posts)
       let postsArray: Post[] = [];
       if (Array.isArray(responseData)) {
@@ -236,10 +236,11 @@ export default function Profile() {
         setUserReviews([]);
         return;
       }
-      
+
       // Filter only book review posts by current user
       const reviewPosts = postsArray.filter(
-        (post: Post) => post.userId === user?.id && post.subject === 'book_review'
+        (post: Post) =>
+          post.userId === user?.id && post.subject === "book_review"
       );
       setUserReviews(reviewPosts);
     } catch (error) {
@@ -265,38 +266,36 @@ export default function Profile() {
       }
     };
 
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
   }, [userPosts.length]);
 
   // Handle tab changes to fetch data when needed
   const handleTabChange = (value: string) => {
     switch (value) {
-      case 'listes':
+      case "listes":
         if (bookLists.length === 0 && !isLoadingLists) {
           fetchBookLists();
         }
         break;
-      case 'posts':
+      case "posts":
         // Always refresh posts when posts tab is selected to show new posts
         if (!isLoadingPosts) {
           fetchUserPosts();
         }
         break;
-      case 'avis':
+      case "avis":
         if (userReviews.length === 0 && !isLoadingReviews) {
           fetchUserReviews();
         }
         break;
-      case 'clubs':
+      case "clubs":
         if (userClubs.length === 0 && !isLoadingClubs) {
           fetchUserClubs();
         }
         break;
     }
   };
-
-
 
   const handleFollowUser = async () => {
     try {
@@ -443,18 +442,19 @@ export default function Profile() {
           </Button>
         ) : (
           <>
-            {!friendshipStatus.isFriend && !friendshipStatus.hasPendingRequest && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleSendFriendRequest}
-                className="flex items-center gap-2"
-              >
-                <UserPlus className="w-4 h-4" />
-                Ajouter en ami
-              </Button>
-            )}
-            {friendshipStatus.status !== 'following' && (
+            {!friendshipStatus.isFriend &&
+              !friendshipStatus.hasPendingRequest && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSendFriendRequest}
+                  className="flex items-center gap-2"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  Ajouter en ami
+                </Button>
+              )}
+            {friendshipStatus.status !== "following" && (
               <Button
                 variant="outline"
                 size="sm"
@@ -465,7 +465,7 @@ export default function Profile() {
                 Suivre
               </Button>
             )}
-            {friendshipStatus.status === 'following' && (
+            {friendshipStatus.status === "following" && (
               <Button
                 variant="outline"
                 size="sm"
@@ -498,8 +498,6 @@ export default function Profile() {
       </div>
     );
   };
-
-
 
   if (isLoading) {
     return (
@@ -554,7 +552,6 @@ export default function Profile() {
                   {profile?.profile?.reading_habit || "Lecteur"}
                 </span>
               </div>
-            
             </div>
           </div>
         </div>
@@ -571,48 +568,73 @@ export default function Profile() {
         <div className="relative w-full max-w-md rounded-xl px-6 py-4 bg-[#2F4739] overflow-hidden">
           <div className="relative z-10 flex items-center justify-between">
             {/* Column 1: Following */}
-            <button 
+            <button
               className="flex flex-col items-center hover:bg-white/10 rounded-lg p-2 transition-colors flex-1"
               onClick={() => router.push("/profile/following")}
             >
-              <CircleDashed className="w-6 h-6 mb-1 text-white/80" fill="currentColor" />
-              <span className="text-xs uppercase text-white/70 tracking-wide">Following</span>
-              <span className="text-xl font-bold text-white/90">{relations?.following?.length || 0}</span>
+              <CircleDashed
+                className="w-6 h-6 mb-1 text-white/80"
+                fill="currentColor"
+              />
+              <span className="text-xs uppercase text-white/70 tracking-wide">
+                Following
+              </span>
+              <span className="text-xl font-bold text-white/90">
+                {relations?.following?.length || 0}
+              </span>
             </button>
 
             <div className="h-8 w-px bg-white/30" />
 
             {/* Column 2: Followers */}
-            <button 
+            <button
               className="flex flex-col items-center hover:bg-white/10 rounded-lg p-2 transition-colors flex-1"
               onClick={() => router.push("/profile/followers")}
             >
-              <Globe className="w-6 h-6 mb-1 text-white/80" fill="currentColor" />
-              <span className="text-xs uppercase text-white/70 tracking-wide">Followers</span>
-              <span className="text-xl font-bold text-white/90">{relations?.followers?.length || 0}</span>
+              <Globe
+                className="w-6 h-6 mb-1 text-white/80"
+                fill="currentColor"
+              />
+              <span className="text-xs uppercase text-white/70 tracking-wide">
+                Followers
+              </span>
+              <span className="text-xl font-bold text-white/90">
+                {relations?.followers?.length || 0}
+              </span>
             </button>
 
             <div className="h-8 w-px bg-white/30" />
 
             {/* Column 3: Points */}
             <div className="flex flex-col items-center p-2 flex-1">
-              <Star className="w-6 h-6 mb-1 text-white/80" fill="currentColor" />
-              <span className="text-xs uppercase text-white/70 tracking-wide">Points</span>
-              <span className="text-xl font-bold text-white/90">{profile?.stats?.followers_count || 0}</span>
+              <Star
+                className="w-6 h-6 mb-1 text-white/80"
+                fill="currentColor"
+              />
+              <span className="text-xs uppercase text-white/70 tracking-wide">
+                Points
+              </span>
+              <span className="text-xl font-bold text-white/90">
+                {profile?.stats?.followers_count || 0}
+              </span>
             </div>
           </div>
         </div>
 
         {/* Tabs navigation - styled to match the image */}
         <div className="mt-6">
-          <Tabs defaultValue="board" className="w-full" onValueChange={handleTabChange}>
+          <Tabs
+            defaultValue="Suivi"
+            className="w-full"
+            onValueChange={handleTabChange}
+          >
             <div className="w-full">
               <TabsList className="flex justify-center items-center border-b border-b-gray-200 rounded-none bg-transparent h-auto pb-0 px-5 gap-6">
                 <TabsTrigger
-                  value="board"
+                  value="Suivi"
                   className="border-b-2 border-b-[#416E54] px-0 pb-2 pt-0 text-[15px] text-[#416E54] font-medium rounded-none bg-transparent h-auto data-[state=active]:shadow-none data-[state=inactive]:border-b-transparent data-[state=inactive]:text-gray-500"
                 >
-                  Board
+                  Suivi
                 </TabsTrigger>
                 <TabsTrigger
                   value="listes"
@@ -642,7 +664,7 @@ export default function Profile() {
             </div>
 
             <div className="w-full mt-4">
-              <TabsContent value="board" className="w-full space-y-6 mt-0">
+              <TabsContent value="Suivi" className="w-full space-y-6 mt-0">
                 <div className="relative rounded-xl overflow-hidden bg-[#2F4739] p-6">
                   {/* Decorative circles */}
                   <div className="absolute -top-10 -right-10 h-40 w-40 bg-white/5 rounded-full" />
@@ -703,7 +725,8 @@ export default function Profile() {
                         Objectif {new Date().getFullYear()}
                       </span>
                       <div className="text-[#ffffff] text-sm font-semibold text-center leading-tight">
-                        {readingStats.readingGoal.current} sur {readingStats.readingGoal.target}
+                        {readingStats.readingGoal.current} sur{" "}
+                        {readingStats.readingGoal.target}
                       </div>
                       <span className="text-[#2F4739] text-[14px] font-bold text-center leading-tight">
                         Livres
@@ -732,10 +755,12 @@ export default function Profile() {
                 <div
                   className="rounded-lg p-6 mb-8 mx-auto"
                   style={{
-                    background: 'linear-gradient(to right, #6DA37F, #416E54)',
+                    background: "linear-gradient(to right, #6DA37F, #416E54)",
                   }}
                 >
-                  <div className="text-4xl font-bold text-white mb-1">{readingStats.totalBooksRead}</div>
+                  <div className="text-4xl font-bold text-white mb-1">
+                    {readingStats.totalBooksRead}
+                  </div>
                   <div className="text-md text-white/90 mb-4">
                     Livres lus depuis le début de l’année
                   </div>
@@ -743,11 +768,15 @@ export default function Profile() {
                   <div className="space-y-3">
                     {readingStats.monthlyProgress.map(({ month, count }) => (
                       <div key={month} className="flex items-center gap-3">
-                        <div className="w-10 text-sm font-medium text-white/90">{month}</div>
+                        <div className="w-10 text-sm font-medium text-white/90">
+                          {month}
+                        </div>
                         <div className="flex-1 bg-white/10 h-6 rounded-md relative overflow-hidden">
                           <div
                             className="absolute left-0 top-0 h-6 bg-white/40"
-                            style={{ width: `${(count / readingStats.readingGoal.target) * 100}%` }}
+                            style={{
+                              width: `${(count / readingStats.readingGoal.target) * 100}%`,
+                            }}
                           />
                         </div>
                       </div>
@@ -764,7 +793,9 @@ export default function Profile() {
                 >
                   <h2 className="text-lg font-semibold mb-2 text-white">
                     Genre le plus lus depuis le début de l'année:{" "}
-                    <span className="font-bold">{readingStats.genreDistribution[0]?.name || "Aucun"}</span>
+                    <span className="font-bold">
+                      {readingStats.genreDistribution[0]?.name || "Aucun"}
+                    </span>
                   </h2>
 
                   <div className="w-full h-64">
@@ -780,12 +811,14 @@ export default function Profile() {
                           outerRadius={80}
                           paddingAngle={5}
                         >
-                          {readingStats.genreDistribution.map((entry, index) => (
-                            <Cell
-                              key={`slice-${index}`}
-                              fill={PIE_COLORS[index % PIE_COLORS.length]}
-                            />
-                          ))}
+                          {readingStats.genreDistribution.map(
+                            (entry, index) => (
+                              <Cell
+                                key={`slice-${index}`}
+                                fill={PIE_COLORS[index % PIE_COLORS.length]}
+                              />
+                            )
+                          )}
                         </Pie>
                         <Tooltip
                           contentStyle={{
@@ -826,7 +859,9 @@ export default function Profile() {
                       <div className="relative w-full bg-white/20 h-2 rounded-full mb-4">
                         <div
                           className="bg-white absolute top-0 left-0 h-2 rounded-full"
-                          style={{ width: `${(author.count / readingStats.topAuthors[0].count) * 100}%` }}
+                          style={{
+                            width: `${(author.count / readingStats.topAuthors[0].count) * 100}%`,
+                          }}
                         />
                       </div>
                     </div>
@@ -877,15 +912,22 @@ export default function Profile() {
                             </Avatar>
                             <div className="flex-1">
                               <div className="flex items-center justify-between">
-                                <span className="font-medium">{post.user?.username}</span>
+                                <span className="font-medium">
+                                  {post.user?.username}
+                                </span>
                                 <span className="text-sm text-muted-foreground">
-                                  {formatDistanceToNow(new Date(post.createdAt), {
-                                    addSuffix: true,
-                                    locale: fr,
-                                  })}
+                                  {formatDistanceToNow(
+                                    new Date(post.createdAt),
+                                    {
+                                      addSuffix: true,
+                                      locale: fr,
+                                    }
+                                  )}
                                 </span>
                               </div>
-                              <h3 className="text-sm text-muted-foreground">{post.title}</h3>
+                              <h3 className="text-sm text-muted-foreground">
+                                {post.title}
+                              </h3>
                             </div>
                           </div>
                           <p className="text-sm">{post.content}</p>
@@ -940,15 +982,22 @@ export default function Profile() {
                             </Avatar>
                             <div className="flex-1">
                               <div className="flex items-center justify-between">
-                                <span className="font-medium">{review.user?.username}</span>
+                                <span className="font-medium">
+                                  {review.user?.username}
+                                </span>
                                 <span className="text-sm text-muted-foreground">
-                                  {formatDistanceToNow(new Date(review.createdAt), {
-                                    addSuffix: true,
-                                    locale: fr,
-                                  })}
+                                  {formatDistanceToNow(
+                                    new Date(review.createdAt),
+                                    {
+                                      addSuffix: true,
+                                      locale: fr,
+                                    }
+                                  )}
                                 </span>
                               </div>
-                              <h3 className="text-sm text-muted-foreground">{review.title}</h3>
+                              <h3 className="text-sm text-muted-foreground">
+                                {review.title}
+                              </h3>
                               <Badge variant="secondary" className="mt-1">
                                 Critique de livre
                               </Badge>
@@ -1016,9 +1065,13 @@ export default function Profile() {
                             <div className="flex-1">
                               <div className="flex items-center justify-between">
                                 <h3 className="font-medium">{club.name}</h3>
-                                <Badge variant={
-                                  club.type === "Private" ? "secondary" : "outline"
-                                }>
+                                <Badge
+                                  variant={
+                                    club.type === "Private"
+                                      ? "secondary"
+                                      : "outline"
+                                  }
+                                >
                                   {club.type === "Private" ? "Privé" : "Public"}
                                 </Badge>
                               </div>
@@ -1027,7 +1080,8 @@ export default function Profile() {
                               </p>
                               <div className="flex items-center gap-2 mt-2">
                                 <Badge variant="outline" className="text-xs">
-                                  {club.member_count} membre{club.member_count > 1 ? "s" : ""}
+                                  {club.member_count} membre
+                                  {club.member_count > 1 ? "s" : ""}
                                 </Badge>
                                 <Badge variant="outline" className="text-xs">
                                   {club.genre}

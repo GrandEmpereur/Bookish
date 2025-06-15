@@ -69,8 +69,7 @@ export function BottomBar() {
             <div
               className={cn(
                 "flex items-center justify-center",
-                item.isSearch &&
-                  "bg-primary p-4 rounded-full shadow-lg -mt-10 mb-1"
+                item.isSearch && "bg-primary p-4 rounded-full shadow-lg -mt-10 [box-shadow:var(--shadow-strong)]"
               )}
             >
               <item.icon
@@ -79,8 +78,8 @@ export function BottomBar() {
                   item.isSearch
                     ? "text-white"
                     : pathname === item.href
-                      ? "text-primary-800"
-                      : "text-muted-foreground"
+                      ? "text-primary-800 "
+                      : "text-muted-foreground "
                 )}
               />
             </div>

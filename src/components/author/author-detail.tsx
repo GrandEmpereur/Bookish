@@ -114,7 +114,7 @@ export default function AuthorDetail({ id }: BookProps) {
   }
 
   return (
-    <div className="space-y-2 pt-[56px] bg-accent-100">
+    <div className="space-y-2  pt-[38px] bg-accent-100">
       {/* Image + bouton ajout */}
       <div className="w-[160px] h-[160px] relative mx-auto px-5 ">
         <Image

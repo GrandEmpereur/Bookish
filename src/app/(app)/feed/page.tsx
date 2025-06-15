@@ -490,7 +490,7 @@ export default function Feed() {
       <div className="lg:hidden">
         <FloatingActionButton
           onClick={() => router.push("/feed/create")}
-          className="bottom-[110px]"
+          className="bottom-[110px] w-14 h-14"
         />
       </div>
 
