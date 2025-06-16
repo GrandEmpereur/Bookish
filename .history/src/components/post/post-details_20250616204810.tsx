@@ -10,7 +10,7 @@ import { CommentsSection } from "@/components/comments/comments-section";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { GetPostResponse } from "@/types/postTypes";
 import { toast } from "sonner";
-
+import { Unboarding } from "@/components/unboarding/unboarding-pop"
 
 interface PostDetailsProps {
   postId: string;
