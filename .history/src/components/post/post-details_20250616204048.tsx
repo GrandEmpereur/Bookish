@@ -11,7 +11,6 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { GetPostResponse } from "@/types/postTypes";
 import { toast } from "sonner";
 
-
 interface PostDetailsProps {
   postId: string;
 }
