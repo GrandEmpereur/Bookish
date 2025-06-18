@@ -59,7 +59,7 @@ export default function AuthorDetail({ id }: BookProps) {
   const fetchBooksByGenre = async (genre: string, currentBookId: string) => {
     try {
       const res = await bookService.getBooks();
-      const filtered = res.data
+      const filtered = res.data.data
         .filter((b: Book) => b.genre === genre && b.id !== currentBookId)
         .slice(0, 10);
       setRelatedBooks(filtered);
@@ -114,7 +114,7 @@ export default function AuthorDetail({ id }: BookProps) {
   }
 
   return (
-    <div className="space-y-2 pt-[56px] bg-accent-100">
+    <div className="space-y-2  pt-[38px] bg-accent-100">
       {/* Image + bouton ajout */}
       <div className="w-[160px] h-[160px] relative mx-auto px-5 ">
         <Image

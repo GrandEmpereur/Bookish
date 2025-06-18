@@ -44,7 +44,7 @@ interface BookListDetailProps {
   id: string;
 }
 
-export function BookListDetail({ id }: BookListDetailProps) {
+export default function BookListDetail({ id }: BookListDetailProps) {
   const [bookList, setBookList] = useState<BookList | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
