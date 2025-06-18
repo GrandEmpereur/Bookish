@@ -579,7 +579,7 @@ export default function Profile() {
             <div className="w-full mt-4">
               <TabsContent value="Suivi" className="w-full space-y-6 mt-0">
                 {/* Reading Summary */}
-                <Card className="rounded-xl overflow-hidden bg-[#2F4739] p-6">
+                <Card className="rounded-xl overflow-hidden bg-[#2F4739] p-6 relative">
                   <div className="absolute -top-10 -right-10 h-40 w-40 bg-white/5 rounded-full" />
                   <div className="absolute -bottom-10 -left-0 h-40 w-40 bg-white/10 rounded-full" />
                   
@@ -598,7 +598,7 @@ export default function Profile() {
                       </span>
                       <div className="text-[#2F4739] text-[10px] text-center font-bold leading-tight">
                         <div>Depuis le début</div>
-                        <div>de l'année</div>
+                        <div>de l&apos;année</div>
                       </div>
                     </div>
 
@@ -638,7 +638,7 @@ export default function Profile() {
                     {readingStats.totalBooksRead}
                   </div>
                   <div className="text-md text-white/90 mb-4">
-                    Livres lus depuis le début de l'année
+                    Livres lus depuis le début de l&apos;année
                   </div>
                   <div className="space-y-3">
                     {readingStats.monthlyProgress.map(({ month, count }) => (
@@ -661,7 +661,7 @@ export default function Profile() {
                 {readingStats.genreDistribution.length > 0 && (
                   <Card className="rounded-lg p-6 bg-gradient-to-r from-[#6DA37F] to-[#416E54]">
                     <h2 className="text-lg font-semibold mb-2 text-white">
-                      Genre le plus lus depuis le début de l'année:{" "}
+                      Genre le plus lus depuis le début de l&apos;année:{" "}
                       <span className="font-bold">
                         {readingStats.genreDistribution[0]?.name || "Aucun"}
                       </span>
@@ -706,7 +706,7 @@ export default function Profile() {
                 {readingStats.topAuthors.length > 0 && (
                   <Card className="rounded-lg p-6 bg-gradient-to-r from-[#6DA37F] to-[#416E54]">
                     <h2 className="text-lg font-semibold mb-4 text-white">
-                      Auteurs les plus lus depuis le début de l'année
+                      Auteurs les plus lus depuis le début de l&apos;année
                     </h2>
                     {readingStats.topAuthors.map((author) => (
                       <div key={author.name}>

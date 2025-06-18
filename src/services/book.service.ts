@@ -82,7 +82,7 @@ class BookService {
   }
 
   async getBook(id: string): Promise<ApiResponse<Book>> {
-    return this.makeRequest<ApiResponse<Book>>("GET", `/books/${id}`);
+    return await apiRequest<ApiResponse<Book>>("GET", `/books/${id}`);
   }
 
   async createBook(
