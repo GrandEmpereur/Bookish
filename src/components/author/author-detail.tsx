@@ -59,7 +59,7 @@ export default function AuthorDetail({ id }: BookProps) {
   const fetchBooksByGenre = async (genre: string, currentBookId: string) => {
     try {
       const res = await bookService.getBooks();
-      const filtered = res.data
+      const filtered = res.data.data
         .filter((b: Book) => b.genre === genre && b.id !== currentBookId)
         .slice(0, 10);
       setRelatedBooks(filtered);

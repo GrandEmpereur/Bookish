@@ -1,4 +1,4 @@
-import { BookListDetail } from "@/components/book/book-list-detail";
+import BookListDetail from "@/components/book/book-list-detail";
 
 export default async function Page({
   params,

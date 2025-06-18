@@ -1,5 +1,6 @@
 import AuthorDetail from "@/components/author/author-detail";
 
-export default function Page({ params }: { params: { id: string } }) {
-  return <AuthorDetail id={params.id} />;
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return <AuthorDetail id={id} />;
 }

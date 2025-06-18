@@ -18,6 +18,13 @@ export type TopBarConfig = {
 };
 
 export const topBarConfigs: Record<string, TopBarConfig> = {
+  // Default configuration
+  default: {
+    variant: "back",
+    title: "Page",
+    showBack: true,
+  },
+
   // Feed
   "/feed": {
     variant: "standard",
@@ -62,7 +69,7 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
     rightIcons: [
       {
         icon: Search,
-        onClick: () => {},
+        onClick: () => { },
         modalType: "dialog",
       },
     ],
@@ -74,7 +81,7 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
     rightIcons: [
       {
         icon: Search,
-        onClick: () => {},
+        onClick: () => { },
         modalType: "dialog",
       },
     ],
@@ -85,72 +92,51 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
     showBack: true,
   },
 
-    // Profile
-    '/profile': {
-        variant: 'back',
-        title: 'Profile',
-        showBack: true,
-        rightIcons: [
-            {
-                icon: Settings,
-                href: '/profile/settings'
-            }
-        ]
-    },
-    '/profile/suivie/classements': {
-        variant: 'back',
-        title: 'Classements',
-        showBack: true
-    },
-    '/profile/suivie/objectifs': {
-        variant: 'back',
-        title: 'Objectifs',
-        showBack: true
-    },
-    '/profile/following': {
-        variant: 'back',
-        title: 'Following',
-        showBack: true
-    },
-    '/profile/followers': {
-        variant: 'back',
-        title: 'Followers',
-        showBack: true
-    },
-
-  // Books
-  '/books/[id]': {
-      variant: 'back',
-      showBackAbsolute: true,
-      // hideTopBar: true,
+  // Profile
+  '/profile': {
+    variant: 'back',
+    title: 'Profile',
+    showBack: true,
+    rightIcons: [
+      {
+        icon: Settings,
+        href: '/profile/settings'
+      }
+    ]
+  },
+  '/profile/suivie/classements': {
+    variant: 'back',
+    title: 'Classements',
+    showBack: true
+  },
+  '/profile/suivie/objectifs': {
+    variant: 'back',
+    title: 'Objectifs',
+    showBack: true
+  },
+  '/profile/following': {
+    variant: 'back',
+    title: 'Following',
+    showBack: true
+  },
+  '/profile/followers': {
+    variant: 'back',
+    title: 'Followers',
+    showBack: true
   },
 
   // Books
   '/books/[id]': {
-      variant: 'back',
-      showBackAbsolute: true,
-      // hideTopBar: true,
+    variant: 'back',
+    showBackAbsolute: true,
+    // hideTopBar: true,
   },
 
   // Authors
   '/authors/[id]': {
-      variant: 'back',
-      showBackAbsolute: true,
-      // hideTopBar: true,
-  },
-
-  // Books
-  '/books/[id]': {
-      variant: 'back',
-      showBackAbsolute: true,
-      // hideTopBar: true,
-  },
-
-  // Authors
-  '/authors/[id]': {
-      variant: 'back',
-      showBackAbsolute: true,
-      // hideTopBar: true,
+    variant: 'back',
+    showBackAbsolute: true,
+    // hideTopBar: true,
   },
 
   // Notifications
@@ -160,47 +146,47 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
     showBack: true,
   },
 
-    // Profile settings
-    '/profile/settings': {
-        variant: 'back',
-        title: 'Paramètres',
-        showBack: true
-    },
-    '/profile/settings/profile': {
-        variant: 'back',
-        title: 'Mon profile',
-        showBack: true
-    },
-    '/profile/settings/bookmarked': {
-        variant: 'back',
-        title: 'Mes favoris',
-        showBack: true
-    },
-    '/profile/settings/statistics': {
-        variant: 'back',
-        title: 'Statistiques',
-        showBack: true
-    },
-    '/profile/settings/notifications': {
-        variant: 'back',
-        title: 'Notificationsss',
-        showBack: true
-    },
-    '/profile/settings/help': {
-        variant: 'back',
-        title: 'Aide',
-        showBack: true
-    },
-    '/profile/settings/policy': {
-        variant: 'back',
-        title: 'Politique de confidentialité',
-        showBack: true
-    },
-    '/profile/settings/delete': {
-        variant: 'back',
-        title: 'Supprimer mon compte',
-        showBack: true
-    },
+  // Profile settings
+  '/profile/settings': {
+    variant: 'back',
+    title: 'Paramètres',
+    showBack: true
+  },
+  '/profile/settings/profile': {
+    variant: 'back',
+    title: 'Mon profile',
+    showBack: true
+  },
+  '/profile/settings/bookmarked': {
+    variant: 'back',
+    title: 'Mes favoris',
+    showBack: true
+  },
+  '/profile/settings/statistics': {
+    variant: 'back',
+    title: 'Statistiques',
+    showBack: true
+  },
+  '/profile/settings/notifications': {
+    variant: 'back',
+    title: 'Notificationsss',
+    showBack: true
+  },
+  '/profile/settings/help': {
+    variant: 'back',
+    title: 'Aide',
+    showBack: true
+  },
+  '/profile/settings/policy': {
+    variant: 'back',
+    title: 'Politique de confidentialité',
+    showBack: true
+  },
+  '/profile/settings/delete': {
+    variant: 'back',
+    title: 'Supprimer mon compte',
+    showBack: true
+  },
 
   // Clubs
   "/clubs": {
@@ -210,7 +196,7 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
     rightIcons: [
       {
         icon: Search,
-        onClick: () => {},
+        onClick: () => { },
         modalType: "dialog",
       },
     ],
@@ -253,17 +239,17 @@ export function getTopBarConfig(path: string): TopBarConfig {
 
   // Pour les book avec UUID
   if (/^\/books\/[\w-]+$/.test(cleanPath)) {
-      return topBarConfigs['/books/[id]'];
+    return topBarConfigs['/books/[id]'];
   }
 
   // Pour les book avec UUID
   if (/^\/authors\/[\w-]+$/.test(cleanPath)) {
-      return topBarConfigs['/authors/[id]'];
+    return topBarConfigs['/authors/[id]'];
   }
 
   // Pour les bibliothèques avec UUID
   if (/^\/library\/[\w-]+$/.test(cleanPath) && cleanPath !== '/library/create') {
-      return topBarConfigs['/library/[id]'];
+    return topBarConfigs['/library/[id]'];
   }
 
   // Pour les autres routes
