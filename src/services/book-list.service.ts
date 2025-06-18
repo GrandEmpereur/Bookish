@@ -17,21 +17,32 @@ import type {
 import type { ApiResponse } from "@/types/api";
 
 class BookListService {
+  /**
+   * Méthode utilitaire pour gérer les requêtes HTTP via le client centralisé
+   */
+  private makeRequest<T>(
+    method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
+    endpoint: string,
+    options?: { data?: unknown; params?: Record<string, any> }
+  ): Promise<T> {
+    return apiRequest<T>(method, endpoint, options);
+  }
+
   // GET /book-lists
   async getBookLists(): Promise<GetBookListsResponse> {
-    return await apiRequest<GetBookListsResponse>("GET", "/book-lists");
+    return this.makeRequest<GetBookListsResponse>("GET", "/book-lists");
   }
 
   // GET /book-lists/:id
   async getBookList(id: string): Promise<GetBookListResponse> {
-    return await apiRequest<GetBookListResponse>("GET", `/book-lists/${id}`);
+    return this.makeRequest<GetBookListResponse>("GET", `/book-lists/${id}`);
   }
 
   // POST /book-lists
   async createBookList(
     data: CreateBookListRequest
   ): Promise<ApiResponse<CreateBookListResponse>> {
-    return await apiRequest<ApiResponse<CreateBookListResponse>>(
+    return this.makeRequest<ApiResponse<CreateBookListResponse>>(
       "POST",
       "/book-lists",
       { data }
@@ -52,7 +63,7 @@ class BookListService {
       if (data.visibility) formData.append("visibility", data.visibility);
       if (data.genre) formData.append("genre", data.genre);
 
-      return await apiRequest<UpdateBookListResponse>(
+      return this.makeRequest<UpdateBookListResponse>(
         "PUT",
         `/book-lists/${id}`,
         { data: formData }
@@ -60,7 +71,7 @@ class BookListService {
     } else {
       // Si pas d'image, envoyer en JSON
       const { coverImage, ...jsonData } = data;
-      return await apiRequest<UpdateBookListResponse>(
+      return this.makeRequest<UpdateBookListResponse>(
         "PUT",
         `/book-lists/${id}`,
         { data: jsonData }
@@ -70,7 +81,7 @@ class BookListService {
 
   // DELETE /book-lists/:id
   async deleteBookList(id: string): Promise<ApiResponse<null>> {
-    return await apiRequest<ApiResponse<null>>("DELETE", `/book-lists/${id}`);
+    return this.makeRequest<ApiResponse<null>>("DELETE", `/book-lists/${id}`);
   }
 
   // POST /book-lists/:id/books
@@ -78,7 +89,7 @@ class BookListService {
     listId: string,
     data: AddBookToListRequest
   ): Promise<AddBookToListResponse> {
-    return await apiRequest<AddBookToListResponse>(
+    return this.makeRequest<AddBookToListResponse>(
       "POST",
       `/book-lists/${listId}/books`,
       { data }
@@ -90,7 +101,7 @@ class BookListService {
     listId: string,
     bookId: string
   ): Promise<ApiResponse<RemoveBookFromListResponse>> {
-    return await apiRequest<ApiResponse<RemoveBookFromListResponse>>(
+    return this.makeRequest<ApiResponse<RemoveBookFromListResponse>>(
       "DELETE",
       `/book-lists/${listId}/books/${bookId}`
     );
@@ -102,7 +113,7 @@ class BookListService {
     bookId: string,
     data: UpdateReadingStatusRequest
   ): Promise<ApiResponse<UpdateReadingStatusResponse>> {
-    return await apiRequest<ApiResponse<UpdateReadingStatusResponse>>(
+    return this.makeRequest<ApiResponse<UpdateReadingStatusResponse>>(
       "PUT",
       `/book-lists/${listId}/books/${bookId}/status`,
       { data }
@@ -119,7 +130,7 @@ class BookListService {
     if (params.query) queryParams.query = params.query;
     if (params.genre) queryParams.genre = params.genre;
 
-    return await apiRequest<SearchMyBookListResponse>(
+    return this.makeRequest<SearchMyBookListResponse>(
       "GET",
       "/book-lists/search",
       { params: queryParams }

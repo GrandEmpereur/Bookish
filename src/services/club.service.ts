@@ -19,6 +19,17 @@ import {
 import { ApiResponse } from "@/types/api";
 
 class ClubService {
+  /**
+   * Méthode utilitaire pour gérer les requêtes HTTP via le client centralisé
+   */
+  private makeRequest<T>(
+    method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
+    endpoint: string,
+    options?: { data?: unknown; params?: Record<string, any> }
+  ): Promise<T> {
+    return apiRequest<T>(method, endpoint, options);
+  }
+
   async getClubs(options?: {
     page?: number;
     limit?: number;
@@ -33,13 +44,13 @@ class ClubService {
     if (options?.genre) params.genre = options.genre;
     if (options?.search) params.search = options.search;
 
-    return await apiRequest<ApiResponse<GetClubsResponse>>("GET", "/clubs", {
+    return this.makeRequest<ApiResponse<GetClubsResponse>>("GET", "/clubs", {
       params,
     });
   }
 
   async getClub(id: string): Promise<ApiResponse<GetClubResponse>> {
-    return await apiRequest<ApiResponse<GetClubResponse>>(
+    return this.makeRequest<ApiResponse<GetClubResponse>>(
       "GET",
       `/clubs/${id}`
     );
@@ -57,7 +68,7 @@ class ClubService {
       }
     });
 
-    return await apiRequest<ApiResponse<CreateClubResponse>>("POST", "/clubs", {
+    return this.makeRequest<ApiResponse<CreateClubResponse>>("POST", "/clubs", {
       data: formData,
     });
   }
@@ -75,7 +86,7 @@ class ClubService {
       }
     });
 
-    return await apiRequest<ApiResponse<UpdateClubResponse>>(
+    return this.makeRequest<ApiResponse<UpdateClubResponse>>(
       "PATCH",
       `/clubs/${id}`,
       { data: formData }
@@ -83,14 +94,14 @@ class ClubService {
   }
 
   async deleteClub(id: string): Promise<ApiResponse<null>> {
-    return await apiRequest<ApiResponse<null>>("DELETE", `/clubs/${id}`);
+    return this.makeRequest<ApiResponse<null>>("DELETE", `/clubs/${id}`);
   }
 
   async getMessages(
     clubId: string,
     page = 1
   ): Promise<ApiResponse<GetClubMessagesResponse>> {
-    return await apiRequest<ApiResponse<GetClubMessagesResponse>>(
+    return this.makeRequest<ApiResponse<GetClubMessagesResponse>>(
       "GET",
       `/clubs/${clubId}/messages`,
       { params: { page } }
@@ -107,7 +118,7 @@ class ClubService {
       formData.append("media", data.media);
     }
 
-    return await apiRequest<ApiResponse<SendMessageResponse>>(
+    return this.makeRequest<ApiResponse<SendMessageResponse>>(
       "POST",
       `/clubs/${clubId}/messages`,
       { data: formData }
@@ -118,7 +129,7 @@ class ClubService {
     id: string,
     data: JoinClubRequest
   ): Promise<ApiResponse<JoinClubResponse>> {
-    return await apiRequest<ApiResponse<JoinClubResponse>>(
+    return this.makeRequest<ApiResponse<JoinClubResponse>>(
       "POST",
       `/clubs/${id}/join`,
       { data }
@@ -126,27 +137,27 @@ class ClubService {
   }
 
   async leaveClub(id: string): Promise<ApiResponse<null>> {
-    return await apiRequest<ApiResponse<null>>("POST", `/clubs/${id}/leave`);
+    return this.makeRequest<ApiResponse<null>>("POST", `/clubs/${id}/leave`);
   }
 
   async generateInviteLink(
     clubId: string
   ): Promise<ApiResponse<GenerateInviteLinkResponse>> {
-    return await apiRequest<ApiResponse<GenerateInviteLinkResponse>>(
+    return this.makeRequest<ApiResponse<GenerateInviteLinkResponse>>(
       "POST",
       `/clubs/${clubId}/invite`
     );
   }
 
   async banMember(clubId: string, userId: string): Promise<ApiResponse<null>> {
-    return await apiRequest<ApiResponse<null>>(
+    return this.makeRequest<ApiResponse<null>>(
       "POST",
       `/clubs/${clubId}/ban/${userId}`
     );
   }
 
   async reportMessage(messageId: string): Promise<ApiResponse<null>> {
-    return await apiRequest<ApiResponse<null>>(
+    return this.makeRequest<ApiResponse<null>>(
       "POST",
       `/clubs/messages/${messageId}/report`
     );

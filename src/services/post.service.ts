@@ -50,6 +50,17 @@ export interface GetPostsPaginatedResponse {
 }
 
 class PostService {
+  /**
+   * Méthode utilitaire pour gérer les requêtes HTTP via le client centralisé
+   */
+  private makeRequest<T>(
+    method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
+    endpoint: string,
+    options?: { data?: unknown; params?: Record<string, any> }
+  ): Promise<T> {
+    return apiRequest<T>(method, endpoint, options);
+  }
+
   async getPosts(params: PaginationParams = {}): Promise<GetPostsPaginatedResponse> {
     const {
       page = 1,
@@ -65,7 +76,7 @@ class PostService {
       orderDirection
     });
 
-    return await apiRequest<GetPostsPaginatedResponse>("GET", `/posts?${queryParams.toString()}`);
+    return this.makeRequest<GetPostsPaginatedResponse>("GET", `/posts?${queryParams.toString()}`);
   }
 
   // Méthode dépréciée - garder pour rétrocompatibilité
@@ -80,7 +91,7 @@ class PostService {
   }
 
   async getPost(id: string): Promise<GetPostResponse> {
-    return await apiRequest<GetPostResponse>("GET", `/posts/${id}`);
+    return this.makeRequest<GetPostResponse>("GET", `/posts/${id}`);
   }
 
   async createPost(data: CreatePostFormData): Promise<GetPostResponse> {
@@ -95,7 +106,7 @@ class PostService {
       });
     }
 
-    const result = await apiRequest<GetPostResponse>("POST", "/posts", {
+    const result = await this.makeRequest<GetPostResponse>("POST", "/posts", {
       data: formData,
     });
     return result;
@@ -116,7 +127,7 @@ class PostService {
       }
     });
 
-    return await apiRequest<ApiResponse<UpdatePostResponse>>(
+    return this.makeRequest<ApiResponse<UpdatePostResponse>>(
       "PATCH",
       `/posts/${id}`,
       { data: formData }
@@ -124,11 +135,11 @@ class PostService {
   }
 
   async deletePost(id: string): Promise<void> {
-    await apiRequest<void>("DELETE", `/posts/${id}`);
+    await this.makeRequest<void>("DELETE", `/posts/${id}`);
   }
 
   async toggleLike(id: string): Promise<ApiResponse<ToggleLikeResponse>> {
-    return await apiRequest<ApiResponse<ToggleLikeResponse>>(
+    return this.makeRequest<ApiResponse<ToggleLikeResponse>>(
       "POST",
       `/posts/${id}/like`
     );
@@ -137,7 +148,7 @@ class PostService {
   async toggleFavorite(
     id: string
   ): Promise<ApiResponse<ToggleFavoriteResponse>> {
-    return await apiRequest<ApiResponse<ToggleFavoriteResponse>>(
+    return this.makeRequest<ApiResponse<ToggleFavoriteResponse>>(
       "POST",
       `/posts/${id}/favorite`
     );
@@ -149,7 +160,7 @@ class PostService {
    * Créer un signalement de post
    */
   async createReport(data: CreateReportRequest): Promise<CreateReportResponse> {
-    return await apiRequest<CreateReportResponse>("POST", "/posts/reports", {
+    return this.makeRequest<CreateReportResponse>("POST", "/posts/reports", {
       data,
     });
   }
@@ -158,7 +169,7 @@ class PostService {
    * Signalement rapide pour mobile
    */
   async quickReport(postId: string, data: QuickReportRequest): Promise<CreateReportResponse> {
-    return await apiRequest<CreateReportResponse>("POST", `/posts/${postId}/quick-report`, {
+    return this.makeRequest<CreateReportResponse>("POST", `/posts/${postId}/quick-report`, {
       data,
     });
   }
@@ -167,7 +178,7 @@ class PostService {
    * Obtenir mes signalements
    */
   async getMyReports(): Promise<GetReportsResponse> {
-    return await apiRequest<GetReportsResponse>("GET", "/posts/reports/my-reports");
+    return this.makeRequest<GetReportsResponse>("GET", "/posts/reports/my-reports");
   }
 
   // ========== MÉTHODES POUR MODÉRATEURS/ADMINS ==========
@@ -195,7 +206,7 @@ class PostService {
     if (params?.orderDirection) queryParams.append('orderDirection', params.orderDirection);
 
     const query = queryParams.toString();
-    return await apiRequest<GetReportsResponse>("GET", `/admin/reports${query ? '?' + query : ''}`);
+    return this.makeRequest<GetReportsResponse>("GET", `/admin/reports${query ? '?' + query : ''}`);
   }
 
   /**
@@ -206,7 +217,7 @@ class PostService {
     message: string;
     data: { report: any };
   }> {
-    return await apiRequest<{
+    return this.makeRequest<{
       status: string;
       message: string;
       data: { report: any };
@@ -217,7 +228,7 @@ class PostService {
    * Prendre en charge un signalement
    */
   async takeReportInReview(id: string): Promise<ApiResponse<null>> {
-    return await apiRequest<ApiResponse<null>>("POST", `/admin/reports/${id}/take-review`);
+    return this.makeRequest<ApiResponse<null>>("POST", `/admin/reports/${id}/take-review`);
   }
 
   /**
@@ -227,7 +238,7 @@ class PostService {
     actionTaken: string;
     resolutionNotes?: string;
   }): Promise<ApiResponse<null>> {
-    return await apiRequest<ApiResponse<null>>("POST", `/admin/reports/${id}/resolve`, {
+    return this.makeRequest<ApiResponse<null>>("POST", `/admin/reports/${id}/resolve`, {
       data,
     });
   }
@@ -238,7 +249,7 @@ class PostService {
   async dismissReport(id: string, data: {
     reason: string;
   }): Promise<ApiResponse<null>> {
-    return await apiRequest<ApiResponse<null>>("POST", `/admin/reports/${id}/dismiss`, {
+    return this.makeRequest<ApiResponse<null>>("POST", `/admin/reports/${id}/dismiss`, {
       data,
     });
   }
@@ -249,7 +260,7 @@ class PostService {
   async escalateReport(id: string, data: {
     adminNotes: string;
   }): Promise<ApiResponse<null>> {
-    return await apiRequest<ApiResponse<null>>("POST", `/admin/reports/${id}/escalate`, {
+    return this.makeRequest<ApiResponse<null>>("POST", `/admin/reports/${id}/escalate`, {
       data,
     });
   }
@@ -258,7 +269,7 @@ class PostService {
    * Obtenir les statistiques des signalements
    */
   async getReportStats(): Promise<ReportStatsResponse> {
-    return await apiRequest<ReportStatsResponse>("GET", "/admin/reports/stats");
+    return this.makeRequest<ReportStatsResponse>("GET", "/admin/reports/stats");
   }
 
   // ========== MÉTHODE LEGACY (pour compatibilité) ==========
