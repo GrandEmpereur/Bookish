@@ -14,6 +14,17 @@ import {
 } from "@/types/messagerieTypes";
 
 class MessageService {
+  /**
+   * Méthode utilitaire pour gérer les requêtes HTTP via le client centralisé
+   */
+  private makeRequest<T>(
+    method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
+    endpoint: string,
+    options?: { data?: unknown; params?: Record<string, any> }
+  ): Promise<T> {
+    return apiRequest<T>(method, endpoint, options);
+  }
+
   async getMessages(options: {
     page?: number;
     limit?: number;
@@ -24,7 +35,7 @@ class MessageService {
     if (options?.limit) params.limit = options.limit;
     if (options?.conversation_with) params.with = options.conversation_with;
 
-    return await apiRequest<ApiResponse<GetMessagesResponse>>(
+    return this.makeRequest<ApiResponse<GetMessagesResponse>>(
       "GET",
       "/messages",
       { params }
@@ -34,7 +45,7 @@ class MessageService {
   async getMessage(
     messageId: string
   ): Promise<ApiResponse<GetMessageResponse>> {
-    return await apiRequest<ApiResponse<GetMessageResponse>>(
+    return this.makeRequest<ApiResponse<GetMessageResponse>>(
       "GET",
       `/messages/${messageId}`
     );
@@ -43,7 +54,7 @@ class MessageService {
   async sendMessage(
     data: SendMessageRequest
   ): Promise<ApiResponse<SendMessageResponse>> {
-    return await apiRequest<ApiResponse<SendMessageResponse>>(
+    return this.makeRequest<ApiResponse<SendMessageResponse>>(
       "POST",
       "/messages",
       { data }
@@ -54,7 +65,7 @@ class MessageService {
     messageId: string,
     data: UpdateMessageRequest
   ): Promise<ApiResponse<UpdateMessageResponse>> {
-    return await apiRequest<ApiResponse<UpdateMessageResponse>>(
+    return this.makeRequest<ApiResponse<UpdateMessageResponse>>(
       "PATCH",
       `/messages/${messageId}`,
       { data }
@@ -62,28 +73,28 @@ class MessageService {
   }
 
   async deleteMessage(messageId: string): Promise<ApiResponse<null>> {
-    return await apiRequest<ApiResponse<null>>(
+    return this.makeRequest<ApiResponse<null>>(
       "DELETE",
       `/messages/${messageId}`
     );
   }
 
   async getConversations(): Promise<ApiResponse<GetConversationsResponse>> {
-    return await apiRequest<ApiResponse<GetConversationsResponse>>(
+    return this.makeRequest<ApiResponse<GetConversationsResponse>>(
       "GET",
       "/messages/conversations"
     );
   }
 
   async markConversationAsRead(userId: string): Promise<ApiResponse<null>> {
-    return await apiRequest<ApiResponse<null>>(
+    return this.makeRequest<ApiResponse<null>>(
       "POST",
       `/messages/read/${userId}`
     );
   }
 
   async getMessageStats(): Promise<ApiResponse<MessageStats>> {
-    return await apiRequest<ApiResponse<MessageStats>>(
+    return this.makeRequest<ApiResponse<MessageStats>>(
       "GET",
       "/messages/stats"
     );

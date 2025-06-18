@@ -47,6 +47,17 @@ interface SearchBooksResponse {
 }
 
 class BookService {
+  /**
+   * Méthode utilitaire pour gérer les requêtes HTTP via le client centralisé
+   */
+  private makeRequest<T>(
+    method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
+    endpoint: string,
+    options?: { data?: unknown; params?: Record<string, any> }
+  ): Promise<T> {
+    return apiRequest<T>(method, endpoint, options);
+  }
+
   async getBooks(options?: {
     page?: number;
     limit?: number;
@@ -67,13 +78,11 @@ class BookService {
     if (options?.sort) params.sort = options.sort;
     if (options?.order) params.order = options.order;
 
-    return await apiRequest<ApiResponse<GetBooksResponse>>("GET", "/books", {
-      params,
-    });
+    return this.makeRequest<ApiResponse<GetBooksResponse>>("GET", "/books", { params });
   }
 
   async getBook(id: string): Promise<ApiResponse<Book>> {
-    return await apiRequest<ApiResponse<Book>>("GET", `/books/${id}`);
+    return this.makeRequest<ApiResponse<Book>>("GET", `/books/${id}`);
   }
 
   async createBook(
@@ -88,7 +97,7 @@ class BookService {
       }
     });
 
-    return await apiRequest<ApiResponse<CreateBookResponse>>("POST", "/books", {
+    return this.makeRequest<ApiResponse<CreateBookResponse>>("POST", "/books", {
       data: formData,
     });
   }
@@ -106,7 +115,7 @@ class BookService {
       }
     });
 
-    return await apiRequest<ApiResponse<UpdateBookResponse>>(
+    return this.makeRequest<ApiResponse<UpdateBookResponse>>(
       "PATCH",
       `/books/${id}`,
       { data: formData }
@@ -114,11 +123,11 @@ class BookService {
   }
 
   async deleteBook(id: string): Promise<ApiResponse<null>> {
-    return await apiRequest<ApiResponse<null>>("DELETE", `/books/${id}`);
+    return this.makeRequest<ApiResponse<null>>("DELETE", `/books/${id}`);
   }
 
   async searchBooks(query: string): Promise<GetBooksResponse> {
-    return await apiRequest<GetBooksResponse>("GET", "/search/books", {
+    return this.makeRequest<GetBooksResponse>("GET", "/search/books", {
       params: { query },
     });
   }

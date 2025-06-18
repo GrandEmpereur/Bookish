@@ -13,6 +13,17 @@ import {
 } from "@/types/notificationTypes";
 
 class NotificationService {
+  /**
+   * Méthode utilitaire pour gérer les requêtes HTTP via le client centralisé
+   */
+  private makeRequest<T>(
+    method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
+    endpoint: string,
+    options?: { data?: unknown; params?: Record<string, any> }
+  ): Promise<T> {
+    return apiRequest<T>(method, endpoint, options);
+  }
+
   async getNotifications(options?: {
     unreadOnly?: boolean;
     page?: number;
@@ -23,7 +34,7 @@ class NotificationService {
     if (options?.page) params.page = options.page;
     if (options?.limit) params.limit = options.limit;
 
-    return await apiRequest<ApiResponse<GetNotificationsResponse>>(
+    return this.makeRequest<ApiResponse<GetNotificationsResponse>>(
       "GET",
       "/notifications",
       { params }
@@ -31,21 +42,21 @@ class NotificationService {
   }
 
   async markAsRead(notificationId: string): Promise<ApiResponse<Notification>> {
-    return await apiRequest<ApiResponse<Notification>>(
+    return this.makeRequest<ApiResponse<Notification>>(
       "PATCH",
       `/notifications/${notificationId}/read`
     );
   }
 
   async markAllAsRead(): Promise<ApiResponse<null>> {
-    return await apiRequest<ApiResponse<null>>(
+    return this.makeRequest<ApiResponse<null>>(
       "POST",
       "/notifications/mark-all-read"
     );
   }
 
   async deleteNotification(notificationId: string): Promise<ApiResponse<null>> {
-    return await apiRequest<ApiResponse<null>>(
+    return this.makeRequest<ApiResponse<null>>(
       "DELETE",
       `/notifications/${notificationId}`
     );
@@ -54,7 +65,7 @@ class NotificationService {
   async getPreferences(): Promise<
     ApiResponse<GetNotificationPreferencesResponse>
   > {
-    return await apiRequest<ApiResponse<GetNotificationPreferencesResponse>>(
+    return this.makeRequest<ApiResponse<GetNotificationPreferencesResponse>>(
       "GET",
       "/notifications/preferences"
     );
@@ -63,7 +74,7 @@ class NotificationService {
   async updatePreferences(
     data: UpdateNotificationPreferencesRequest
   ): Promise<ApiResponse<UpdateNotificationPreferencesResponse>> {
-    return await apiRequest<ApiResponse<UpdateNotificationPreferencesResponse>>(
+    return this.makeRequest<ApiResponse<UpdateNotificationPreferencesResponse>>(
       "PATCH",
       "/notifications/preferences",
       { data }
@@ -74,7 +85,7 @@ class NotificationService {
     type: NotificationType,
     channel: NotificationChannel
   ): Promise<boolean> {
-    const response = await apiRequest<{ enabled: boolean }>(
+    const response = await this.makeRequest<{ enabled: boolean }>(
       "GET",
       `/notifications/enabled/${type}/${channel}`
     );
@@ -86,7 +97,7 @@ class NotificationService {
     type: NotificationType,
     data: Record<string, any>
   ): Promise<ApiResponse<Notification>> {
-    return await apiRequest<ApiResponse<Notification>>(
+    return this.makeRequest<ApiResponse<Notification>>(
       "POST",
       "/notifications",
       {

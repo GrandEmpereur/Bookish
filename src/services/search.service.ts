@@ -29,6 +29,17 @@ const API_ENDPOINTS = {
 };
 
 class SearchService {
+  /**
+   * Méthode utilitaire pour gérer les requêtes HTTP via le client centralisé
+   */
+  private makeRequest<T>(
+    method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
+    endpoint: string,
+    options?: { data?: unknown; params?: Record<string, any> }
+  ): Promise<T> {
+    return apiRequest<T>(method, endpoint, options);
+  }
+
   private buildSearchParams(options: any): URLSearchParams {
     const params = new URLSearchParams();
 
@@ -49,7 +60,7 @@ class SearchService {
     const params = this.buildSearchParams(options);
     const url = `${API_ENDPOINTS.search.users}?${params.toString()}`;
 
-    const result = await apiRequest<UserSearchResponse>("GET", url);
+    const result = await this.makeRequest<UserSearchResponse>("GET", url);
     return result;
   }
 
@@ -57,7 +68,7 @@ class SearchService {
     const params = this.buildSearchParams(options);
     const url = `${API_ENDPOINTS.search.books}?${params.toString()}`;
 
-    const result = await apiRequest<BookSearchResponse>("GET", url);
+    const result = await this.makeRequest<BookSearchResponse>("GET", url);
     return result;
   }
 
@@ -65,7 +76,7 @@ class SearchService {
     const params = this.buildSearchParams(options);
     const url = `${API_ENDPOINTS.search.clubs}?${params.toString()}`;
 
-    const result = await apiRequest<ClubSearchResponse>("GET", url);
+    const result = await this.makeRequest<ClubSearchResponse>("GET", url);
     return result;
   }
 
@@ -73,7 +84,7 @@ class SearchService {
     const params = this.buildSearchParams(options);
     const url = `${API_ENDPOINTS.search.bookLists}?${params.toString()}`;
 
-    const result = await apiRequest<BookListSearchResponse>("GET", url);
+    const result = await this.makeRequest<BookListSearchResponse>("GET", url);
     return result;
   }
 
@@ -81,7 +92,7 @@ class SearchService {
     const params = this.buildSearchParams(options);
     const url = `${API_ENDPOINTS.search.category}?${params.toString()}`;
 
-    const result = await apiRequest<CategorySearchResponse>("GET", url);
+    const result = await this.makeRequest<CategorySearchResponse>("GET", url);
     return result;
   }
 
@@ -89,7 +100,7 @@ class SearchService {
     const params = this.buildSearchParams(options);
     const url = `${API_ENDPOINTS.search.professionals}?${params.toString()}`;
 
-    const result = await apiRequest<ProfessionalSearchResponse>("GET", url);
+    const result = await this.makeRequest<ProfessionalSearchResponse>("GET", url);
     return result;
   }
 
@@ -97,7 +108,7 @@ class SearchService {
     const params = this.buildSearchParams(options);
     const url = `${API_ENDPOINTS.search.general}?${params.toString()}`;
 
-    const result = await apiRequest<GeneralSearchResponse>("GET", url);
+    const result = await this.makeRequest<GeneralSearchResponse>("GET", url);
     return result;
   }
 }

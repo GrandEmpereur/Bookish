@@ -7,9 +7,20 @@ import {
 } from "@/types/postTypes";
 
 class CommentService {
+  /**
+   * Méthode utilitaire pour gérer les requêtes HTTP via le client centralisé
+   */
+  private makeRequest<T>(
+    method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
+    endpoint: string,
+    options?: { data?: unknown; params?: Record<string, any> }
+  ): Promise<T> {
+    return apiRequest<T>(method, endpoint, options);
+  }
+
   // GET /:postId/comments
   async getComments(postId: string): Promise<GetCommentsResponse> {
-    return await apiRequest<GetCommentsResponse>(
+    return this.makeRequest<GetCommentsResponse>(
       "GET",
       `/posts/${postId}/comments`
     );
@@ -20,7 +31,7 @@ class CommentService {
     postId: string,
     data: { content: string }
   ): Promise<CreateCommentResponse> {
-    return await apiRequest<CreateCommentResponse>(
+    return this.makeRequest<CreateCommentResponse>(
       "POST",
       `/posts/${postId}/comments`,
       { data }
@@ -33,7 +44,7 @@ class CommentService {
     commentId: string,
     data: { content: string }
   ): Promise<ReplyCommentResponse> {
-    return await apiRequest<ReplyCommentResponse>(
+    return this.makeRequest<ReplyCommentResponse>(
       "POST",
       `/posts/${postId}/comments/${commentId}/reply`,
       { data }
@@ -45,7 +56,7 @@ class CommentService {
     commentId: string,
     data: { content: string }
   ): Promise<UpdateCommentResponse> {
-    return await apiRequest<UpdateCommentResponse>(
+    return this.makeRequest<UpdateCommentResponse>(
       "PUT",
       `/comments/${commentId}`,
       { data }
@@ -60,7 +71,7 @@ class CommentService {
     message: string;
     data: { post: { id: string; commentsCount: number } };
   }> {
-    return await apiRequest<{
+    return this.makeRequest<{
       status: string;
       message: string;
       data: { post: { id: string; commentsCount: number } };
