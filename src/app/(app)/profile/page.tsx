@@ -56,6 +56,9 @@ import {
 } from "recharts";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
+import { BookList } from "@/types/bookListTypes";
+import { Club } from "@/types/clubTypes";
+import { clubService } from "@/services/club.service";
 
 const PIE_COLORS = ["#ec4899", "#dc2626", "#22c55e", "#ffffff"];
 

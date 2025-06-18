@@ -139,6 +139,20 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
       // hideTopBar: true,
   },
 
+  // Books
+  '/books/[id]': {
+      variant: 'back',
+      showBackAbsolute: true,
+      // hideTopBar: true,
+  },
+
+  // Authors
+  '/authors/[id]': {
+      variant: 'back',
+      showBackAbsolute: true,
+      // hideTopBar: true,
+  },
+
   // Notifications
   "/notifications": {
     variant: "back",
