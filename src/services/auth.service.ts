@@ -1,173 +1,108 @@
 import {
-    RegisterRequest,
-    LoginRequest,
-    AuthResponse,
-    RegisterResponse,
-    LoginResponse,
-    LogoutResponse,
-    VerifyEmailRequest,
-    ResendVerificationRequest,
-    ForgotPasswordRequest,
-    ResetPasswordRequest,
-    VerifyResetCodeRequest,
-    RegisterStepOneRequest,
-    RegisterStepTwoRequest,
-    RegisterStepThreeRequest
-} from '@/types/authTypes';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-console.log(API_URL)
-console.log(API_URL)
+  RegisterRequest,
+  LoginRequest,
+  AuthResponse,
+  RegisterResponse,
+  LoginResponse,
+  LogoutResponse,
+  VerifyEmailRequest,
+  ResendVerificationRequest,
+  ForgotPasswordRequest,
+  ResetPasswordRequest,
+  VerifyResetCodeRequest,
+  RegisterStepOneRequest,
+  RegisterStepTwoRequest,
+  RegisterStepThreeRequest,
+} from "@/types/authTypes";
+import { apiRequest } from "@/lib/api-client";
 
 class AuthService {
-    /**
-     * Méthode utilitaire pour gérer les requêtes HTTP avec retry et gestion d'erreurs
-     */
-    private async makeRequest<T>(
-        method: 'GET' | 'POST',
-        endpoint: string,
-        data?: unknown,
-        retries = 3
-    ): Promise<AuthResponse<T>> {
-        const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+  /**
+   * Méthode utilitaire pour gérer les requêtes HTTP via le client centralisé
+   */
+  private makeRequest<T>(
+    method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
+    endpoint: string,
+    data?: unknown,
+    params?: Record<string, any>
+  ): Promise<AuthResponse<T>> {
+    // Délègue la logique réseau au client centralisé qui inclut déjà credentials: "include"
+    return apiRequest<AuthResponse<T>>(method, endpoint, { data, params });
+  }
 
-        const fetchOptions: RequestInit = {
-            method,
-            credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        };
+  // Inscription
+  async register(
+    data: RegisterRequest
+  ): Promise<AuthResponse<RegisterResponse>> {
+    return this.makeRequest("POST", "/auth/register", data);
+  }
 
-        if (data && method !== 'GET') {
-            fetchOptions.body = JSON.stringify(data);
-        }
+  // Étape 1 de l'inscription
+  async completeStep1(
+    data: RegisterStepOneRequest
+  ): Promise<AuthResponse<{ message: string }>> {
+    return this.makeRequest("POST", "/auth/register/step1", data);
+  }
 
-        try {
-            const res = await fetch(`${API_URL}${endpoint}`, fetchOptions);
-            const responseData = (await res.json()) as AuthResponse<T>;
+  // Étape 2 de l'inscription
+  async completeStep2(
+    data: RegisterStepTwoRequest
+  ): Promise<AuthResponse<{ message: string }>> {
+    return this.makeRequest("POST", "/auth/register/step2", data);
+  }
 
-            switch (res.status) {
-                case 429: {
-                    const retryAfter = parseInt(res.headers.get('retry-after') ?? '5', 10);
-                    await delay(retryAfter * 1000);
-                    if (retries > 0) {
-                        return this.makeRequest(method, endpoint, data, retries - 1);
-                    }
-                    throw new Error('Trop de requêtes. Veuillez réessayer plus tard.');
-                }
-                case 419:
-                    if (retries > 0) {
-                        await delay(1000);
-                        return this.makeRequest(method, endpoint, data, retries - 1);
-                    }
-                    throw new Error('Session expirée. Veuillez rafraîchir la page.');
-                case 401:
-                    throw new Error('Non autorisé. Veuillez vous reconnecter.');
-                case 403:
-                    throw new Error('Accès refusé.');
-            }
+  // Étape 3 de l'inscription
+  async completeStep3(
+    data: RegisterStepThreeRequest
+  ): Promise<AuthResponse<{ message: string }>> {
+    return this.makeRequest("POST", "/auth/register/step3", data);
+  }
 
-            if (!res.ok) {
-                throw new Error((responseData as any)?.message || `Erreur ${res.status}`);
-            }
+  // Connexion
+  async login(data: LoginRequest): Promise<AuthResponse<LoginResponse>> {
+    return this.makeRequest("POST", "/auth/login", data);
+  }
 
-            return responseData;
-        } catch (error: any) {
-            if (error.message?.includes('rate_limits:rlflx-get') && retries > 0) {
-                await delay(1000);
-                return this.makeRequest(method, endpoint, data, retries - 1);
-            }
-            throw new Error(error.message || 'Une erreur est survenue');
-        }
-    }
+  // Vérification d'email
+  async verifyEmail(
+    data: VerifyEmailRequest
+  ): Promise<AuthResponse<{ message: string }>> {
+    return this.makeRequest("POST", "/auth/verify-email", data);
+  }
 
-    // Inscription
-    async register(data: RegisterRequest): Promise<AuthResponse<RegisterResponse>> {
-        return this.makeRequest('POST', '/auth/register', data);
-    }
+  // Renvoi du code de vérification
+  async resendVerification(
+    data: ResendVerificationRequest
+  ): Promise<AuthResponse<{ message: string }>> {
+    return this.makeRequest("POST", "/auth/resend-verification", data);
+  }
 
-    // Étape 1 de l'inscription
-    async completeStep1(data: RegisterStepOneRequest): Promise<AuthResponse<{ message: string }>> {
-        return this.makeRequest('POST', '/auth/register/step1', data);
-    }
+  // Demande de réinitialisation de mot de passe
+  async requestPasswordReset(
+    data: ForgotPasswordRequest
+  ): Promise<AuthResponse<{ message: string }>> {
+    return this.makeRequest("POST", "/auth/forgot-password", data);
+  }
 
-    // Étape 2 de l'inscription
-    async completeStep2(data: RegisterStepTwoRequest): Promise<AuthResponse<{ message: string }>> {
-        return this.makeRequest('POST', '/auth/register/step2', data);
-    }
+  // Vérification du code de réinitialisation
+  async verifyResetCode(
+    data: VerifyResetCodeRequest
+  ): Promise<AuthResponse<{ message: string }>> {
+    return this.makeRequest("POST", "/auth/verify-reset-code", data);
+  }
 
-    // Étape 3 de l'inscription
-    async completeStep3(data: RegisterStepThreeRequest): Promise<AuthResponse<{ message: string }>> {
-        return this.makeRequest('POST', '/auth/register/step3', data);
-    }
+  // Réinitialisation du mot de passe
+  async resetPassword(
+    data: ResetPasswordRequest
+  ): Promise<AuthResponse<{ message: string }>> {
+    return this.makeRequest("POST", "/auth/reset-password", data);
+  }
 
-    // Connexion
-    async login(data: LoginRequest): Promise<AuthResponse<LoginResponse>> {
-        return this.makeRequest('POST', '/auth/login', data);
-    }
-
-    // Vérification d'email
-    async verifyEmail(data: VerifyEmailRequest): Promise<AuthResponse<{ message: string }>> {
-        return this.makeRequest('POST', '/auth/verify-email', data);
-    }
-
-    // Renvoi du code de vérification
-    async resendVerification(data: ResendVerificationRequest): Promise<AuthResponse<{ message: string }>> {
-        return this.makeRequest('POST', '/auth/resend-verification', data);
-    }
-
-    // Demande de réinitialisation de mot de passe
-    async requestPasswordReset(data: ForgotPasswordRequest): Promise<AuthResponse<{ message: string }>> {
-        return this.makeRequest('POST', '/auth/forgot-password', data);
-    }
-
-    // Vérification du code de réinitialisation
-    async verifyResetCode(data: VerifyResetCodeRequest): Promise<AuthResponse<{ message: string }>> {
-        return this.makeRequest('POST', '/auth/verify-reset-code', data);
-    }
-
-    // Réinitialisation du mot de passe
-    async resetPassword(data: ResetPasswordRequest): Promise<AuthResponse<{ message: string }>> {
-        return this.makeRequest('POST', '/auth/reset-password', data);
-    }
-
-    // Déconnexion
-    async logout(): Promise<AuthResponse<LogoutResponse>> {
-        try {
-            // Appel API pour déconnexion côté serveur
-            const response = await this.makeRequest<LogoutResponse>('POST', '/auth/logout');
-
-            // Nettoyage supplémentaire des cookies côté client
-            this.clearAllCookies();
-
-            return response;
-        } catch (error) {
-            // Même en cas d'erreur, on tente de nettoyer les cookies
-            this.clearAllCookies();
-            throw error;
-        }
-    }
-
-    // Méthode pour nettoyer TOUS les cookies
-    private clearAllCookies(): void {
-        const cookies = document.cookie.split(";");
-
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i];
-            const eqPos = cookie.indexOf("=");
-            const name = eqPos > -1 ? cookie.substring(0, eqPos).trim() : cookie.trim();
-
-            // Supprimer TOUS les cookies
-            if (name) {
-                // Supprimer avec différents chemins et domaines pour être sûr
-                document.cookie = `${name}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
-                document.cookie = `${name}=; Path=/; Domain=${window.location.hostname}; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
-                document.cookie = `${name}=; Path=/; Domain=.${window.location.hostname}; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
-            }
-        }
-    }
+  // Déconnexion
+  async logout(): Promise<AuthResponse<LogoutResponse>> {
+    // Le backend s'occupe de supprimer les cookies de session.
+    return this.makeRequest("POST", "/auth/logout");
+  }
 }
 
 export const authService = new AuthService();

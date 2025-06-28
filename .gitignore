@@ -35,6 +35,7 @@ yarn-error.log*
 .env.local
 .env.development
 .env.production
+.env.sentry*
 
 # vercel
 .vercel
@@ -55,3 +56,6 @@ android
 
 # Postman
 postman/
+
+# Sentry Config File
+.env.sentry-build-plugin

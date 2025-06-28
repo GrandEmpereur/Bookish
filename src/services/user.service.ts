@@ -1,218 +1,107 @@
-// Utilisation de l'API fetch native – suppression de Capacitor
+import { apiRequest } from "@/lib/api-client";
+import { AuthResponse, RegisterRequest, RegisterResponse } from "@/types/authTypes";
 import {
-    GetAuthenticatedProfileResponse,
-    GetUserProfileResponse,
-    GetUserRelationsResponse,
-    UpdateProfileResponse,
-    UpdateProfilePictureResponse,
-    CheckFriendshipStatusResponse,
-    UpdateProfileRequest
+  GetAuthenticatedProfileResponse,
+  GetUserProfileResponse,
+  GetUserRelationsResponse,
+  UpdateProfileResponse,
+  UpdateProfilePictureResponse,
+  CheckFriendshipStatusResponse,
+  UpdateProfileRequest
 } from '@/types/userTypes';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
 class UserService {
-    // GET /users/me
-    async getAuthenticatedProfile(): Promise<GetAuthenticatedProfileResponse> {
-        const res = await fetch(`${API_URL}/users/me`, {
-            credentials: 'include',
-        });
+  /**
+   * Méthode utilitaire pour gérer les requêtes HTTP via le client centralisé
+   */
+  private makeRequest<T>(
+    method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
+    endpoint: string,
+    options?: { data?: unknown; params?: Record<string, any> }
+  ): Promise<T> {
+    return apiRequest<T>(method, endpoint, options);
+  }
 
-        if (res.status === 401) {
-            throw { status: 401 };
-        }
+  // Inscription (garde la méthode auth)
+  async register(
+    data: RegisterRequest
+  ): Promise<AuthResponse<RegisterResponse>> {
+    return this.makeRequest<AuthResponse<RegisterResponse>>("POST", "/auth/register", { data });
+  }
 
-        const data = (await res.json()) as GetAuthenticatedProfileResponse;
+  // GET /users/me
+  async getAuthenticatedProfile(): Promise<GetAuthenticatedProfileResponse> {
+    return this.makeRequest<GetAuthenticatedProfileResponse>("GET", "/users/me");
+  }
 
-        if (!res.ok) {
-            throw new Error((data as any)?.message || 'Erreur lors de la récupération du profil');
-        }
+  // GET /users/relations
+  async getRelations(): Promise<GetUserRelationsResponse> {
+    return this.makeRequest<GetUserRelationsResponse>("GET", "/users/relations");
+  }
 
-        return data;
-    }
+  // PATCH /users/profile
+  async updateProfile(data: Partial<UpdateProfileRequest>): Promise<UpdateProfileResponse> {
+    return this.makeRequest<UpdateProfileResponse>("PATCH", "/users/profile", { data });
+  }
 
-    // GET /users/relations
-    async getRelations(): Promise<GetUserRelationsResponse> {
-        const res = await fetch(`${API_URL}/users/relations`, { credentials: 'include' });
+  // POST /users/avatar
+  async updateProfilePicture(
+    file: File
+  ): Promise<UpdateProfilePictureResponse> {
+    const formData = new FormData();
+    formData.append("avatar", file);
+    return this.makeRequest<UpdateProfilePictureResponse>("POST", "/users/avatar", { data: formData });
+  }
 
-        const data = (await res.json()) as GetUserRelationsResponse;
+  // DELETE /users/account
+  async deleteAccount(): Promise<void> {
+    await this.makeRequest<void>("DELETE", "/users/account");
+  }
 
-        if (!res.ok) {
-            throw new Error((data as any)?.message || 'Erreur lors de la récupération des relations');
-        }
+  // GET /users/:userId
+  async getUserProfile(userId: string): Promise<GetUserProfileResponse> {
+    return this.makeRequest<GetUserProfileResponse>("GET", `/users/${userId}`);
+  }
 
-        return data;
-    }
+  // GET /users/:userId/friendship
+  async checkFriendshipStatus(userId: string): Promise<CheckFriendshipStatusResponse> {
+    return this.makeRequest<CheckFriendshipStatusResponse>("GET", `/users/${userId}/friendship`);
+  }
 
-    // PATCH /users/profile
-    async updateProfile(data: Partial<UpdateProfileRequest>): Promise<UpdateProfileResponse> {
-        const res = await fetch(`${API_URL}/users/profile`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify(data)
-        });
+  // POST /users/block/:userId
+  async blockUser(userId: string): Promise<void> {
+    await this.makeRequest<void>("POST", `/users/block/${userId}`);
+  }
 
-        const resData = (await res.json()) as UpdateProfileResponse;
+  // DELETE /users/block/:userId
+  async unblockUser(userId: string): Promise<void> {
+    await this.makeRequest<void>("DELETE", `/users/block/${userId}`);
+  }
 
-        if (!res.ok) {
-            throw new Error((resData as any)?.message || 'Erreur lors de la mise à jour du profil');
-        }
+  // POST /users/follow/:userId
+  async followUser(userId: string): Promise<void> {
+    await this.makeRequest<void>("POST", `/users/follow/${userId}`);
+  }
 
-        return resData;
-    }
+  // DELETE /users/unfollow/:userId
+  async unfollowUser(userId: string): Promise<void> {
+    await this.makeRequest<void>("DELETE", `/users/unfollow/${userId}`);
+  }
 
-    // POST /users/avatar
-    async updateProfilePicture(file: File): Promise<UpdateProfilePictureResponse> {
-        const formData = new FormData();
-        formData.append('avatar', file);
+  // POST /users/friend-request/:userId
+  async sendFriendRequest(userId: string): Promise<void> {
+    await this.makeRequest<void>("POST", `/users/friend-request/${userId}`);
+  }
 
-        const res = await fetch(`${API_URL}/users/avatar`, {
-            method: 'POST',
-            credentials: 'include',
-            body: formData
-        });
+  // POST /users/friend-request/:userId/respond
+  async respondToFriendRequest(userId: string, accept: boolean): Promise<void> {
+    await this.makeRequest<void>("POST", `/users/friend-request/${userId}/respond`, { data: { accept } });
+  }
 
-        const data = (await res.json()) as UpdateProfilePictureResponse;
-
-        if (!res.ok) {
-            throw new Error((data as any)?.message || 'Erreur lors de la mise à jour de l\'avatar');
-        }
-
-        return data;
-    }
-
-    // DELETE /users/account
-    async deleteAccount(): Promise<void> {
-        const res = await fetch(`${API_URL}/users/account`, {
-            method: 'DELETE',
-            credentials: 'include'
-        });
-
-        if (!res.ok) {
-            const errorData = await res.json();
-            throw new Error(errorData?.message || 'Erreur lors de la suppression du compte');
-        }
-    }
-
-    // GET /users/:userId
-    async getUserProfile(userId: string): Promise<GetUserProfileResponse> {
-        const res = await fetch(`${API_URL}/users/${userId}`, { credentials: 'include' });
-
-        const data = (await res.json()) as GetUserProfileResponse;
-
-        if (!res.ok) {
-            throw new Error((data as any)?.message || 'Erreur lors de la récupération du profil');
-        }
-
-        return data;
-    }
-
-    // GET /users/:userId/friendship
-    async checkFriendshipStatus(userId: string): Promise<CheckFriendshipStatusResponse> {
-        const res = await fetch(`${API_URL}/users/${userId}/friendship`, { credentials: 'include' });
-
-        const data = (await res.json()) as CheckFriendshipStatusResponse;
-
-        if (!res.ok) {
-            throw new Error((data as any)?.message || 'Erreur lors de la vérification du statut');
-        }
-
-        return data;
-    }
-
-    // POST /users/block/:userId
-    async blockUser(userId: string): Promise<void> {
-        const response = await fetch(`${API_URL}/users/block/${userId}`, {
-            method: 'POST',
-            credentials: 'include'
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData?.message || 'Erreur lors du blocage');
-        }
-    }
-
-    // DELETE /users/block/:userId
-    async unblockUser(userId: string): Promise<void> {
-        const response = await fetch(`${API_URL}/users/block/${userId}`, {
-            method: 'DELETE',
-            credentials: 'include'
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData?.message || 'Erreur lors du déblocage');
-        }
-    }
-
-    // POST /users/follow/:userId
-    async followUser(userId: string): Promise<void> {
-        const response = await fetch(`${API_URL}/users/follow/${userId}`, {
-            method: 'POST',
-            credentials: 'include'
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData?.message || 'Erreur lors du suivi');
-        }
-    }
-
-    // DELETE /users/unfollow/:userId
-    async unfollowUser(userId: string): Promise<void> {
-        const response = await fetch(`${API_URL}/users/unfollow/${userId}`, {
-            method: 'DELETE',
-            credentials: 'include'
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData?.message || 'Erreur lors du désabonnement');
-        }
-    }
-
-    // POST /users/friend-request/:userId
-    async sendFriendRequest(userId: string): Promise<void> {
-        const response = await fetch(`${API_URL}/users/friend-request/${userId}`, {
-            method: 'POST',
-            credentials: 'include'
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData?.message || "Erreur lors de l'envoi de la demande");
-        }
-    }
-
-    // POST /users/friend-request/:userId/respond
-    async respondToFriendRequest(userId: string, accept: boolean): Promise<void> {
-        const response = await fetch(`${API_URL}/users/friend-request/${userId}/respond`, {
-            method: 'POST',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ accept })
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData?.message || 'Erreur lors de la réponse à la demande');
-        }
-    }
-
-    // DELETE /users/friend/:userId
-    async removeFriend(userId: string): Promise<void> {
-        const response = await fetch(`${API_URL}/users/friend/${userId}`, {
-            method: 'DELETE',
-            credentials: 'include'
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData?.message || "Erreur lors de la suppression de l'ami");
-        }
-    }
+  // DELETE /users/friend/:userId
+  async removeFriend(userId: string): Promise<void> {
+    await this.makeRequest<void>("DELETE", `/users/friend/${userId}`);
+  }
 }
 
-export const userService = new UserService(); 
+export const userService = new UserService();

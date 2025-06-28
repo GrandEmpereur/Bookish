@@ -1,28 +1,25 @@
-import { CapacitorHttp } from '@capacitor/core';
-import { ToggleFavoriteResponse } from '@/types/postTypes';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+import { apiRequest } from "@/lib/api-client";
+import { ToggleFavoriteResponse } from "@/types/postTypes";
 
 class FavoriteService {
-    async toggleFavorite(postId: string): Promise<ToggleFavoriteResponse> {
-        try {
-            const response = await CapacitorHttp.post({
-                url: `${API_URL}/posts/favorites`,
-                headers: { 'Content-Type': 'application/json' },
-                data: { postId },
-                webFetchExtra: { credentials: 'include' }
-            });
+  /**
+   * Méthode utilitaire pour gérer les requêtes HTTP via le client centralisé
+   */
+  private makeRequest<T>(
+    method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
+    endpoint: string,
+    options?: { data?: unknown; params?: Record<string, any> }
+  ): Promise<T> {
+    return apiRequest<T>(method, endpoint, options);
+  }
 
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de la mise à jour du favori');
-            }
-
-            return response.data;
-        } catch (error: any) {
-            console.error('Toggle favorite error:', error);
-            throw error;
-        }
-    }
+  async toggleFavorite(postId: string): Promise<ToggleFavoriteResponse> {
+    return this.makeRequest<ToggleFavoriteResponse>(
+      "POST",
+      "/posts/favorites",
+      { data: { postId } }
+    );
+  }
 }
 
-export const favoriteService = new FavoriteService(); 
+export const favoriteService = new FavoriteService();

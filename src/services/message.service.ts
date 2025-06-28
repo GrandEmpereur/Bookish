@@ -1,177 +1,104 @@
-import { CapacitorHttp } from '@capacitor/core';
-import { ApiResponse } from '@/types/api';
+import { apiRequest } from "@/lib/api-client";
+import { ApiResponse } from "@/types/api";
 import {
-    Message,
-    SendMessageRequest,
-    UpdateMessageRequest,
-    GetMessagesResponse,
-    GetMessageResponse,
-    SendMessageResponse,
-    UpdateMessageResponse,
-    MessageStats,
-    Conversation,
-    GetConversationsResponse
-} from '@/types/messagerieTypes';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  Message,
+  SendMessageRequest,
+  UpdateMessageRequest,
+  GetMessagesResponse,
+  GetMessageResponse,
+  SendMessageResponse,
+  UpdateMessageResponse,
+  MessageStats,
+  Conversation,
+  GetConversationsResponse,
+} from "@/types/messagerieTypes";
 
 class MessageService {
-    async getMessages(options: {
-        page?: number;
-        limit?: number;
-        conversation_with?: string;
-    }): Promise<ApiResponse<GetMessagesResponse>> {
-        try {
-            const queryParams = new URLSearchParams();
-            if (options?.page) queryParams.append('page', options.page.toString());
-            if (options?.limit) queryParams.append('limit', options.limit.toString());
-            if (options?.conversation_with) queryParams.append('with', options.conversation_with);
+  /**
+   * Méthode utilitaire pour gérer les requêtes HTTP via le client centralisé
+   */
+  private makeRequest<T>(
+    method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
+    endpoint: string,
+    options?: { data?: unknown; params?: Record<string, any> }
+  ): Promise<T> {
+    return apiRequest<T>(method, endpoint, options);
+  }
 
-            const response = await CapacitorHttp.get({
-                url: `${API_URL}/messages?${queryParams.toString()}`,
-                webFetchExtra: { credentials: 'include' }
-            });
+  async getMessages(options: {
+    page?: number;
+    limit?: number;
+    conversation_with?: string;
+  }): Promise<ApiResponse<GetMessagesResponse>> {
+    const params: Record<string, string | number> = {};
+    if (options?.page) params.page = options.page;
+    if (options?.limit) params.limit = options.limit;
+    if (options?.conversation_with) params.with = options.conversation_with;
 
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de la récupération des messages');
-            }
+    return this.makeRequest<ApiResponse<GetMessagesResponse>>(
+      "GET",
+      "/messages",
+      { params }
+    );
+  }
 
-            return response.data;
-        } catch (error: any) {
-            console.error('Get messages error:', error);
-            throw error;
-        }
-    }
+  async getMessage(
+    messageId: string
+  ): Promise<ApiResponse<GetMessageResponse>> {
+    return this.makeRequest<ApiResponse<GetMessageResponse>>(
+      "GET",
+      `/messages/${messageId}`
+    );
+  }
 
-    async getMessage(messageId: string): Promise<ApiResponse<GetMessageResponse>> {
-        try {
-            const response = await CapacitorHttp.get({
-                url: `${API_URL}/messages/${messageId}`,
-                webFetchExtra: { credentials: 'include' }
-            });
+  async sendMessage(
+    data: SendMessageRequest
+  ): Promise<ApiResponse<SendMessageResponse>> {
+    return this.makeRequest<ApiResponse<SendMessageResponse>>(
+      "POST",
+      "/messages",
+      { data }
+    );
+  }
 
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de la récupération du message');
-            }
+  async updateMessage(
+    messageId: string,
+    data: UpdateMessageRequest
+  ): Promise<ApiResponse<UpdateMessageResponse>> {
+    return this.makeRequest<ApiResponse<UpdateMessageResponse>>(
+      "PATCH",
+      `/messages/${messageId}`,
+      { data }
+    );
+  }
 
-            return response.data;
-        } catch (error: any) {
-            console.error('Get message error:', error);
-            throw error;
-        }
-    }
+  async deleteMessage(messageId: string): Promise<ApiResponse<null>> {
+    return this.makeRequest<ApiResponse<null>>(
+      "DELETE",
+      `/messages/${messageId}`
+    );
+  }
 
-    async sendMessage(data: SendMessageRequest): Promise<ApiResponse<SendMessageResponse>> {
-        try {
-            const response = await CapacitorHttp.post({
-                url: `${API_URL}/messages`,
-                headers: { 'Content-Type': 'application/json' },
-                data,
-                webFetchExtra: { credentials: 'include' }
-            });
+  async getConversations(): Promise<ApiResponse<GetConversationsResponse>> {
+    return this.makeRequest<ApiResponse<GetConversationsResponse>>(
+      "GET",
+      "/messages/conversations"
+    );
+  }
 
-            if (response.status !== 201) {
-                throw new Error(response.data.message || 'Erreur lors de l\'envoi du message');
-            }
+  async markConversationAsRead(userId: string): Promise<ApiResponse<null>> {
+    return this.makeRequest<ApiResponse<null>>(
+      "POST",
+      `/messages/read/${userId}`
+    );
+  }
 
-            return response.data;
-        } catch (error: any) {
-            console.error('Send message error:', error);
-            throw error;
-        }
-    }
-
-    async updateMessage(messageId: string, data: UpdateMessageRequest): Promise<ApiResponse<UpdateMessageResponse>> {
-        try {
-            const response = await CapacitorHttp.patch({
-                url: `${API_URL}/messages/${messageId}`,
-                headers: { 'Content-Type': 'application/json' },
-                data,
-                webFetchExtra: { credentials: 'include' }
-            });
-
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de la mise à jour du message');
-            }
-
-            return response.data;
-        } catch (error: any) {
-            console.error('Update message error:', error);
-            throw error;
-        }
-    }
-
-    async deleteMessage(messageId: string): Promise<ApiResponse<null>> {
-        try {
-            const response = await CapacitorHttp.delete({
-                url: `${API_URL}/messages/${messageId}`,
-                webFetchExtra: { credentials: 'include' }
-            });
-
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de la suppression du message');
-            }
-
-            return response.data;
-        } catch (error: any) {
-            console.error('Delete message error:', error);
-            throw error;
-        }
-    }
-
-    async getConversations(): Promise<ApiResponse<GetConversationsResponse>> {
-        try {
-            const response = await CapacitorHttp.get({
-                url: `${API_URL}/messages/conversations`,
-                webFetchExtra: { credentials: 'include' }
-            });
-
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de la récupération des conversations');
-            }
-
-            return response.data;
-        } catch (error: any) {
-            console.error('Get conversations error:', error);
-            throw error;
-        }
-    }
-
-    async markConversationAsRead(userId: string): Promise<ApiResponse<null>> {
-        try {
-            const response = await CapacitorHttp.post({
-                url: `${API_URL}/messages/read/${userId}`,
-                webFetchExtra: { credentials: 'include' }
-            });
-
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors du marquage comme lu');
-            }
-
-            return response.data;
-        } catch (error: any) {
-            console.error('Mark conversation as read error:', error);
-            throw error;
-        }
-    }
-
-    async getMessageStats(): Promise<ApiResponse<MessageStats>> {
-        try {
-            const response = await CapacitorHttp.get({
-                url: `${API_URL}/messages/stats`,
-                webFetchExtra: { credentials: 'include' }
-            });
-
-            if (response.status !== 200) {
-                throw new Error(response.data.message || 'Erreur lors de la récupération des statistiques');
-            }
-
-            return response.data;
-        } catch (error: any) {
-            console.error('Get message stats error:', error);
-            throw error;
-        }
-    }
+  async getMessageStats(): Promise<ApiResponse<MessageStats>> {
+    return this.makeRequest<ApiResponse<MessageStats>>(
+      "GET",
+      "/messages/stats"
+    );
+  }
 }
 
-export const messageService = new MessageService(); 
+export const messageService = new MessageService();
