@@ -1,31 +1,26 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { Capacitor } from "@capacitor/core";
-import { cn } from "@/lib/utils";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SearchBar } from "@/components/search/search-bar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useInfiniteSearch } from "@/hooks/useAdvancedSearch";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
+import { SearchCategory } from "@/types/searchTypes";
 import {
+  AlertCircle,
+  BookOpen,
+  List,
+  Loader2,
+  RefreshCw,
   Search as SearchIcon,
   TrendingUp,
-  Clock,
-  Sparkles,
-  AlertCircle,
-  RefreshCw,
-  User,
-  BookOpen,
   Users,
-  List,
-  Users2,
-  Loader2,
+  Users2
 } from "lucide-react";
-import { useInfiniteSearch } from "@/hooks/useAdvancedSearch";
-import { SearchCategory } from "@/types/searchTypes";
-import { SearchBar } from "@/components/search/search-bar";
-import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect } from "react";
 
 const TRENDING_SEARCHES = [
   "Harry Potter",
@@ -233,7 +228,7 @@ function SearchPageContent() {
     switch (type) {
       case "user":
         return (
-          <Card key={item.id} className="p-2 hover:shadow-md transition-shadow">
+          <Card key={item.id} className="p-2 hover:shadow-md transition-shadow" onClick={() => router.push(`/profile/${item.id}`)}>
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-semibold">
                 {item.username?.[0]?.toUpperCase() || "U"}

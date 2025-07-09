@@ -123,7 +123,38 @@ export interface GetAuthenticatedProfileResponse {
 export interface GetUserProfileResponse {
   status: "success";
   data: {
-    profile: UserProfile;
+    user: {
+      id: string;
+      username: string;
+      created_at: string;
+      is_verified: boolean;
+    };
+    profile: {
+      id: string;
+      userId: string;
+      firstName: string | null;
+      lastName: string | null;
+      birthDate: string;
+      bio: string | null;
+      profilePicturePath: string | null;
+      location: string | null;
+      role: UserRole;
+      readingHabit: ReadingHabit;
+      usagePurpose: UsagePurpose;
+      preferredGenres: string[];
+      profileVisibility: ProfileVisibility;
+      allowFollowRequests: boolean;
+      emailNotifications: boolean;
+      pushNotifications: boolean;
+      newsletterSubscribed: boolean;
+      createdAt: string;
+      updatedAt: string;
+      profile_picture_url: string | null;
+    };
+    stats: {
+      followers_count: number;
+      following_count: number;
+    };
   };
 }
 

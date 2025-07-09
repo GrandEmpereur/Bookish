@@ -125,9 +125,7 @@ export default function BookDetail({ id }: BookProps) {
   return (
     <div className="space-y-6 pt-[38px] bg-accent-100 overflow-hidden">
       {/* Image + bouton ajout */}
-      <div
-        className="w-[130px] h-[200px] relative mx-auto px-5 "
-      >
+      <div className="w-[130px] h-[200px] relative mx-auto px-5 ">
         <Image
           src={book.coverImage || "/placeholder.png"}
           alt={book.title}
