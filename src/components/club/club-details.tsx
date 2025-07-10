@@ -58,7 +58,7 @@ export default function ClubDetails({ clubId }: ClubDetailsProps) {
                   Public
                 </Badge>
               ) : (
-                <Badge variant="secondary" className="flex items-center gap-1">
+                <Badge variant="outline" className="flex items-center gap-1">
                   <Lock className="h-3 w-3" />
                   Privé
                 </Badge>
@@ -81,7 +81,9 @@ export default function ClubDetails({ clubId }: ClubDetailsProps) {
                 </Avatar>
                 <div>
                   <p className="text-sm font-medium">{admin.username}</p>
-                  <p className="text-xs text-muted-foreground">{admin.role}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Modère ce club
+                  </p>
                 </div>
               </div>
             ))}
@@ -134,7 +136,7 @@ export default function ClubDetails({ clubId }: ClubDetailsProps) {
                   <div className="flex items-center gap-4 pt-2">
                     <button className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors">
                       <Heart
-                        className={`h-4 w-4 ${post.isLiked ? "fill-primary text-primary" : ""}`}
+                        className={`h-4 w-4 ${post.isLiked ? "fill-like text-like" : ""}`}
                       />
                       <span>{post.likesCount}</span>
                     </button>

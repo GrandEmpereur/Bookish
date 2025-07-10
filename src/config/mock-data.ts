@@ -93,7 +93,7 @@ export const MOCK_CLUBS = [
         {
           id: "1",
           username: "Lila",
-          role: "Modéré par",
+          role: "Modère ce club",
           avatarUrl: "https://picsum.photos/seed/admin1/40/40",
         },
       ],
@@ -129,7 +129,7 @@ export const MOCK_CLUBS = [
     coverImage: "https://picsum.photos/seed/club2/400/400",
     moderator: {
       username: "Samir",
-      role: "modère ce club",
+      role: "Modéré par",
       avatarUrl: "https://picsum.photos/seed/admin2/40/40",
     },
     type: "public",
@@ -140,7 +140,7 @@ export const MOCK_CLUBS = [
         {
           id: "2",
           username: "Samir",
-          role: "Modéré par",
+          role: "Modère ce club",
           avatarUrl: "https://picsum.photos/seed/admin2/40/40",
         },
       ],
@@ -187,7 +187,7 @@ export const MOCK_CLUBS = [
         {
           id: "3",
           username: "Alex",
-          role: "Modéré par",
+          role: "Modère ce club",
           avatarUrl: "https://picsum.photos/seed/admin3/40/40",
         },
       ],
@@ -234,7 +234,7 @@ export const MOCK_CLUBS = [
         {
           id: "4",
           username: "Marie",
-          role: "Modéré par",
+          role: "Modère ce club",
           avatarUrl: "https://picsum.photos/seed/admin4/40/40",
         },
       ],
@@ -281,7 +281,7 @@ export const MOCK_CLUBS = [
         {
           id: "5",
           username: "Yuki",
-          role: "Modéré par",
+          role: "Modère ce club",
           avatarUrl: "https://picsum.photos/seed/admin5/40/40",
         },
       ],
@@ -328,7 +328,7 @@ export const MOCK_CLUBS = [
         {
           id: "6",
           username: "Pierre",
-          role: "Modéré par",
+          role: "Modère ce club",
           avatarUrl: "https://picsum.photos/seed/admin6/40/40",
         },
       ],
@@ -375,7 +375,7 @@ export const MOCK_CLUBS = [
         {
           id: "7",
           username: "Sophie",
-          role: "Modéré par",
+          role: "Modère ce club",
           avatarUrl: "https://picsum.photos/seed/admin7/40/40",
         },
       ],
@@ -422,7 +422,7 @@ export const MOCK_CLUBS = [
         {
           id: "8",
           username: "Thomas",
-          role: "Modéré par",
+          role: "Modère ce club",
           avatarUrl: "https://picsum.photos/seed/admin8/40/40",
         },
       ],
@@ -469,7 +469,7 @@ export const MOCK_CLUBS = [
         {
           id: "9",
           username: "Claire",
-          role: "Modéré par",
+          role: "Modère ce club",
           avatarUrl: "https://picsum.photos/seed/admin9/40/40",
         },
       ],
@@ -516,7 +516,7 @@ export const MOCK_CLUBS = [
         {
           id: "10",
           username: "Lucas",
-          role: "Modéré par",
+          role: "Modère ce club",
           avatarUrl: "https://picsum.photos/seed/admin10/40/40",
         },
       ],

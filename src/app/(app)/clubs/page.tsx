@@ -49,11 +49,9 @@ export default function Clubs() {
 
             {/* Modérateur */}
             <div className="flex items-center gap-1">
+              <span className="text-muted-foreground text-sm">Modéré par</span>
               <span className="text-muted-foreground text-sm">
                 {club.moderator.username}
-              </span>
-              <span className="text-muted-foreground text-sm">
-                {club.moderator.role}
               </span>
             </div>
 

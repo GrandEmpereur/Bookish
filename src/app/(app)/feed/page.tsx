@@ -370,7 +370,7 @@ export default function Feed() {
                           size="sm"
                           className={cn(
                             "text-muted-foreground hover:text-primary flex items-center gap-1.5 group md:text-base",
-                            likedPosts.has(post.id) && "text-primary"
+                            likedPosts.has(post.id) && "text-like"
                           )}
                           onClick={() => handleLike(post.id)}
                         >
