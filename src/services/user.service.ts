@@ -95,7 +95,8 @@ class UserService {
 
   // POST /users/friend-request/:userId/respond
   async respondToFriendRequest(userId: string, accept: boolean): Promise<void> {
-    await this.makeRequest<void>("POST", `/users/friend-request/${userId}/respond`, { data: { accept } });
+    const acceptValue = accept ? "accept" : "decline";
+    await this.makeRequest<void>("POST", `/users/friend-request/${userId}/respond`, { data: { accept: acceptValue } });
   }
 
   // DELETE /users/friend/:userId

@@ -21,6 +21,7 @@ export type RelationStatus = "accepted" | "declined" | "pending";
 export interface UserProfile {
   id: string;
   username: string;
+  requesterUsername: string;
   email: string;
   created_at: string;
   is_verified: boolean;
