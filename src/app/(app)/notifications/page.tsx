@@ -78,6 +78,26 @@ const NotificationsPage = () => {
   const [loading, setLoading] = useState(true);
   const [processingRequests, setProcessingRequests] = useState<Set<string>>(new Set());
 
+  const handleDeleteNotification = async (notificationId: string) => {
+    try {
+      setProcessingRequests(prev => new Set(prev).add(notificationId));
+      await notificationService.deleteNotification(notificationId);
+      
+      // Mettre à jour l'état local pour retirer la notification
+      setNotifications(prev => 
+        prev.filter(notif => notif.id !== notificationId)
+      );
+    } catch (error) {
+      console.error('Erreur lors de la suppression de la notification:', error);
+    } finally {
+      setProcessingRequests(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(notificationId);
+        return newSet;
+      });
+    }
+  };
+
   const handleFriendRequestResponse = async (notificationId: string, senderId: string, acceptRequest: boolean) => {
     console.log('senderId reçu:', senderId);
     
@@ -94,8 +114,16 @@ const NotificationsPage = () => {
       setNotifications(prev => 
         prev.filter(notif => notif.id !== notificationId)
       );
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur lors de la réponse à la demande d\'ami:', error);
+      
+      // Si l'erreur est 404 (demande déjà traitée), supprimer simplement la notification
+      if (error?.message?.includes('404') || error?.status === 404) {
+        console.log('La demande d\'ami a déjà été traitée, suppression de la notification');
+        setNotifications(prev => 
+          prev.filter(notif => notif.id !== notificationId)
+        );
+      }
     } finally {
       setProcessingRequests(prev => {
         const newSet = new Set(prev);
@@ -127,8 +155,19 @@ const NotificationsPage = () => {
           {notifications.map((notif) => (
             <div
               key={notif.id}
-              className={`flex items-center gap-4 rounded-xl px-4 py-3 ${!notif.read ? "bg-muted/40" : ""}`}
+              className={`relative flex items-center gap-4 rounded-xl px-4 py-3 ${!notif.read ? "bg-muted/40" : ""}`}
             >
+              {/* Bouton de suppression pour toutes les notifications */}
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => handleDeleteNotification(notif.id)}
+                disabled={processingRequests.has(notif.id)}
+                className="absolute top-2 right-2 w-6 h-6 p-0 text-muted-foreground hover:text-red-600 hover:bg-red-50"
+              >
+                <X className="w-3 h-3" />
+              </Button>
+
               <Avatar>
                 {notif.user?.profile?.profile_picture_url ? (
                   <AvatarImage src={notif.user.profile.profile_picture_url} alt="avatar" />
@@ -138,7 +177,7 @@ const NotificationsPage = () => {
                   </AvatarFallback>
                 )}
               </Avatar>
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 pr-8">
                 <div className="text-base text-muted-foreground">
                   {getNotificationText(notif)}
                 </div>
@@ -167,9 +206,9 @@ const NotificationsPage = () => {
                         handleFriendRequestResponse(notif.id, userId, false);
                       }}
                       disabled={processingRequests.has(notif.id)}
-                      className="w-8 h-8 p-0 border-red-200 text-red-600 hover:bg-red-50"
+                      className="border-red-200 text-red-600 hover:bg-red-50"
                     >
-                      <X className="w-4 h-4" />
+                      Refuser
                     </Button>
                   </div>
                 )}
