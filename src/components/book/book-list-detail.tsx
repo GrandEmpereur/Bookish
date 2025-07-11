@@ -169,9 +169,7 @@ export default function BookListDetail({ id }: BookListDetailProps) {
                 <Calendar className="h-4 w-4" />
                 <span>
                   Créée le{" "}
-                  {format(new Date(bookList.createdAt), "dd MMMM yyyy", {
-                    locale: fr,
-                  })}
+                  
                 </span>
               </div>
               <div className="flex items-center gap-1">
