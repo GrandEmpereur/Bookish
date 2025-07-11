@@ -8,13 +8,10 @@ import {
   Bookmark,
   Share2,
   Loader2,
-  RefreshCw,
   Flag,
-  MoreHorizontal,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { formatDistanceToNow } from "date-fns";
-import { fr } from "date-fns/locale";
+import { safeFormatDistanceToNow } from "@/lib/date";
 import Image from "next/image";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Share } from "@capacitor/share";
@@ -332,10 +329,7 @@ export default function Feed() {
                             {post.user?.username}
                           </span>
                           <span className="text-sm text-muted-foreground">
-                            {formatDistanceToNow(new Date(post.createdAt), {
-                              addSuffix: false,
-                              locale: fr,
-                            })}
+                            {safeFormatDistanceToNow(post.createdAt)}
                           </span>
                         </div>
                         <h2 className="text-sm md:text-base text-muted-foreground mt-0.5">

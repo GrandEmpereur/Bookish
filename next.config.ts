@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
-  allowedDevOrigins: ["192.168.1.68", "localhost", "127.0.0.1", "0.0.0.0"],
+  allowedDevOrigins: ['local-origin.dev', '*.local-origin.dev', '192.168.1.86', '10.2.160.133'],
   // Configuration Turbopack pour éviter les conflits avec webpack
   turbopack: {
     // Résolution d'alias si nécessaire

@@ -45,8 +45,7 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
-import { formatDistanceToNow } from "date-fns";
-import { fr } from "date-fns/locale";
+import { safeFormatDistanceToNow } from "@/lib/date";
 
 const PIE_COLORS = ["#ec4899", "#dc2626", "#22c55e", "#ffffff"];
 
@@ -393,10 +392,7 @@ export default function Profile() {
           <div className="flex items-center justify-between">
             <span className="font-medium">{post.user?.username}</span>
             <span className="text-sm text-muted-foreground">
-              {formatDistanceToNow(new Date(post.createdAt), {
-                addSuffix: true,
-                locale: fr,
-              })}
+              {safeFormatDistanceToNow(post.createdAt, true)}
             </span>
           </div>
           <h3 className="text-sm text-muted-foreground">{post.title}</h3>

@@ -4,8 +4,7 @@ import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { formatDistanceToNow } from "date-fns";
-import { fr } from "date-fns/locale";
+import { safeFormatDistanceToNow } from "@/lib/date";
 import { Loader2, Heart } from "lucide-react";
 import { commentService } from "@/services/comment.service";
 import { likeService } from "@/services/like.service";
@@ -278,10 +277,7 @@ export function CommentsSection({ postId }: CommentsProps) {
                       {comment.user.username}
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(new Date(comment.createdAt), {
-                        addSuffix: true,
-                        locale: fr,
-                      })}
+                      {safeFormatDistanceToNow(comment.createdAt, true)}
                     </span>
                   </div>
                 </div>
@@ -336,13 +332,7 @@ export function CommentsSection({ postId }: CommentsProps) {
                                 {reply.user.username}
                               </span>
                               <span className="text-xs text-muted-foreground">
-                                {formatDistanceToNow(
-                                  new Date(reply.createdAt),
-                                  {
-                                    addSuffix: true,
-                                    locale: fr,
-                                  }
-                                )}
+                                {safeFormatDistanceToNow(reply.createdAt, true)}
                               </span>
                             </div>
                             <span className="text-xs text-muted-foreground mt-0.5">
