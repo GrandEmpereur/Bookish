@@ -21,6 +21,7 @@ export type RelationStatus = "accepted" | "declined" | "pending";
 export interface UserProfile {
   id: string;
   username: string;
+  requesterUsername: string;
   email: string;
   created_at: string;
   is_verified: boolean;
@@ -122,41 +123,58 @@ export interface GetAuthenticatedProfileResponse {
 
 export interface GetUserProfileResponse {
   status: "success";
+  message: string;
   data: {
-    user: {
-      id: string;
-      username: string;
-      created_at: string;
-      is_verified: boolean;
-    };
+    id: string;
+    username: string;
+    is_verified: boolean;
+    created_at: string;
     profile: {
-      id: string;
-      userId: string;
-      firstName: string | null;
-      lastName: string | null;
-      birthDate: string;
-      bio: string | null;
-      profilePicturePath: string | null;
-      location: string | null;
-      role: UserRole;
-      readingHabit: ReadingHabit;
-      usagePurpose: UsagePurpose;
-      preferredGenres: string[];
-      profileVisibility: ProfileVisibility;
-      allowFollowRequests: boolean;
-      emailNotifications: boolean;
-      pushNotifications: boolean;
-      newsletterSubscribed: boolean;
-      createdAt: string;
-      updatedAt: string;
+      first_name: string | null;
+      last_name: string | null;
+      full_name: string | null;
+      profile_picture_path: string | null;
       profile_picture_url: string | null;
+      bio?: string | null;
+      readingHabit?: string;
+      usagePurpose?: string;
+      preferredGenres?: string[];
+      role?: string;
     };
-    stats: {
+    stats?: {
       followers_count: number;
       following_count: number;
     };
+    posts: {
+      id: string;
+      title: string;
+      subject: string;
+      content: string;
+      likes_count: number;
+      comments_count: number;
+      images: string[];
+      has_images: boolean;
+      images_count: number;
+      created_at: string;
+      updated_at: string;
+    }[];
+    posts_count: number;
+    clubs: any[];
+    clubs_count: number;
+    book_lists: {
+      id: string;
+      name: string;
+      description: string;
+      cover_image: string | null;
+      visibility: string;
+      genre: string;
+      book_count: number;
+      created_at: string;
+    }[];
+    book_lists_count: number;
   };
 }
+
 
 export interface GetUserRelationsResponse {
   status: "success";

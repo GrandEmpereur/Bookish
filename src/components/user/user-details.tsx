@@ -1,24 +1,37 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, CircleDashed, Globe, Heart, Key, Star, Users } from "lucide-react";
-import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
 import { Skeleton } from "@/components/ui/skeleton";
-import { toast } from "sonner";
-import { GetUserProfileResponse } from "@/types/userTypes";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { userService } from "@/services/user.service";
+import { GetUserProfileResponse } from "@/types/userTypes";
+import { formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale";
+import { Book, BookOpen, CircleDashed, Globe, Heart, Loader2, Lock, MessageSquare, UserPlus, Users } from "lucide-react";
+import Image from "next/image";
+import { useParams, useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import { Club } from "@/types/clubTypes";
 
-const PIE_COLORS = ["#F3D7D7", "#C5CFC9", "#9FB8AD", "#6DA37F", "#416E54"];
+interface LoadingStates {
+  profile: boolean;
+  bookLists: boolean;
+  posts: boolean;
+  clubs: boolean;
+  reviews: boolean;
+}
 
 export default function UserDetails() {
   const { userId } = useParams();
   const router = useRouter();
   const [data, setData] = useState<GetUserProfileResponse | null>(null);
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState("posts");
   const [loading, setLoading] = useState(true);
+  const [isSending, setIsSending] = useState(false);
+  const [hasSentRequest, setHasSentRequest] = useState(false);
 
   const fetchUserProfile = useCallback(async () => {
     try {
@@ -32,9 +45,107 @@ export default function UserDetails() {
     }
   }, [userId]);
 
+  const sendFriendRequest = useCallback(async () => {
+    if (!data?.data?.id || hasSentRequest) return;
+    try {
+      setIsSending(true);
+      await userService.sendFriendRequest(data.data.id);
+      toast.success("Demande d'ami envoyée !");
+      setHasSentRequest(true);
+    } catch (e) {
+      console.error(e);
+      toast.error("Impossible d'envoyer la demande d'ami");
+    } finally {
+      setIsSending(false);
+    }
+  }, [data?.data?.id, hasSentRequest]);
+
   useEffect(() => {
     fetchUserProfile();
   }, [fetchUserProfile]);
+
+  const [loadingStates, setLoadingStates] = useState<LoadingStates>({
+    profile: true,
+    bookLists: false,
+    posts: false,
+    clubs: false,
+    reviews: false,
+  });
+
+  const renderSkeleton = (type: "posts" | "book_lists" | "clubs") => (
+    <div className="space-y-4 mt-4">
+      {[...Array(3)].map((_, i) => (
+        <Skeleton key={i} className="h-24 w-full rounded-lg" />
+      ))}
+    </div>
+  );
+  
+  const renderEmptyState = (type: "posts" | "book_lists" | "clubs", onClick?: () => void) => {
+    const labels = {
+      posts: "Vous n'avez pas encore publié de posts",
+      book_lists: "Aucune liste de livres disponible",
+      clubs: "Aucun club rejoint",
+    };
+  
+    const cta = {
+      posts: "Créer un post",
+      book_lists: "Créer une liste",
+      clubs: "Découvrir les clubs",
+    };
+  
+    const routes = {
+      posts: "/feed/create",
+      book_lists: "/library/create",
+      clubs: "/clubs",
+    };
+  
+    return (
+      <div className="text-center py-8">
+        <MessageSquare className="w-12 h-12 mx-auto text-muted-foreground opacity-50" />
+        <p className="mt-4 text-muted-foreground">{labels[type]}</p>
+        {onClick && (
+          <Button variant="outline" className="mt-4" onClick={onClick}>
+            {cta[type]}
+          </Button>
+        )}
+      </div>
+    );
+  };
+  
+  const renderClubCard = (club: Club) => (
+    <button
+      key={club.id}
+      onClick={() => router.push(`/clubs/${club.id}`)}
+      className="w-full text-left p-4 border rounded-lg space-y-3 hover:bg-accent transition-colors"
+    >
+      <div className="flex gap-3">
+        <div className="relative h-12 w-12 overflow-hidden rounded-lg">
+          {club.club_picture ? (
+            <Image src={club.club_picture} alt={club.name} fill className="object-cover" />
+          ) : (
+            <div className="w-full h-full bg-muted flex items-center justify-center">
+              <Users className="h-6 w-6 text-muted-foreground" />
+            </div>
+          )}
+        </div>
+        <div className="flex-1">
+          <div className="flex items-center justify-between">
+            <h3 className="font-medium">{club.name}</h3>
+            <Badge variant={club.type === "Private" ? "secondary" : "outline"}>
+              {club.type === "Private" ? "Privé" : "Public"}
+            </Badge>
+          </div>
+          <p className="text-sm text-muted-foreground line-clamp-2">{club.description}</p>
+          <div className="flex items-center gap-2 mt-2">
+            <Badge variant="outline" className="text-xs">
+              {club.member_count} membre{club.member_count > 1 ? "s" : ""}
+            </Badge>
+            <Badge variant="outline" className="text-xs">{club.genre}</Badge>
+          </div>
+        </div>
+      </div>
+    </button>
+  );  
 
   if (loading || !data) {
     return (
@@ -47,7 +158,8 @@ export default function UserDetails() {
     );
   }
 
-  const { profile } = data.data;
+  const profile = data.data.profile;
+  const posts = data.data.posts || [];
 
   return (
     <div className="min-h-dvh bg-background">
@@ -55,78 +167,203 @@ export default function UserDetails() {
         {/* Header */}
         <div className="flex items-start space-x-4 mb-2 mt-20">
           <Avatar className="w-16 h-16 border-4 border-[#F3D7D7] bg-[#F3D7D7]">
-          <AvatarImage
-            src={profile.profilePicturePath ?? "/avatar.png"}
-            alt={profile.firstName || "Profil"}
-          />
-          <AvatarFallback>
-            {profile.firstName?.[0] || profile.role?.[0] || "U"}
-          </AvatarFallback>
-        </Avatar>
+            <AvatarImage
+              src={profile.profile_picture_url ?? "/avatar.png"}
+              alt={profile.first_name || "Profil"}
+            />
+            <AvatarFallback>
+              {profile.first_name?.[0] || "U"}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1">
+            <h1 className="text-xl font-bold">{data.data.username}</h1>
 
-        <div className="flex-1">
-          <h1 className="text-xl font-bold">{data.data.user.username  || profile.role}</h1>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {profile.preferredGenres?.slice(0, 2).map((genre, i) => (
+                <span key={i} className="bg-[#F5F5F5] text-xs rounded-full px-3 py-1">
+                  {genre}
+                </span>
+              ))}
+              {profile.readingHabit && (
+                <div className="bg-purple-100 text-purple-700 rounded-full px-3 py-1 text-xs font-medium">
+                  {profile.readingHabit}
+                </div>
+              )}
+            </div>
+            <p className="text-sm text-muted-foreground">{profile.bio || "Aucune bio disponible"}</p>
+          </div>
+          {isSending ? (
+            <Loader2 className="w-4 h-4 animate-spin text-purple-700" />
+          ) : (
+            <UserPlus
+              className={`w-4 h-4 text-purple-700 ${hasSentRequest ? "opacity-50 pointer-events-none" : "cursor-pointer hover:text-purple-900"
+                }`}
+              onClick={sendFriendRequest}
+            />
+          )}
+        </div>
 
-          <div className="mt-2 flex flex-wrap gap-2">
-            {profile.preferredGenres?.slice(0, 2).map((genre, i) => (
-              <span key={i} className="bg-[#F5F5F5] text-xs rounded-full px-3 py-1">
-                {genre}
+        {/* Stats */}
+        <div className="relative w-full rounded-xl px-6 py-4 bg-[#2F4739] overflow-hidden">
+          <div className="relative z-10 flex justify-between items-center">
+            <div className="flex flex-col items-center flex-1">
+              <CircleDashed className="w-5 h-5 text-white/80" />
+              <span className="text-xs text-white/70">Suivis</span>
+              <span className="text-white font-bold">
+                {data.data.stats?.following_count || 0}
               </span>
-            ))}
-            <div className="bg-purple-100 text-purple-700 rounded-full px-3 py-1 text-xs font-medium">
-              {profile.readingHabit}
+            </div>
+            <div className="h-8 w-px bg-white/30" />
+            <div className="flex flex-col items-center flex-1">
+              <Globe className="w-5 h-5 text-white/80" />
+              <span className="text-xs text-white/70">Abonnés</span>
+              <span className="text-white font-bold">
+                {data.data.stats?.followers_count || 0}
+              </span>
             </div>
           </div>
-            <p className="text-sm text-muted-foreground">{profile.bio || "Aucune bio disponible"}</p>
         </div>
-      </div>
 
-      {/* Stats */}
-      <div className="relative w-full rounded-xl px-6 py-4 bg-[#2F4739] overflow-hidden">
-        <div className="relative z-10 flex justify-between items-center">
-          <div className="flex flex-col items-center flex-1">
-            <CircleDashed className="w-5 h-5 text-white/80" />
-            <span className="text-xs text-white/70">Suivis</span>
-            <span className="text-white font-bold">
-              {data.data.stats?.following_count || 0}
-            </span>
-          </div>
-          <div className="h-8 w-px bg-white/30" />
-          <div className="flex flex-col items-center flex-1">
-            <Globe className="w-5 h-5 text-white/80" />
-            <span className="text-xs text-white/70">Abonnés</span>
-            <span className="text-white font-bold">
-              {data.data.stats?.followers_count || 0}
-            </span>
-          </div>
-        </div>
-      </div>
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mt-6">
+          <TabsList className="flex justify-center gap-4">
+            <TabsTrigger value="posts">Posts</TabsTrigger>
+            <TabsTrigger value="liste">Listes</TabsTrigger>
+            <TabsTrigger value="club">Club</TabsTrigger>
+          </TabsList>
 
-      {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mt-6">
-        <TabsList className="flex justify-center gap-4">
-          <TabsTrigger value="overview">Résumé</TabsTrigger>
-          <TabsTrigger value="reading">Lecture</TabsTrigger>
-        </TabsList>
 
-        <TabsContent value="overview">
-          <Card className="mt-4 p-4">
-            <h2 className="font-semibold mb-2">Rôle</h2>
-            <p>{profile.role}</p>
-          </Card>
-        </TabsContent>
+          <TabsContent value="posts">
+            {posts.length > 0 ? (
+              <div className="space-y-4 mt-4">
+                {posts.map((post) => (
+                  <button
+                    key={post.id}
+                    onClick={() => router.push(`/feed/${post.id}`)}
+                    className="w-full text-left p-4 border rounded-lg space-y-3 hover:bg-accent transition-colors"
+                  >
+                    <div className="flex gap-3">
+                      <Avatar className="h-10 w-10">
+                        <AvatarFallback>
+                          {data.data.username?.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium">{data.data.username}</span>
+                          <span className="text-sm text-muted-foreground">
+                            {formatDistanceToNow(new Date(post.created_at), {
+                              addSuffix: true,
+                              locale: fr,
+                            })}
+                          </span>
+                        </div>
+                        <h3 className="text-sm text-muted-foreground">{post.title}</h3>
+                        {post.subject === "book_review" && (
+                          <div className="mt-1 inline-block bg-muted text-muted-foreground text-xs px-2 py-0.5 rounded-full">
+                            Critique de livre
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-sm">{post.content}</p>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <Heart className="w-4 h-4" />
+                        <span>{post.likes_count}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <MessageSquare className="w-4 h-4" />
+                        <span>{post.comments_count}</span>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <MessageSquare className="w-12 h-12 mx-auto text-muted-foreground opacity-50" />
+                <p className="mt-4 text-muted-foreground">Il n'a pas encore publié de posts</p>
+              </div>)}
+          </TabsContent>
 
-        <TabsContent value="reading">
-          <Card className="mt-4 p-4">
-            <h2 className="font-semibold mb-2">Préférences de lecture</h2>
-            <ul className="list-disc list-inside text-sm">
-              <li>Habitude : {profile.readingHabit}</li>
-              <li>Objectif : {profile.usagePurpose}</li>
-              <li>Genres préférés : {profile.preferredGenres.join(", ") || "aucun"}</li>
-            </ul>
-          </Card>
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="liste">
+            {data.data.book_lists.length > 0 ? (
+              <div className="space-y-6">
+                {data.data.book_lists.map((list) => (
+                  <Card
+                    key={list.id}
+                    className="py-0 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+                    onClick={() => router.push(`/library/${list.id}`)}
+                  >
+                    <div className="p-4 flex flex-row gap-4">
+                      {list.cover_image ? (
+                        <div className="relative w-24 h-32 shrink-0">
+                          <Image
+                            src={list.cover_image}
+                            alt={list.name}
+                            fill
+                            className="object-cover rounded-md"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-24 h-32 shrink-0 bg-muted flex items-center justify-center rounded-md">
+                          <Book className="h-8 w-8 text-muted-foreground" />
+                        </div>
+                      )}
+
+                      <div className="flex-1 flex flex-col justify-between min-h-[130px]">
+                        <div className="flex items-start justify-between">
+                          <div className="space-y-1">
+                            <h3 className="font-semibold">{list.name}</h3>
+
+                            <div className="flex flex-wrap gap-2 mb-2">
+                              <Badge variant="default" className="text-xs">
+                                {list.genre.charAt(0).toUpperCase() + list.genre.slice(1)}
+                              </Badge>
+                              <Badge
+                                variant="outline"
+                                className="text-xs flex items-center gap-1"
+                              >
+                                <BookOpen className="h-3 w-3" />
+                                {list.book_count} {list.book_count > 1 ? "livres" : "livre"}
+                              </Badge>
+                            </div>
+
+                            {list.description && (
+                              <p className="text-xs text-muted-foreground line-clamp-3">
+                                {list.description}
+                              </p>
+                            )}
+                          </div>
+                          {list.visibility === "private" ? (
+                            <Lock className="h-4 w-4 mt-1 text-muted-foreground shrink-0" />
+                          ) : (
+                            <Globe className="h-4 w-4 mt-1 text-muted-foreground shrink-0" />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">Aucune liste de livres disponible.</p>
+            )}
+          </TabsContent>
+
+          <TabsContent value="club">
+  {loadingStates.clubs ? (
+    renderSkeleton("clubs")
+  ) : data.data.clubs.length === 0 ? (
+    renderEmptyState("clubs", () => router.push("/clubs"))
+  ) : (
+    <div className="space-y-4">
+      {data.data.clubs.map(club => renderClubCard(club))}
+    </div>
+  )}
+</TabsContent>
+        </Tabs>
       </main>
     </div>
   );

@@ -1,29 +1,24 @@
 //profile/page.tsx
 "use client";
 
+import BookListCards from "@/components/library/book-list-cards";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/auth-context";
-import { toast } from "sonner";
 import { bookListService } from "@/services/book-list.service";
-import { userService } from "@/services/user.service";
-import { postService } from "@/services/post.service";
 import { clubService } from "@/services/club.service";
-import BookListCards from "@/components/library/book-list-cards";
-import type { Post } from "@/types/postTypes";
-import type { UserProfile, UserRelations } from "@/types/userTypes";
+import { postService } from "@/services/post.service";
+import { userService } from "@/services/user.service";
 import type { BookList } from "@/types/bookListTypes";
 import type { Club } from "@/types/clubTypes";
+import type { Post } from "@/types/postTypes";
+import type { UserProfile, UserRelations } from "@/types/userTypes";
+import { formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale";
 import {
   BookOpen,
   CircleDashed,
@@ -36,7 +31,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Cell,
   Legend,
@@ -46,6 +41,7 @@ import {
   Tooltip,
 } from "recharts";
 import { safeFormatDistanceToNow } from "@/lib/date";
+import { toast } from "sonner";
 
 const PIE_COLORS = ["#ec4899", "#dc2626", "#22c55e", "#ffffff"];
 
@@ -145,6 +141,7 @@ export default function Profile() {
       const userProfile: UserProfile = {
         id: responseData.user.id,
         username: responseData.user.username,
+        requesterUsername: responseData.user.username, // L'utilisateur consulte son propre profil
         email: responseData.user.email,
         created_at: responseData.user.created_at,
         is_verified: responseData.user.is_verified,
