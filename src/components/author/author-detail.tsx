@@ -59,11 +59,18 @@ export default function AuthorDetail({ id }: BookProps) {
   const fetchBooksByGenre = async (genre: string, currentBookId: string) => {
     try {
       const res = await bookService.getBooks();
-      const filtered = res.data.data
+
+      if (!res.data || !Array.isArray(res.data)) {
+        throw new Error("Liste de livres invalide");
+      }
+
+      const filtered = res.data
         .filter((b: Book) => b.genre === genre && b.id !== currentBookId)
         .slice(0, 10);
+
       setRelatedBooks(filtered);
-    } catch {
+    } catch (err) {
+      console.error(err);
       toast.error("Erreur lors du chargement des livres similaires");
     }
   };
@@ -130,9 +137,31 @@ export default function AuthorDetail({ id }: BookProps) {
         </div> */}
       </div>
 
-      <p className="text-sm flex justify-center">
+      {/* <p className="text-sm flex justify-center">
         <span className="font-semibold">6 &nbsp;</span> livres
       </p>
+
+      {book.genre && (
+        <div className="flex gap-2 flex-wrap justify-center">
+          <Badge variant="default" className="capitalize">
+            {book.genre}
+          </Badge>
+        </div>
+      )} */}
+
+      <div className="flex flex-col justify-center gap-1">
+        <p className="text-sm flex justify-center">
+          <span className="font-semibold">6&nbsp;</span> livres
+        </p>
+
+        {book.genre && (
+          <div className="flex gap-2 flex-wrap justify-center">
+            <Badge variant="default" className="capitalize">
+              {book.genre}
+            </Badge>
+          </div>
+        )}
+      </div>
 
       <div className="relative">
         <div className="absolute top-[-130px]  -translate-x-1/2 w-full z-1">
@@ -156,13 +185,13 @@ export default function AuthorDetail({ id }: BookProps) {
 
           {/* Tags + description */}
           <div className="flex flex-col gap-2">
-            {book.genre && (
+            {/* {book.genre && (
               <div className="flex gap-2 flex-wrap">
                 <Badge variant="default" className="capitalize">
                   {book.genre}
                 </Badge>
               </div>
-            )}
+            )} */}
 
             <h2 className="text-lg font-bold">Description</h2>
             <p className="text-sm text-muted-foreground whitespace-pre-line">
