@@ -2,45 +2,47 @@
 
 import React, { useEffect, useState } from "react";
 import { notificationService } from "@/services/notification.service";
+import { userService } from "@/services/user.service";
 import { Notification } from "@/types/notificationTypes";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Check, X } from "lucide-react";
 
 
 function getNotificationText(notification: Notification) {
-  const firstName = notification.user?.profile?.first_name || "";
-  const lastName = notification.user?.profile?.last_name || "";
+  const senderName = notification.data?.senderName || notification.user?.username || "Utilisateur";
   switch (notification.type) {
     case "new_message":
       return (
-        <span><b>{firstName} {lastName}</b> vous a envoyé un nouveau message.</span>
+        <span><b>{senderName}</b> vous a envoyé un nouveau message.</span>
       );
     case "friend_request":
       return (
-        <span><b>{firstName} {lastName}</b> vous a envoyé une demande d'ami.</span>
+        <span><b>{senderName}</b> vous a envoyé une demande d'ami.</span>
       );
     case "friend_request_accepted":
       return (
-        <span><b>{firstName} {lastName}</b> a accepté votre demande d'ami.</span>
+        <span><b>{senderName}</b> a accepté votre demande d'ami.</span>
       );
     case "follow":
       return (
-        <span><b>{firstName} {lastName}</b> a commencé à vous suivre.</span>
+        <span><b>{senderName}</b> a commencé à vous suivre.</span>
       );
     case "like":
       return (
-        <span><b>{firstName} {lastName}</b> a liké votre post.</span>
+        <span><b>{senderName}</b> a liké votre post.</span>
       );
     case "comment":
       return (
-        <span><b>{firstName} {lastName}</b> a commenté votre post.</span>
+        <span><b>{senderName}</b> a commenté votre post.</span>
       );
     case "comment_reply":
       return (
-        <span><b>{firstName} {lastName}</b> a répondu à votre commentaire.</span>
+        <span><b>{senderName}</b> a répondu à votre commentaire.</span>
       );
     case "club_invitation":
       return (
-        <span><b>{firstName} {lastName}</b> vous a invité dans un club.</span>
+        <span><b>{senderName}</b> vous a invité dans un club.</span>
       );
     case "club_event":
       return (
@@ -56,7 +58,7 @@ function getNotificationText(notification: Notification) {
       );
     default:
       return (
-        <span><b>{firstName} {lastName}</b> a une nouvelle notification.</span>
+        <span><b>{senderName}</b> a une nouvelle notification.</span>
       );
   }
 }
@@ -74,6 +76,27 @@ function formatDate(dateString: string) {
 const NotificationsPage = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
+  const [processingRequests, setProcessingRequests] = useState<Set<string>>(new Set());
+
+  const handleFriendRequestResponse = async (notificationId: string, senderId: string, acceptRequest: boolean) => {
+    try {
+      setProcessingRequests(prev => new Set(prev).add(notificationId));
+      await userService.respondToFriendRequest(senderId, acceptRequest);
+      
+      // Mettre à jour l'état local pour retirer la notification ou la marquer comme traitée
+      setNotifications(prev => 
+        prev.filter(notif => notif.id !== notificationId)
+      );
+    } catch (error) {
+      console.error('Erreur lors de la réponse à la demande d\'ami:', error);
+    } finally {
+      setProcessingRequests(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(notificationId);
+        return newSet;
+      });
+    }
+  };
 
   useEffect(() => {
     notificationService.getNotifications()
@@ -104,7 +127,7 @@ const NotificationsPage = () => {
                   <AvatarImage src={notif.user.profile.profile_picture_url} alt="avatar" />
                 ) : (
                   <AvatarFallback>
-                    {notif.user?.profile?.first_name?.[0] || "?"}
+                    {notif.user?.username || "?"}
                   </AvatarFallback>
                 )}
               </Avatar>
@@ -115,6 +138,28 @@ const NotificationsPage = () => {
                 <div className="text-xs text-muted-foreground mt-1">
                   {formatDate(notif.created_at)}
                 </div>
+                {notif.type === "friend_request" && (
+                  <div className="flex gap-2 mt-2">
+                    <Button
+                      size="sm"
+                      onClick={() => handleFriendRequestResponse(notif.id, notif.data?.senderId || "", true)}
+                      disabled={processingRequests.has(notif.id)}
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                    >
+                      <Check className="w-4 h-4 mr-1" />
+                      Confirmer
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleFriendRequestResponse(notif.id, notif.data?.senderId || "", false)}
+                      disabled={processingRequests.has(notif.id)}
+                      className="w-8 h-8 p-0 border-red-200 text-red-600 hover:bg-red-50"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
               </div>
               {notif.data?.image_url && (
                 <img
