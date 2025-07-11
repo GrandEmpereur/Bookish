@@ -10,7 +10,7 @@ import { Check, X } from "lucide-react";
 
 
 function getNotificationText(notification: Notification) {
-  const senderName = notification.data?.senderName || notification.user?.username || "Utilisateur";
+  const senderName = notification.data?.senderName || notification.data?.requesterUsername || "Utilisateur";
   switch (notification.type) {
     case "new_message":
       return (
@@ -79,6 +79,13 @@ const NotificationsPage = () => {
   const [processingRequests, setProcessingRequests] = useState<Set<string>>(new Set());
 
   const handleFriendRequestResponse = async (notificationId: string, senderId: string, acceptRequest: boolean) => {
+    console.log('senderId reçu:', senderId);
+    
+    if (!senderId || senderId === 'undefined') {
+      console.error('Impossible de traiter la demande d\'ami: senderId invalide');
+      return;
+    }
+    
     try {
       setProcessingRequests(prev => new Set(prev).add(notificationId));
       await userService.respondToFriendRequest(senderId, acceptRequest);
@@ -142,7 +149,10 @@ const NotificationsPage = () => {
                   <div className="flex gap-2 mt-2">
                     <Button
                       size="sm"
-                      onClick={() => handleFriendRequestResponse(notif.id, notif.data?.senderId || "", true)}
+                      onClick={() => {
+                        const userId = notif.data?.senderId || notif.data?.requesterId || notif.user?.id || notif.user_id;
+                        handleFriendRequestResponse(notif.id, userId, true);
+                      }}
                       disabled={processingRequests.has(notif.id)}
                       className="bg-green-600 hover:bg-green-700 text-white"
                     >
@@ -152,7 +162,10 @@ const NotificationsPage = () => {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => handleFriendRequestResponse(notif.id, notif.data?.senderId || "", false)}
+                      onClick={() => {
+                        const userId = notif.data?.senderId || notif.data?.requesterId || notif.user?.id || notif.user_id;
+                        handleFriendRequestResponse(notif.id, userId, false);
+                      }}
                       disabled={processingRequests.has(notif.id)}
                       className="w-8 h-8 p-0 border-red-200 text-red-600 hover:bg-red-50"
                     >
