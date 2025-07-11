@@ -266,7 +266,7 @@ function SearchPageContent() {
 
       case "book":
         return (
-          <Card key={item.id} className="p-4 hover:shadow-md transition-shadow">
+          <Card key={item.id} className="p-4 hover:shadow-md transition-shadow" onClick={() => router.push(`/books/${item.id}`)}>
             <div className="flex gap-3">
               <div className="w-16 h-20 bg-gradient-to-br from-orange-400 to-red-500 rounded flex items-center justify-center flex-shrink-0">
                 <BookOpen className="w-6 h-6 text-white" />
@@ -314,7 +314,7 @@ function SearchPageContent() {
 
       case "club":
         return (
-          <Card key={item.id} className="p-4 hover:shadow-md transition-shadow">
+          <Card key={item.id} className="p-4 hover:shadow-md transition-shadow" onClick={() => router.push(`/clubs/${item.id}`)}>
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center flex-shrink-0">
                 <Users className="w-6 h-6 text-white" />
@@ -359,7 +359,7 @@ function SearchPageContent() {
       case "book_list":
       case "bookList":
         return (
-          <Card key={item.id} className="p-4 hover:shadow-md transition-shadow">
+          <Card key={item.id} className="p-4 hover:shadow-md transition-shadow" onClick={() => router.push(`/library/${item.id}`)}>
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center flex-shrink-0">
                 <List className="w-6 h-6 text-white" />
