@@ -64,8 +64,8 @@ export default function ClubDetails({ clubId }: ClubDetailsProps) {
                 </Badge>
               )}
             </div>
-            <div className="flex items-center gap-1 text-muted-foreground">
-              <Users className="h-4 w-4" />
+            <div className="flex items-center gap-1 text-muted-foreground text-xs">
+              <Users className="h-3 w-3" />
               <span>{club.memberCount} membres</span>
             </div>
           </div>

@@ -12,9 +12,9 @@ export interface Club {
   description: string;
   type: ClubType;
   genre: string;
-  member_count: number;
+  memberCount: number;
   owner_id: string;
-  club_picture: string | null;
+  coverImage: string | null;
   created_at: string;
   updated_at: string;
   owner: UserProfile;

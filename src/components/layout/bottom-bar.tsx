@@ -69,11 +69,12 @@ export function BottomBar() {
             <div
               className={cn(
                 "flex items-center justify-center",
-                item.isSearch && "bg-primary p-4 rounded-full shadow-lg -mt-10 [box-shadow:var(--shadow-strong)]"
+                item.isSearch &&
+                  "bg-primary p-3 rounded-full shadow-lg -mt-10 [box-shadow:var(--shadow-strong)]"
               )}
             >
               <item.icon
-                size={item.isSearch ? 24 : 20}
+                size={item.isSearch ? 20 : 20}
                 className={cn(
                   item.isSearch
                     ? "text-white"
