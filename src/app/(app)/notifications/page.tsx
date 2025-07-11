@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { notificationService } from "@/services/notification.service";
 import { userService } from "@/services/user.service";
 import { Notification } from "@/types/notificationTypes";
@@ -10,39 +11,52 @@ import { Check, X } from "lucide-react";
 
 
 function getNotificationText(notification: Notification) {
-  const senderName = notification.data?.senderName || notification.data?.requesterUsername || "Utilisateur";
+  const senderName = notification.data?.senderName || notification.data?.requesterUsername || notification.user?.username || "Utilisateur";
+  const senderId = notification.data?.senderId || notification.data?.requesterId || notification.user?.id || notification.user_id;
+  
+  const ClickableName = ({ children }: { children: React.ReactNode }) => {
+    if (senderId) {
+      return (
+        <Link href={`/profile/${senderId}`} className="font-bold text-primary hover:underline cursor-pointer">
+          {children}
+        </Link>
+      );
+    }
+    return <b>{children}</b>;
+  };
+
   switch (notification.type) {
     case "new_message":
       return (
-        <span><b>{senderName}</b> vous a envoyé un nouveau message.</span>
+        <span><ClickableName>{senderName}</ClickableName> vous a envoyé un nouveau message.</span>
       );
     case "friend_request":
       return (
-        <span><b>{senderName}</b> vous a envoyé une demande d'ami.</span>
+        <span><ClickableName>{senderName}</ClickableName> vous a envoyé une demande d'ami.</span>
       );
     case "friend_request_accepted":
       return (
-        <span><b>{senderName}</b> a accepté votre demande d'ami.</span>
+        <span><ClickableName>{senderName}</ClickableName> a accepté votre demande d'ami.</span>
       );
     case "follow":
       return (
-        <span><b>{senderName}</b> a commencé à vous suivre.</span>
+        <span><ClickableName>{senderName}</ClickableName> a commencé à vous suivre.</span>
       );
     case "like":
       return (
-        <span><b>{senderName}</b> a liké votre post.</span>
+        <span><ClickableName>{senderName}</ClickableName> a liké votre post.</span>
       );
     case "comment":
       return (
-        <span><b>{senderName}</b> a commenté votre post.</span>
+        <span><ClickableName>{senderName}</ClickableName> a commenté votre post.</span>
       );
     case "comment_reply":
       return (
-        <span><b>{senderName}</b> a répondu à votre commentaire.</span>
+        <span><ClickableName>{senderName}</ClickableName> a répondu à votre commentaire.</span>
       );
     case "club_invitation":
       return (
-        <span><b>{senderName}</b> vous a invité dans un club.</span>
+        <span><ClickableName>{senderName}</ClickableName> vous a invité dans un club.</span>
       );
     case "club_event":
       return (
@@ -58,7 +72,7 @@ function getNotificationText(notification: Notification) {
       );
     default:
       return (
-        <span><b>{senderName}</b> a une nouvelle notification.</span>
+        <span><ClickableName>{senderName}</ClickableName> a une nouvelle notification.</span>
       );
   }
 }
