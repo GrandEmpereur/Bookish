@@ -1,18 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import Image from "next/image";
-import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
 import { Share2, Users, MessageCircle, Heart, Lock, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { MOCK_CLUBS } from "@/config/mock-data";
-import { clubService } from "@/services/club.service";
-
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -21,44 +16,19 @@ import { isSameDay } from "date-fns";
 interface ClubDetailsProps {
   clubId: string;
 }
+
 export default function ClubDetails({ clubId }: ClubDetailsProps) {
-  const [club, setClub] = useState<Club | null>(null);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
+  const [activeTab, setActiveTab] = useState("publications");
 
-  useEffect(() => {
-    const fetchClub = async () => {
-      try {
-        const res = await clubService.getClub(clubId);
-        setClub(res.data.club); 
-      } catch {
-        toast.error("Impossible de charger le club.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchClub();
-  }, [clubId]);
-
-  if (loading) {
-    return (
-      <div className="flex-1 flex items-center justify-center pt-20">
-        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
-  if (!club) {
-    return <div className="text-center pt-10">Club introuvable</div>;
-  }
+  // Trouver le club correspondant
+  const club = MOCK_CLUBS.find((c) => c.id === clubId) || MOCK_CLUBS[0];
 
   return (
     <div className="flex-1 pb-[120px] pt-[98px]">
       {/* Cover Image avec boutons */}
       <div className="relative w-full h-[300px]">
         <Image
-          src={club.cover_image}
+          src={club.coverImage}
           alt={club.name}
           fill
           className="object-cover"
@@ -96,14 +66,14 @@ export default function ClubDetails({ clubId }: ClubDetailsProps) {
             </div>
             <div className="flex items-center gap-1 text-muted-foreground text-xs">
               <Users className="h-3 w-3" />
-              <span>{club.member_count} membres</span>
+              <span>{club.memberCount} membres</span>
             </div>
           </div>
 
           {/* Liste des membres importants */}
           <div className="space-y-4">
             {/* Administrateurs */}
-            {club.members?.administrators?.map((admin) => (
+            {club.members.administrators.map((admin) => (
               <div key={admin.id} className="flex items-center gap-3">
                 <Avatar>
                   <AvatarImage src={admin.avatarUrl} alt={admin.username} />
@@ -128,7 +98,7 @@ export default function ClubDetails({ clubId }: ClubDetailsProps) {
           </TabsList>
           <TabsContent value="publications" className="mt-6">
             <div className="space-y-4">
-              {club.posts?.map((post) => (
+              {club.posts.map((post) => (
                 <div key={post.id} className="bg-card rounded-lg p-4 space-y-4">
                   {/* En-tête du post */}
                   <div className="flex items-center gap-3">
@@ -182,8 +152,8 @@ export default function ClubDetails({ clubId }: ClubDetailsProps) {
           <TabsContent value="chat" className="mt-6">
             {club.isMember ? (
               <div className="flex flex-col space-y-4">
-                {club.chat?.map((message: ClubChatMessage, index: number) => {
-                  const isFirstMessageOfDay: boolean =
+                {club.chat?.map((message, index) => {
+                  const isFirstMessageOfDay =
                     index === 0 ||
                     !isSameDay(
                       new Date(message.timestamp),

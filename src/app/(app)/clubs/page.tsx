@@ -1,21 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { FloatingActionButton } from "@/components/ui/floating-action-button";
 import { cn } from "@/lib/utils";
-import { MOCK_CLUBS } from "@/config/mock-data";
 import { ClubCard } from "@/components/club/club-card";
+import { clubService } from "@/services/club.service";
+import type { Club } from "@/types/clubTypes";
 
 export default function Clubs() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"all" | "my">("all");
+  const [clubs, setClubs] = useState<Club[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredClubs =
-    activeTab === "all"
-      ? MOCK_CLUBS
-      : MOCK_CLUBS.filter((club) => club.isMember);
+  useEffect(() => {
+    const fetchClubs = async () => {
+      try {
+        const res = await clubService.getClubs();
+        setClubs(res.data.clubs); // ✅ assure-toi que "clubs" est bien dans res.data
+      } catch (err) {
+        console.error("Erreur de chargement des clubs :", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchClubs();
+  }, []);
 
   return (
     <>
@@ -43,11 +56,11 @@ export default function Clubs() {
 
             <div className="w-full mt-4">
               <TabsContent value="all" className="w-full">
-                <ClubGrid clubs={MOCK_CLUBS} />
+                <ClubGrid clubs={clubs} />
               </TabsContent>
               <TabsContent value="my" className="w-full">
-                {MOCK_CLUBS.filter((c) => c.isMember).length > 0 ? (
-                  <ClubGrid clubs={MOCK_CLUBS.filter((c) => c.isMember)} />
+                {clubs.filter((c) => c.isMember).length > 0 ? (
+                  <ClubGrid clubs={clubs.filter((c) => c.isMember)} />
                 ) : (
                   <div className="text-center py-10 text-muted-foreground">
                     Vous n'avez pas encore rejoint de club
@@ -67,7 +80,7 @@ export default function Clubs() {
   );
 }
 
-const ClubGrid = ({ clubs }: { clubs: typeof MOCK_CLUBS }) => (
+const ClubGrid = ({ clubs }: { clubs: Club[] }) => (
   <div className="grid grid-cols-2 gap-4">
     {clubs.map((club) => (
       <ClubCard key={club.id} club={club} variant="grid" />

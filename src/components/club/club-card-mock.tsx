@@ -5,7 +5,8 @@ import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Users } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Club } from "@/types/clubTypes";
+import type { Club } from "@/types/clubTypesMock";
+import { MOCK_CLUBS } from "@/config/mock-data";
 
 type Props = {
   club: Club;
@@ -14,6 +15,9 @@ type Props = {
 
 export const ClubCard = ({ club, variant = "grid" }: Props) => {
   const router = useRouter();
+
+  const imageSrc = club.coverImage;
+  const memberCount = club.memberCount ?? 0;
 
   return (
     <div
@@ -35,9 +39,9 @@ export const ClubCard = ({ club, variant = "grid" }: Props) => {
             : "h-12 w-12 rounded-lg"
         )}
       >
-        {club.cover_image ? (
+        {imageSrc ? (
           <Image
-            src={club.cover_image}
+            src={imageSrc}
             alt={club.name}
             fill
             className="object-cover"
@@ -82,7 +86,7 @@ export const ClubCard = ({ club, variant = "grid" }: Props) => {
         <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
           <span className="flex items-center gap-1">
             <Users className="w-3 h-3" />
-            {club.member_count} membre{club.member_count > 1 ? "s" : ""}
+            {memberCount} membre{memberCount > 1 ? "s" : ""}
           </span>
 
           {club.genre && (

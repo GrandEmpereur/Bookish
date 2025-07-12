@@ -564,7 +564,7 @@ export default function Profile() {
 
         {/* Gamification Button */}
         <div className="mb-6">
-          <Button 
+          <Button
             onClick={() => router.push("/profile/gamification")}
             className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-3 rounded-lg shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
           >
@@ -854,11 +854,9 @@ export default function Profile() {
                 ) : tabData.userClubs.length === 0 ? (
                   renderEmptyState("clubs", () => router.push("/clubs"))
                 ) : (
-                  <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
                     {tabData.userClubs.map((club) => (
-                      <div className="grid grid-cols-2 gap-4">
-                        <ClubCard key={club.id} club={club} variant="grid" />
-                      </div>
+                      <ClubCard key={club.id} club={club} variant="grid" />
                     ))}
                   </div>
                 )}
