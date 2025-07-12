@@ -1,24 +1,29 @@
 //profile/page.tsx
 "use client";
 
-import BookListCards from "@/components/library/book-list-cards";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/auth-context";
+import { toast } from "sonner";
 import { bookListService } from "@/services/book-list.service";
-import { clubService } from "@/services/club.service";
-import { postService } from "@/services/post.service";
 import { userService } from "@/services/user.service";
-import type { BookList } from "@/types/bookListTypes";
-import type { Club } from "@/types/clubTypes";
+import { postService } from "@/services/post.service";
+import { clubService } from "@/services/club.service";
+import BookListCards from "@/components/library/book-list-cards";
 import type { Post } from "@/types/postTypes";
 import type { UserProfile, UserRelations } from "@/types/userTypes";
-import { formatDistanceToNow } from "date-fns";
-import { fr } from "date-fns/locale";
+import type { BookList } from "@/types/bookListTypes";
+import type { Club } from "@/types/clubTypes";
 import {
   BookOpen,
   CircleDashed,
@@ -27,11 +32,12 @@ import {
   Key,
   MessageSquare,
   Star,
+  Trophy,
   Users,
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import {
   Cell,
   Legend,
@@ -40,7 +46,10 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
-import { toast } from "sonner";
+import { formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale";
+import { AchievementsShowcase } from "@/components/ui/achievements-showcase";
+import { getAllBadgeDefinitions } from "@/utils/badgeSystem";
 
 const PIE_COLORS = ["#ec4899", "#dc2626", "#22c55e", "#ffffff"];
 
@@ -142,6 +151,7 @@ export default function Profile() {
         username: responseData.user.username,
         email: responseData.user.email,
         created_at: responseData.user.created_at,
+        requesterUsername: responseData.user.username,
         is_verified: responseData.user.is_verified,
         profile: {
           id: responseData.profile.id,
@@ -512,9 +522,20 @@ export default function Profile() {
         </div>
 
         {/* Bio */}
-        <p className="text-sm mt-4 text-gray-700 mb-8">
+        <p className="text-sm mt-4 text-gray-700 mb-6">
           {profile?.profile?.bio || "Aucune bio disponible"}
         </p>
+
+        {/* Gamification Button */}
+        <div className="mb-6">
+          <Button 
+            onClick={() => router.push("/profile/gamification")}
+            className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-3 rounded-lg shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
+          >
+            <Trophy className="w-5 h-5 mr-2" />
+            Accéder à la Gamification
+          </Button>
+        </div>
 
         {/* Stats */}
         <div className="relative w-full max-w-md rounded-xl px-6 py-4 bg-[#2F4739] overflow-hidden">

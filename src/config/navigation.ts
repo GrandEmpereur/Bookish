@@ -124,7 +124,11 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
     title: 'Followers',
     showBack: true
   },
-
+  '/profile/gamification': {
+    variant: 'back',
+    title: 'Gamification',
+    showBack: true
+  },
   // Books
   '/books/[id]': {
     variant: 'back',
