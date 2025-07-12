@@ -17,6 +17,7 @@ import {
 
 import { bookService } from "@/services/book.service";
 import { bookListService } from "@/services/book-list.service";
+import { authorService } from "@/services/author.service";
 
 import type { Book } from "@/types/bookTypes";
 import type { BookList } from "@/types/bookListTypes";
@@ -55,6 +56,21 @@ export default function BookDetail({ id }: BookProps) {
       toast.error("Erreur de chargement du livre");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const goToAuthorPage = async () => {
+    try {
+      const res = await authorService.getAuthors();
+      const author = res.data.find((a) => a.name === book?.author);
+
+      if (author) {
+        router.push(`/authors/${author.id}`);
+      } else {
+        toast.error("Auteur introuvable");
+      }
+    } catch (err) {
+      toast.error("Erreur lors de la recherche de l'auteur");
     }
   };
 
@@ -123,11 +139,9 @@ export default function BookDetail({ id }: BookProps) {
   }
 
   return (
-    <div className="space-y-6 pt-[38px] bg-accent-100 overflow-hidden">
+    <div className="space-y-3 pt-[38px] bg-accent-100 overflow-hidden">
       {/* Image + bouton ajout */}
-      <div
-        className="w-[130px] h-[200px] relative mx-auto px-5 "
-      >
+      <div className="w-[130px] h-[180px] relative mx-auto px-5 ">
         <Image
           src={book.coverImage || "/placeholder.png"}
           alt={book.title}
@@ -174,6 +188,13 @@ export default function BookDetail({ id }: BookProps) {
           </Popover>
         </div>
       </div>
+      {book.genre && (
+        <div className="flex justify-center">
+          <Badge variant="default" className="capitalize">
+            {book.genre}
+          </Badge>
+        </div>
+      )}
 
       <div className="relative ">
         <div className="absolute top-[-130px]  -translate-x-1/2 w-full z-1  ">
@@ -189,7 +210,7 @@ export default function BookDetail({ id }: BookProps) {
 
         {/* Titre / auteur / note */}
         <div className="space-y-6 bg-white mt-16 pt-2 px-5 z-[8] relative">
-          <div className="flex flex-col gap-2 ">
+          <div className="flex flex-col gap-1 ">
             <div className="flex gap-2">
               <h1 className="text-2xl font-bold">{book.title}</h1>
               {book.publicationYear && (
@@ -200,7 +221,13 @@ export default function BookDetail({ id }: BookProps) {
             </div>
 
             <p className="text-muted-foreground text-sm">
-              par <span className="underline">{book.author}</span>
+              par{" "}
+              <button
+                onClick={goToAuthorPage}
+                className="underline hover:text-primary transition-colors"
+              >
+                {book.author}
+              </button>
             </p>
 
             {/* Etoiles */}
@@ -215,14 +242,6 @@ export default function BookDetail({ id }: BookProps) {
 
           {/* Tags + description */}
           <div className="flex flex-col gap-2">
-            {book.genre && (
-              <div className="flex gap-2 flex-wrap">
-                <Badge variant="default" className="capitalize">
-                  {book.genre}
-                </Badge>
-              </div>
-            )}
-
             <h2 className="text-lg font-bold">Description</h2>
             <p className="text-sm text-muted-foreground whitespace-pre-line">
               {book.description || "Aucune description disponible."}
