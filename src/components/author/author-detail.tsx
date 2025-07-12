@@ -75,9 +75,7 @@ export default function AuthorDetail({ id }: AuthorProps) {
               className="object-cover w-full h-full"
             />
           ) : (
-            <AvatarFallback
-              className="w-full h-full text-3xl font-bold flex items-center justify-center bg-gradient-to-br from-yellow-300 to-secondary-500 text-white"
-            >
+            <AvatarFallback className="w-full h-full text-3xl font-bold flex items-center justify-center bg-gradient-to-br from-yellow-300 to-secondary-500 text-white">
               {author.name[0]?.toUpperCase()}
             </AvatarFallback>
           )}
