@@ -240,7 +240,10 @@ export default function Profile() {
     try {
       setLoadingStates((prev) => ({ ...prev, clubs: true }));
       const response = await clubService.getClubs();
-      setTabData((prev) => ({ ...prev, userClubs: response.data.clubs || [] }));
+      const memberClubs = (response.data.clubs || []).filter(
+        (club) => club.isMember
+      );
+      setTabData((prev) => ({ ...prev, userClubs: memberClubs }));
     } catch (error) {
       console.error("Error fetching user clubs:", error);
       toast.error("Impossible de charger vos clubs");
@@ -312,7 +315,7 @@ export default function Profile() {
 
     if (type === "general") {
       return (
-        <div className="space-y-4">
+        <div className="space-y-4 pt-20">
           <div className="flex items-center gap-4">
             <Skeleton className="h-16 w-16 rounded-full" />
             <div className="space-y-2">
@@ -379,7 +382,7 @@ export default function Profile() {
       const Icon = config.icon;
 
       return (
-        <div className="text-center py-8">
+        <div className="text-center py-4">
           <Icon className="w-12 h-12 mx-auto text-muted-foreground opacity-50" />
           <p className="mt-4 text-muted-foreground">{config.message}</p>
           <Button variant="outline" className="mt-4" onClick={action}>
