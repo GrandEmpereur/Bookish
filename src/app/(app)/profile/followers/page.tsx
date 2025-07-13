@@ -69,7 +69,7 @@ export default function FollowersPage() {
 
   return (
         <div className="min-h-dvh bg-background">
-      <main className="container mx-auto px-5 pb-[120px] max-w-md pt-[120px]">
+      <main className="container mx-auto px-5 pb-[120px] max-w-md pt-25">
         {/* Content */}
         {loading ? (
           renderLoadingSkeleton()

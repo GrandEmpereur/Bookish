@@ -78,7 +78,7 @@ export default function CreateClub() {
   };
 
   return (
-    <div className="flex-1 pb-[120px] pt-[120px]">
+    <div className="flex-1 pb-[120px] pt-25">
       <div className="max-w-2xl mx-auto px-4 space-y-8">
         <div>
           <h1 className="text-2xl font-bold">Créer un club</h1>

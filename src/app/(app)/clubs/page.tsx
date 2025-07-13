@@ -32,7 +32,7 @@ export default function Clubs() {
 
   return (
     <>
-      <div className="flex-1 px-5 pb-[120px] pt-[120px]">
+      <div className="flex-1 px-5 pb-[120px] pt-25">
         <div className="space-y-6">
           <Tabs
             value={activeTab}

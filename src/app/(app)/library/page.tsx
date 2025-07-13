@@ -39,7 +39,7 @@ export default function Library() {
 
   return (
     <>
-      <ScrollArea className="flex-1 px-5 pb-[120px] pt-[120px]">
+      <ScrollArea className="flex-1 px-5 pb-[120px] pt-25">
         <div className="space-y-6">
           <BookListCards bookLists={bookLists} isLoadingLists={isLoading} />
         </div>

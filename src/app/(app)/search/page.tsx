@@ -496,7 +496,7 @@ function SearchPageContent() {
   };
 
   return (
-    <div className="min-h-screen bg-background pt-[120px] md:pt-[90px] pb-[120px] md:pb-[90px]">
+    <div className="min-h-screen bg-background pt-25 md:pt-[90px] pb-[120px] md:pb-[90px]">
       <div className="container mx-auto px-4 max-w-4xl">
         {/* Header avec SearchBar - toujours visible et centré */}
         <div className="mb-8 w-full flex justify-center">
@@ -600,7 +600,7 @@ export default function SearchPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-background pt-[120px] pb-[120px]">
+        <div className="min-h-screen bg-background pt-25 pb-[120px]">
           <div className="container mx-auto px-4 max-w-4xl">
             <div className="animate-pulse space-y-4">
               <div className="h-10 bg-gray-200 rounded mx-auto max-w-lg"></div>

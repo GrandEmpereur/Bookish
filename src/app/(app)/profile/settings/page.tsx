@@ -79,7 +79,7 @@ const SettingsPage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col gap-10 px-5 pb-[120px] pt-[120px]">
+    <div className="flex flex-col gap-10 px-5 pb-[120px] pt-25">
       <Card className="shadow-md rounded-xl">
         <CardContent className="p-0 divide-y">
           <SettingItem

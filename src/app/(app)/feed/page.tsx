@@ -249,7 +249,7 @@ export default function Feed() {
   // Skeleton de chargement initial
   if (initialLoading) {
     return (
-      <div className="flex-1 px-4 md:px-8 lg:px-0 pb-[120px] pt-[120px] md:pt-[90px]">
+      <div className="flex-1 px-4 md:px-8 lg:px-0 pb-[120px] pt-25 md:pt-[90px]">
         <div className="max-w-2xl mx-auto space-y-6">
           {[...Array(3)].map((_, index) => (
             <div
