@@ -55,7 +55,7 @@ export const ClubCard = ({ club, variant = "grid" }: Props) => {
         className={variant === "grid" ? "space-y-1 px-1" : "flex-1 space-y-1"}
       >
         <div className="flex items-center justify-between">
-          <h3 className="font-medium">{club.name}</h3>
+          <h3 className="font-medium leading-[1.3]">{club.name}</h3>
 
           {variant === "list" && club.type && (
             <Badge variant={club.type === "Private" ? "secondary" : "outline"}>
@@ -64,14 +64,14 @@ export const ClubCard = ({ club, variant = "grid" }: Props) => {
           )}
         </div>
 
-        {variant === "grid" && (
+        {/* {variant === "grid" && (
           <div className="flex items-center gap-1">
             <span className="text-muted-foreground text-sm">Modéré par</span>
             <span className="text-muted-foreground text-sm">
-              {/* {club.moderator.username} */}
+              {club.moderator.username}
             </span>
           </div>
-        )}
+        )} */}
 
         {variant === "list" && club.description && (
           <p className="text-sm text-muted-foreground line-clamp-2">

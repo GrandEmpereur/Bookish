@@ -92,6 +92,13 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
     showBack: true,
   },
 
+  // Search
+  "/search": {
+    variant: "back",
+    title: "Recherche",
+    showBack: true,
+  },
+
   // Profile
   '/profile': {
     variant: 'back',

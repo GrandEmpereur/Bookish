@@ -4,10 +4,10 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { FloatingActionButton } from "@/components/ui/floating-action-button";
-import { cn } from "@/lib/utils";
 import { ClubCard } from "@/components/club/club-card";
 import { clubService } from "@/services/club.service";
 import type { Club } from "@/types/clubTypes";
+import { Users } from "lucide-react";
 
 export default function Clubs() {
   const router = useRouter();
@@ -19,7 +19,7 @@ export default function Clubs() {
     const fetchClubs = async () => {
       try {
         const res = await clubService.getClubs();
-        setClubs(res.data.clubs); // ✅ assure-toi que "clubs" est bien dans res.data
+        setClubs(res.data.clubs);
       } catch (err) {
         console.error("Erreur de chargement des clubs :", err);
       } finally {
@@ -39,7 +39,7 @@ export default function Clubs() {
             onValueChange={(val) => setActiveTab(val as "all" | "my")}
             className="w-full"
           >
-            <TabsList className="flex justify-center items-center border-b border-b-gray-200 rounded-none bg-transparent h-auto pb-0  gap-6">
+            <TabsList className="w-full flex justify-center items-center border-b border-b-gray-200 rounded-none bg-transparent h-auto pb-0  gap-6">
               <TabsTrigger
                 value="all"
                 className="border-b-2 border-b-transparent px-0 pb-2 pt-0 text-[15px] text-gray-500 font-medium rounded-none bg-transparent h-auto data-[state=active]:border-b-[#416E54] data-[state=active]:text-[#416E54] data-[state=active]:shadow-none"
@@ -62,8 +62,11 @@ export default function Clubs() {
                 {clubs.filter((c) => c.isMember).length > 0 ? (
                   <ClubGrid clubs={clubs.filter((c) => c.isMember)} />
                 ) : (
-                  <div className="text-center py-10 text-muted-foreground">
-                    Vous n'avez pas encore rejoint de club
+                  <div className="text-center py-8">
+                    <Users className="w-12 h-12 mx-auto text-muted-foreground opacity-50" />
+                    <p className="mt-4 text-muted-foreground">
+                      Vous n'avez pas encore rejoint de club
+                    </p>
                   </div>
                 )}
               </TabsContent>

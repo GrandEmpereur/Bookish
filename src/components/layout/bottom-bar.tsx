@@ -88,7 +88,7 @@ export function BottomBar() {
               className={cn(
                 "text-xs",
                 pathname === item.href
-                  ? "text-primary-800 font-bold"
+                  ? "text-primary-800 font-semibold"
                   : "text-muted-foreground font-normal"
               )}
             >

@@ -1,16 +1,9 @@
-//profile/page.tsx
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ClubCard } from "@/components/club/club-card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -445,63 +438,6 @@ export default function Profile() {
     [router]
   );
 
-  // const renderClubCard = useCallback(
-  //   (club: Club) => (
-  //     <button
-  //       key={club.id}
-  //       onClick={() => router.push(`/clubs/${club.id}`)}
-  //       className="w-full text-left p-4 border rounded-lg space-y-3 hover:bg-accent transition-colors"
-  //     >
-  //       <div className="flex gap-3">
-  //         <div className="relative h-12 w-12 overflow-hidden rounded-lg">
-  //           {club.club_picture ? (
-  //             <Image
-  //               src={club.club_picture}
-  //               alt={club.name}
-  //               fill
-  //               className="object-cover"
-  //             />
-  //           ) : (
-  //             <div className="w-full h-full bg-muted flex items-center justify-center">
-  //               <Users className="h-6 w-6 text-muted-foreground" />
-  //             </div>
-  //           )}
-  //         </div>
-  //         <div className="flex-1">
-  //           <div className="flex items-center justify-between">
-  //             <h3 className="font-medium">{club.name}</h3>
-  //             <Badge
-  //               variant={club.type === "Private" ? "secondary" : "outline"}
-  //             >
-  //               {club.type === "Private" ? "Privé" : "Public"}
-  //             </Badge>
-  //           </div>
-  //           <p className="text-sm text-muted-foreground line-clamp-2">
-  //             {club.description}
-  //           </p>
-  //           <div className="flex items-center gap-2 mt-2">
-  //             <Badge variant="outline" className="text-xs">
-  //               {club.member_count} membre{club.member_count > 1 ? "s" : ""}
-  //             </Badge>
-  //             <Badge variant="outline" className="text-xs">
-  //               {club.genre}
-  //             </Badge>
-  //           </div>
-  //         </div>
-  //       </div>
-  //     </button>
-  //   ),
-  //   [router]
-  // );
-
-  function mapToUnifiedClub(club: any): Club {
-    return {
-      ...club,
-      coverImage: club.coverImage || club.club_picture,
-      memberCount: club.memberCount ?? club.member_count ?? 0,
-    };
-  }
-
   // Loading state
   if (loadingStates.profile) {
     return (
@@ -634,12 +570,12 @@ export default function Profile() {
             onValueChange={handleTabChange}
             className="w-full"
           >
-            <TabsList className="flex justify-center items-center border-b border-b-gray-200 rounded-none bg-transparent h-auto pb-0 px-5 gap-6">
+            <TabsList className="w-full flex justify-center items-center border-b border-b-gray-200 rounded-none bg-transparent h-auto pb-0 gap-6">
               {["Suivi", "listes", "posts", "avis", "clubs"].map((tab) => (
                 <TabsTrigger
                   key={tab}
                   value={tab}
-                  className="border-b-2 border-b-transparent px-0 pb-2 pt-0 text-[15px] text-gray-500 font-medium rounded-none bg-transparent h-auto data-[state=active]:border-b-[#416E54] data-[state=active]:text-[#416E54] data-[state=active]:shadow-none"
+                  className="border-b-2 border-b-transparent px-0 pb-2 pt-0 text-[15px] text-gray-500 font-medium rounded-none bg-transparent h-auto data-[state=active]:border-b-[#416E54] data-[state=active]:text-[#416E54] data-[state=active]:shadow-none "
                 >
                   {tab.charAt(0).toUpperCase() + tab.slice(1)}
                 </TabsTrigger>
@@ -835,18 +771,6 @@ export default function Profile() {
                   </div>
                 )}
               </TabsContent>
-
-              {/* <TabsContent value="clubs" className="w-full">
-                {loadingStates.clubs ? (
-                  renderSkeleton("club")
-                ) : tabData.userClubs.length === 0 ? (
-                  renderEmptyState("clubs", () => router.push("/clubs"))
-                ) : (
-                  <div className="space-y-4">
-                    {tabData.userClubs.map((club) => renderClubCard(club))}
-                  </div>
-                )}
-              </TabsContent> */}
 
               <TabsContent value="clubs" className="w-full">
                 {loadingStates.clubs ? (
