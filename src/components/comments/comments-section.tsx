@@ -100,6 +100,7 @@ export function CommentsSection({ postId }: CommentsProps) {
     }
   };
 
+  const colorLike = "var(--color-like)";
   const handleLike = async (commentId: string) => {
     try {
       // Optimistic update - Mettre à jour l'UI immédiatement
@@ -295,23 +296,25 @@ export function CommentsSection({ postId }: CommentsProps) {
                     onClick={() => handleLike(comment.id)}
                   >
                     <Heart
-                      className="h-4 w-4 mr-1"
-                      fill={
-                        likedComments.has(comment.id) ? "currentColor" : "none"
+                      className="h-4 w-4 hover:bg-transparent"
+                      fill={likedComments.has(comment.id) ? colorLike : "none"}
+                      stroke={
+                        likedComments.has(comment.id)
+                          ? colorLike
+                          : "currentColor"
                       }
-                      stroke="currentColor"
                     />
                     <span className="text-xs">{comment.likesCount}</span>
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-auto p-0 text-muted-foreground hover:text-primary text-xs"
+                    className="h-auto p-0 text-muted-foreground hover:text-primary text-xs hover:bg-transparent"
                     onClick={() =>
                       handleReply(comment.id, comment.user.username)
                     }
                   >
-                    Reply
+                    Répondre
                   </Button>
                 </div>
 
@@ -354,13 +357,17 @@ export function CommentsSection({ postId }: CommentsProps) {
                               onClick={() => handleLike(reply.id)}
                             >
                               <Heart
-                                className="h-4 w-4 mr-1"
+                                className="h-4 w-4 hover:bg-transparent"
                                 fill={
-                                  likedComments.has(reply.id)
-                                    ? "currentColor"
+                                  likedComments.has(comment.id)
+                                    ? colorLike
                                     : "none"
                                 }
-                                stroke="currentColor"
+                                stroke={
+                                  likedComments.has(comment.id)
+                                    ? colorLike
+                                    : "currentColor"
+                                }
                               />
                               <span className="text-xs">
                                 {typeof reply.likesCount === "number"
@@ -371,12 +378,12 @@ export function CommentsSection({ postId }: CommentsProps) {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-auto p-0 text-muted-foreground hover:text-primary text-xs"
+                              className="h-auto p-0 text-muted-foreground hover:text-primary text-xs hover:bg-transparent"
                               onClick={() =>
                                 handleReply(reply.id, reply.user.username)
                               }
                             >
-                              Reply
+                              Répondre
                             </Button>
                           </div>
                         </div>

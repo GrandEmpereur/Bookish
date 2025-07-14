@@ -17,7 +17,7 @@ import {
   Search as SearchIcon,
   TrendingUp,
   Users,
-  Users2
+  Users2,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect } from "react";
@@ -207,13 +207,13 @@ function SearchPageContent() {
           {CATEGORY_INFO[currentCategory].label.toLowerCase()}
         </p>
       </div>
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2 justify-center">
         <Button
           onClick={() => changeCategory("all")}
           variant="outline"
           size="sm"
         >
-          Rechercher dans tout
+         Recherche globale
         </Button>
         <Button onClick={clearSearch} variant="outline" size="sm">
           Effacer la recherche

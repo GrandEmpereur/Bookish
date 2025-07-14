@@ -278,7 +278,7 @@ export default function Feed() {
               </div>
 
               {/* Actions du skeleton */}
-              <div className="flex items-center gap-6 pt-2">
+              <div className="flex items-center gap-3 pt-2">
                 <Skeleton className="h-8 w-16" />
                 <Skeleton className="h-8 w-16" />
                 <Skeleton className="h-8 w-8" />
@@ -358,7 +358,7 @@ export default function Feed() {
                     {/* Actions du post */}
                     <div className="flex items-center justify-between pt-2">
                       {/* Actions principales */}
-                      <div className="flex items-center gap-6">
+                      <div className="flex items-center gap-3">
                         <Button
                           variant="ghost"
                           size="sm"
@@ -372,8 +372,8 @@ export default function Feed() {
                             className={cn(
                               "h-5 w-5 md:h-6 md:w-6 transition-all duration-300",
                               likedPosts.has(post.id)
-                                ? "scale-110 fill-current"
-                                : "scale-100 fill-none"
+                                ? "fill-current"
+                                : "fill-none"
                             )}
                             strokeWidth={2}
                           />

@@ -72,6 +72,8 @@ export default function PostPage() {
     }
   };
 
+  const colorLike = "var(--color-like)";
+
   const loadLocalStates = () => {
     try {
       const savedLikes = sessionStorage.getItem("likedPosts");
@@ -334,16 +336,14 @@ export default function PostPage() {
                   size="sm"
                   className={cn(
                     "text-muted-foreground hover:text-primary flex items-center gap-2",
-                    isLiked && "text-primary"
+                    isLiked && "text-like"
                   )}
                   onClick={handleLike}
                 >
                   <Heart
-                    className={cn(
-                      "h-6 w-6 transition-all duration-300",
-                      isLiked ? "scale-110 fill-current" : "scale-100 fill-none"
-                    )}
-                    strokeWidth={2}
+                    className={cn("h-6 w-6 transition-all duration-300")}
+                    fill={isLiked ? colorLike : "none"}
+                    stroke={isLiked ? colorLike : "currentColor"}
                   />
                   <span className="text-base">{post.likesCount}</span>
                 </Button>
