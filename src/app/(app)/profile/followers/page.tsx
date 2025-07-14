@@ -6,7 +6,7 @@ import { userService } from "@/services/user.service";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Users } from "lucide-react";
+import { ArrowLeft, BookUser } from "lucide-react";
 import { toast } from "sonner";
 
 interface Follower {
@@ -32,7 +32,7 @@ export default function FollowersPage() {
     try {
       setLoading(true);
       const response = await userService.getRelations();
-      
+
       // Ensure we have a valid array
       const followersData = response.data?.followers;
       if (Array.isArray(followersData)) {
@@ -68,48 +68,50 @@ export default function FollowersPage() {
   };
 
   return (
-        <div className="min-h-dvh bg-background">
-      <main className="container mx-auto px-5 pb-[120px] max-w-md pt-[120px]">
+    <div className="min-h-dvh bg-background">
+      <main className="container mx-auto px-5 pb-[120px] max-w-md pt-25">
         {/* Content */}
         {loading ? (
           renderLoadingSkeleton()
         ) : followers.length === 0 ? (
-          <div className="text-center py-12">
-            <Users className="w-16 h-16 mx-auto text-muted-foreground opacity-50" />
-            <h2 className="mt-4 text-lg font-medium">Aucun follower</h2>
+          <div className="flex flex-col items-center justify-center h-[calc(100dvh-230px)] text-center">
+            <BookUser className="w-12 h-12 mx-auto text-muted-foreground opacity-50" />
             <p className="mt-2 text-muted-foreground">
               Vous n'avez pas encore de followers.
             </p>
           </div>
-                 ) : (
-           <div className="space-y-2">
-             {Array.isArray(followers) && followers.map((follower) => (
-              <button
-                key={follower.id}
-                onClick={() => handleUserClick(follower.id)}
-                className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors"
-              >
-                <Avatar className="h-12 w-12">
-                  <AvatarImage
-                    src={follower.profile?.profilePictureUrl || undefined}
-                    alt={follower.username}
-                  />
-                  <AvatarFallback>
-                    {follower.username.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 text-left">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">{follower.username}</span>
+        ) : (
+          <div className="space-y-2">
+            {Array.isArray(followers) &&
+              followers.map((follower) => (
+                <button
+                  key={follower.id}
+                  onClick={() => handleUserClick(follower.id)}
+                  className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors"
+                >
+                  <Avatar className="h-12 w-12">
+                    <AvatarImage
+                      src={follower.profile?.profilePictureUrl || undefined}
+                      alt={follower.username}
+                    />
+                    <AvatarFallback>
+                      {follower.username.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 text-left">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{follower.username}</span>
+                    </div>
+                    {follower.profile?.firstName &&
+                      follower.profile?.lastName && (
+                        <p className="text-sm text-muted-foreground">
+                          {follower.profile.firstName}{" "}
+                          {follower.profile.lastName}
+                        </p>
+                      )}
                   </div>
-                  {follower.profile?.firstName && follower.profile?.lastName && (
-                    <p className="text-sm text-muted-foreground">
-                      {follower.profile.firstName} {follower.profile.lastName}
-                    </p>
-                  )}
-                </div>
-              </button>
-            ))}
+                </button>
+              ))}
           </div>
         )}
 
@@ -124,4 +126,4 @@ export default function FollowersPage() {
       </main>
     </div>
   );
-} 
+}

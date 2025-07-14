@@ -119,7 +119,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
               />
             </div>
           ) : (
-            <div className="w-24 h-32 shrink-0 bg-muted flex items-center justify-center rounded-md">
+            <div className="w-20 h-24 shrink-0 bg-muted flex items-center justify-center rounded-md">
               <Book className="h-8 w-8 text-muted-foreground" />
             </div>
           )}

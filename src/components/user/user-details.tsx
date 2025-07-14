@@ -7,7 +7,18 @@ import { userService } from "@/services/user.service";
 import { GetUserProfileResponse } from "@/types/userTypes";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Book, BookOpen, CircleDashed, Globe, Heart, Loader2, Lock, MessageSquare, UserPlus, Users } from "lucide-react";
+import {
+  Book,
+  BookOpen,
+  CircleDashed,
+  Globe,
+  Heart,
+  Loader2,
+  Lock,
+  MessageSquare,
+  UserPlus,
+  Users,
+} from "lucide-react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -79,39 +90,7 @@ export default function UserDetails() {
       ))}
     </div>
   );
-  
-  const renderEmptyState = (type: "posts" | "book_lists" | "clubs", onClick?: () => void) => {
-    const labels = {
-      posts: "Vous n'avez pas encore publié de posts",
-      book_lists: "Aucune liste de livres disponible",
-      clubs: "Aucun club rejoint",
-    };
-  
-    const cta = {
-      posts: "Créer un post",
-      book_lists: "Créer une liste",
-      clubs: "Découvrir les clubs",
-    };
-  
-    const routes = {
-      posts: "/feed/create",
-      book_lists: "/library/create",
-      clubs: "/clubs",
-    };
-  
-    return (
-      <div className="text-center py-8">
-        <MessageSquare className="w-12 h-12 mx-auto text-muted-foreground opacity-50" />
-        <p className="mt-4 text-muted-foreground">{labels[type]}</p>
-        {onClick && (
-          <Button variant="outline" className="mt-4" onClick={onClick}>
-            {cta[type]}
-          </Button>
-        )}
-      </div>
-    );
-  };
-  
+
   const renderClubCard = (club: Club) => (
     <button
       key={club.id}
@@ -120,8 +99,13 @@ export default function UserDetails() {
     >
       <div className="flex gap-3">
         <div className="relative h-12 w-12 overflow-hidden rounded-lg">
-          {club.club_picture ? (
-            <Image src={club.club_picture} alt={club.name} fill className="object-cover" />
+          {club.cover_image ? (
+            <Image
+              src={club.cover_image}
+              alt={club.name}
+              fill
+              className="object-cover"
+            />
           ) : (
             <div className="w-full h-full bg-muted flex items-center justify-center">
               <Users className="h-6 w-6 text-muted-foreground" />
@@ -135,17 +119,21 @@ export default function UserDetails() {
               {club.type === "Private" ? "Privé" : "Public"}
             </Badge>
           </div>
-          <p className="text-sm text-muted-foreground line-clamp-2">{club.description}</p>
+          <p className="text-sm text-muted-foreground line-clamp-2">
+            {club.description}
+          </p>
           <div className="flex items-center gap-2 mt-2">
             <Badge variant="outline" className="text-xs">
               {club.member_count} membre{club.member_count > 1 ? "s" : ""}
             </Badge>
-            <Badge variant="outline" className="text-xs">{club.genre}</Badge>
+            <Badge variant="outline" className="text-xs">
+              {club.genre}
+            </Badge>
           </div>
         </div>
       </div>
     </button>
-  );  
+  );
 
   if (loading || !data) {
     return (
@@ -171,16 +159,17 @@ export default function UserDetails() {
               src={profile.profile_picture_url ?? "/avatar.png"}
               alt={profile.first_name || "Profil"}
             />
-            <AvatarFallback>
-              {profile.first_name?.[0] || "U"}
-            </AvatarFallback>
+            <AvatarFallback>{profile.first_name?.[0] || "U"}</AvatarFallback>
           </Avatar>
           <div className="flex-1">
             <h1 className="text-xl font-bold">{data.data.username}</h1>
 
             <div className="mt-2 flex flex-wrap gap-2">
               {profile.preferredGenres?.slice(0, 2).map((genre, i) => (
-                <span key={i} className="bg-[#F5F5F5] text-xs rounded-full px-3 py-1">
+                <span
+                  key={i}
+                  className="bg-[#F5F5F5] text-xs rounded-full px-3 py-1"
+                >
                   {genre}
                 </span>
               ))}
@@ -190,14 +179,19 @@ export default function UserDetails() {
                 </div>
               )}
             </div>
-            <p className="text-sm text-muted-foreground">{profile.bio || "Aucune bio disponible"}</p>
+            <p className="text-sm text-muted-foreground">
+              {profile.bio || "Aucune bio disponible"}
+            </p>
           </div>
           {isSending ? (
             <Loader2 className="w-4 h-4 animate-spin text-purple-700" />
           ) : (
             <UserPlus
-              className={`w-4 h-4 text-purple-700 ${hasSentRequest ? "opacity-50 pointer-events-none" : "cursor-pointer hover:text-purple-900"
-                }`}
+              className={`w-5 h-5 text-purple-700 ${
+                hasSentRequest
+                  ? "opacity-40 pointer-events-none"
+                  : "cursor-pointer hover:text-purple-900"
+              }`}
               onClick={sendFriendRequest}
             />
           )}
@@ -225,13 +219,26 @@ export default function UserDetails() {
         </div>
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mt-6">
-          <TabsList className="flex justify-center gap-4">
-            <TabsTrigger value="posts">Posts</TabsTrigger>
-            <TabsTrigger value="liste">Listes</TabsTrigger>
-            <TabsTrigger value="club">Club</TabsTrigger>
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="w-full mt-6"
+        >
+          <TabsList className="w-full flex justify-center items-center border-b border-b-gray-200 rounded-none bg-transparent h-auto pb-0 gap-6">
+            {[
+              { label: "Posts", value: "posts" },
+              { label: "Listes", value: "liste" },
+              { label: "Clubs", value: "club" },
+            ].map((tab) => (
+              <TabsTrigger
+                key={tab.value}
+                value={tab.value}
+                className="border-b-2 border-b-transparent px-0 pb-2 pt-0 text-[15px] text-gray-500 font-medium rounded-none bg-transparent h-auto data-[state=active]:border-b-[#416E54] data-[state=active]:text-[#416E54] data-[state=active]:shadow-none "
+              >
+                {tab.label}
+              </TabsTrigger>
+            ))}
           </TabsList>
-
 
           <TabsContent value="posts">
             {posts.length > 0 ? (
@@ -250,7 +257,9 @@ export default function UserDetails() {
                       </Avatar>
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
-                          <span className="font-medium">{data.data.username}</span>
+                          <span className="font-medium">
+                            {data.data.username}
+                          </span>
                           <span className="text-sm text-muted-foreground">
                             {formatDistanceToNow(new Date(post.created_at), {
                               addSuffix: true,
@@ -258,7 +267,9 @@ export default function UserDetails() {
                             })}
                           </span>
                         </div>
-                        <h3 className="text-sm text-muted-foreground">{post.title}</h3>
+                        <h3 className="text-sm text-muted-foreground">
+                          {post.title}
+                        </h3>
                         {post.subject === "book_review" && (
                           <div className="mt-1 inline-block bg-muted text-muted-foreground text-xs px-2 py-0.5 rounded-full">
                             Critique de livre
@@ -283,8 +294,9 @@ export default function UserDetails() {
             ) : (
               <div className="text-center py-8">
                 <MessageSquare className="w-12 h-12 mx-auto text-muted-foreground opacity-50" />
-                <p className="mt-4 text-muted-foreground">Il n'a pas encore publié de posts</p>
-              </div>)}
+                <p className="mt-4 text-muted-foreground">Aucun post publié</p>
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="liste">
@@ -319,14 +331,16 @@ export default function UserDetails() {
 
                             <div className="flex flex-wrap gap-2 mb-2">
                               <Badge variant="default" className="text-xs">
-                                {list.genre.charAt(0).toUpperCase() + list.genre.slice(1)}
+                                {list.genre.charAt(0).toUpperCase() +
+                                  list.genre.slice(1)}
                               </Badge>
                               <Badge
                                 variant="outline"
                                 className="text-xs flex items-center gap-1"
                               >
                                 <BookOpen className="h-3 w-3" />
-                                {list.book_count} {list.book_count > 1 ? "livres" : "livre"}
+                                {list.book_count}{" "}
+                                {list.book_count > 1 ? "livres" : "livre"}
                               </Badge>
                             </div>
 
@@ -348,21 +362,29 @@ export default function UserDetails() {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">Aucune liste de livres disponible.</p>
+              <div className="text-center py-8">
+                <Book className="w-12 h-12 mx-auto text-muted-foreground opacity-50" />
+                <p className="mt-4 text-muted-foreground">
+                  Aucune liste de livres
+                </p>
+              </div>
             )}
           </TabsContent>
 
           <TabsContent value="club">
-  {loadingStates.clubs ? (
-    renderSkeleton("clubs")
-  ) : data.data.clubs.length === 0 ? (
-    renderEmptyState("clubs", () => router.push("/clubs"))
-  ) : (
-    <div className="space-y-4">
-      {data.data.clubs.map(club => renderClubCard(club))}
-    </div>
-  )}
-</TabsContent>
+            {loadingStates.clubs ? (
+              renderSkeleton("clubs")
+            ) : data.data.clubs.length > 0 ? (
+              <div className="space-y-4">
+                {data.data.clubs.map((club) => renderClubCard(club))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <Users className="w-12 h-12 mx-auto text-muted-foreground opacity-50" />
+                <p className="mt-4 text-muted-foreground">Aucun club rejoint</p>
+              </div>
+            )}
+          </TabsContent>
         </Tabs>
       </main>
     </div>

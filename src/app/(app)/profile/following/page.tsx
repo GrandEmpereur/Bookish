@@ -6,7 +6,7 @@ import { userService } from "@/services/user.service";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Users } from "lucide-react";
+import { ArrowLeft, BookUser } from "lucide-react";
 import { toast } from "sonner";
 
 interface Following {
@@ -32,7 +32,7 @@ export default function FollowingPage() {
     try {
       setLoading(true);
       const response = await userService.getRelations();
-      
+
       // Ensure we have a valid array
       const followingData = response.data?.following;
       if (Array.isArray(followingData)) {
@@ -69,14 +69,13 @@ export default function FollowingPage() {
 
   return (
     <div className="min-h-dvh bg-background">
-      <main className="container mx-auto px-5 pb-[120px] max-w-md pt-[120px]">
+      <main className="container mx-auto px-5 pb-[120px] max-w-md pt-25">
         {/* Content */}
         {loading ? (
           renderLoadingSkeleton()
         ) : following.length === 0 ? (
-          <div className="text-center py-12">
-            <Users className="w-16 h-16 mx-auto text-muted-foreground opacity-50" />
-            <h2 className="mt-4 text-lg font-medium">Personne suivi</h2>
+          <div className="flex flex-col items-center justify-center h-[calc(100dvh-230px)] text-center">
+            <BookUser className="w-16 h-16 mx-auto text-muted-foreground opacity-50" />
             <p className="mt-2 text-muted-foreground">
               Vous ne suivez personne pour le moment.
             </p>
@@ -88,35 +87,36 @@ export default function FollowingPage() {
               Découvrir des utilisateurs
             </Button>
           </div>
-                 ) : (
-           <div className="space-y-2">
-             {Array.isArray(following) && following.map((user) => (
-              <button
-                key={user.id}
-                onClick={() => handleUserClick(user.id)}
-                className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors"
-              >
-                <Avatar className="h-12 w-12">
-                  <AvatarImage
-                    src={user.profile?.profilePictureUrl || undefined}
-                    alt={user.username}
-                  />
-                  <AvatarFallback>
-                    {user.username.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 text-left">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">{user.username}</span>
+        ) : (
+          <div className="space-y-2">
+            {Array.isArray(following) &&
+              following.map((user) => (
+                <button
+                  key={user.id}
+                  onClick={() => handleUserClick(user.id)}
+                  className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors"
+                >
+                  <Avatar className="h-12 w-12">
+                    <AvatarImage
+                      src={user.profile?.profilePictureUrl || undefined}
+                      alt={user.username}
+                    />
+                    <AvatarFallback>
+                      {user.username.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 text-left">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{user.username}</span>
+                    </div>
+                    {user.profile?.firstName && user.profile?.lastName && (
+                      <p className="text-sm text-muted-foreground">
+                        {user.profile.firstName} {user.profile.lastName}
+                      </p>
+                    )}
                   </div>
-                  {user.profile?.firstName && user.profile?.lastName && (
-                    <p className="text-sm text-muted-foreground">
-                      {user.profile.firstName} {user.profile.lastName}
-                    </p>
-                  )}
-                </div>
-              </button>
-            ))}
+                </button>
+              ))}
           </div>
         )}
 
@@ -124,11 +124,12 @@ export default function FollowingPage() {
         {!loading && following.length > 0 && (
           <div className="mt-8 p-4 bg-muted rounded-lg">
             <p className="text-center text-sm text-muted-foreground">
-              Vous suivez {following.length} personne{following.length > 1 ? "s" : ""}
+              Vous suivez {following.length} personne
+              {following.length > 1 ? "s" : ""}
             </p>
           </div>
         )}
       </main>
     </div>
   );
-} 
+}

@@ -12,14 +12,13 @@ export interface Club {
   description: string;
   type: ClubType;
   genre: string;
-  member_count: number;
+  memberCount: number;
   owner_id: string;
-  cover_image: string | null;
+  coverImage: string | null;
   created_at: string;
   updated_at: string;
   owner: UserProfile;
   members: UserProfile[];
-  isMember: boolean;
 }
 
 // Type pour les messages du club

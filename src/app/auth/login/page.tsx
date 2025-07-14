@@ -318,8 +318,8 @@ export default function Login() {
                             <Input
                               {...field}
                               type="email"
-                              placeholder="votre@email.com"
-                              className="h-12 sm:h-14 bg-accent-100 border-0 text-base placeholder:text-muted-500 transition-shadow duration-200 focus:shadow-lg focus:shadow-primary/10"
+                              placeholder="Adresse e-mail"
+                              className="h-12 sm:h-14 bg-accent-100 border-0 text-base pr-12 transition-shadow duration-200 focus:shadow-lg focus:shadow-primary/10"
                               disabled={isSubmitting || isSuccess}
                             />
                           </FormControl>
