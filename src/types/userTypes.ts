@@ -1,6 +1,14 @@
 import { ApiResponse } from "./api";
 
 // Types énumérés
+
+export type UserRole = 'USER' | 'AUTHOR' | 'PUBLISHER' | 'PUBLISHERHOUSE' | 'MODERATOR' | 'ADMIN';
+export type ReadingHabit = 'library_rat' | 'occasional_reader' | 'beginner_reader';
+export type UsagePurpose = 'find_books' | 'find_community' | 'both' | 'créer_compte_professionel';
+export type ProfileVisibility = 'public' | 'private' | 'friends_only';
+export type RelationType = 'follow' | 'friend' | 'block';
+export type RelationStatus = 'accepted' | 'declined' | 'pending';
+
 export type UserRole =
   | "USER"
   | "AUTHOR"
@@ -16,6 +24,7 @@ export type UsagePurpose = "find_books" | "find_community" | "both";
 export type ProfileVisibility = "public" | "private" | "friends_only";
 export type RelationType = "follow" | "friend" | "block";
 export type RelationStatus = "accepted" | "declined" | "pending";
+
 
 // Types de base
 export interface UserProfile {
