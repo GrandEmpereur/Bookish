@@ -109,10 +109,10 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
         onClick={() => router.push(`/library/${list.id}`)}
       >
         <div className="p-2 flex flex-row gap-4">
-          {list.coverImage ? (
+          {list.cover_image ? (
             <div className="relative w-20 h-24 shrink-0">
               <Image
-                src={list.coverImage}
+                src={list.cover_image}
                 alt={list.name}
                 fill
                 className="object-cover rounded-md"
@@ -138,7 +138,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                     className="text-xs flex items-center gap-1"
                   >
                     <BookOpen className="h-3 w-3" />
-                    {list.bookCount} {list.bookCount > 1 ? "livres" : "livre"}
+                    {list.book_count} {list.book_count > 1 ? "livres" : "livre"}
                   </Badge>
                 </div>
               </div>

@@ -82,8 +82,8 @@ export default function EditBookList({ params }: PageProps) {
 
       form.reset(formData);
 
-      if (response.data.coverImage) {
-        setCoverImagePreview(response.data.coverImage);
+      if (response.data.cover_image) {
+        setCoverImagePreview(response.data.cover_image);
       }
     } catch (error) {
       toast.error("Impossible de charger la liste");
