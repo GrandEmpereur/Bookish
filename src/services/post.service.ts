@@ -82,6 +82,7 @@ function adaptPostFromBackend(backendPost: any): Post {
     user: {
       id: backendPost.user_id || "unknown",
       username: "Utilisateur", // placeholder
+      requesterUsername: "Utilisateur", // placeholder
       email: "",
       created_at: "",
       is_verified: false,
