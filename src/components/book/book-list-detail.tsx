@@ -39,6 +39,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { bookService } from "@/services/book.service";
 
 interface BookListDetailProps {
   id: string;
@@ -59,7 +60,26 @@ export default function BookListDetail({ id }: BookListDetailProps) {
     try {
       setIsLoading(true);
       const response = await bookListService.getBookList(id);
-      setBookList(response.data);
+      const listData = response.data;
+
+      const bookDetails = await Promise.all(
+        listData.book_ids.map((bookId) =>
+          bookService.getBook(bookId).then((res) => {
+            const book = res.data;
+            return {
+              ...book,
+              coverImage: book.coverImage ?? "",
+              genre: book.genre ?? "",
+            };
+          })
+        )
+      );
+
+      setBookList({
+        ...listData,
+        books: bookDetails,
+      });
+      console.log("createdAt raw value:", listData.created_at);
     } catch (error) {
       toast.error("Impossible de charger la liste");
       router.push("/library");
@@ -89,8 +109,8 @@ export default function BookListDetail({ id }: BookListDetailProps) {
         text: bookList?.description || `Liste de lecture : ${bookList?.name}`,
         url: `${window.location.origin}/library/${id}`,
         dialogTitle: "Partager cette liste de lecture",
-        ...(bookList?.coverImage && {
-          files: [bookList.coverImage],
+        ...(bookList?.cover_image && {
+          files: [bookList.cover_image],
         }),
       };
 
@@ -105,7 +125,7 @@ export default function BookListDetail({ id }: BookListDetailProps) {
     try {
       await bookListService.removeBookFromList(id, bookId);
       toast.success("Livre retiré de la liste");
-      loadBookList(); // Recharger la liste
+      loadBookList();
     } catch (error) {
       toast.error("Impossible de retirer le livre");
     }
@@ -128,10 +148,10 @@ export default function BookListDetail({ id }: BookListDetailProps) {
       <div className="flex-1 px-5 pb-[120px] pt-25">
         <div className="space-y-6">
           {/* En-tête avec image de couverture */}
-          {bookList.coverImage ? (
+          {bookList.cover_image ? (
             <div className="relative w-full h-48 rounded-lg overflow-hidden">
               <Image
-                src={bookList.coverImage}
+                src={bookList.cover_image}
                 alt={bookList.name}
                 fill
                 className="object-cover"
@@ -169,17 +189,18 @@ export default function BookListDetail({ id }: BookListDetailProps) {
                 <Calendar className="h-4 w-4" />
                 <span>
                   Créée le{" "}
-                  
+                  {format(new Date(bookList.created_at), "d MMMM yyyy", {
+                    locale: fr,
+                  })}
                 </span>
               </div>
-              <div className="flex items-center gap-1">
-                <BookOpen className="h-4 w-4" />
-                <span>
-                  {bookList.bookCount}{" "}
-                  {bookList.bookCount > 1 ? "livres" : "livre"}
-                </span>
-              </div>
+
               <Badge variant="outline">
+                <BookOpen className="h-4 w-4" />
+                {bookList.book_count}{" "}
+                {bookList.book_count > 1 ? "livres" : "livre"}
+              </Badge>
+              <Badge variant="default">
                 {bookList.genre.charAt(0).toUpperCase() +
                   bookList.genre.slice(1)}
               </Badge>
@@ -199,7 +220,8 @@ export default function BookListDetail({ id }: BookListDetailProps) {
             <Button
               variant="outline"
               className="w-full flex items-center justify-center"
-              onClick={() => router.push(`/library/${id}/add-book`)}
+              // onClick={() => router.push(`/library/${id}/add-book`)}
+              onClick={() => router.push(`/search`)}
             >
               <Plus className="h-4 w-4 mr-2" />
               Ajouter un livre
@@ -271,8 +293,8 @@ export default function BookListDetail({ id }: BookListDetailProps) {
                         </div>
                       </div>
                       <div className="mt-2">
-                        <Badge variant="outline" className="text-xs">
-                          {"Aucun genre"}
+                        <Badge variant="default" className="text-xs">
+                          {book.genre}
                         </Badge>
                       </div>
                     </div>
@@ -280,8 +302,21 @@ export default function BookListDetail({ id }: BookListDetailProps) {
                 </Card>
               ))
             ) : (
-              <div className="text-center text-muted-foreground py-8">
-                Aucun livre dans cette liste
+              // <div className="text-center text-muted-foreground py-8">
+              //   Aucun livre dans cette liste
+              // </div>
+              <div className="text-center py-4">
+                <BookOpen className="w-12 h-12 mx-auto text-muted-foreground opacity-50" />
+                <p className="mt-4 text-muted-foreground">
+                  Aucun livre dans cette liste
+                </p>
+                <Button
+                  variant="outline"
+                  className="mt-4"
+                  onClick={() => router.push(`/search`)}
+                >
+                  Rechercher un livre
+                </Button>
               </div>
             )}
           </div>

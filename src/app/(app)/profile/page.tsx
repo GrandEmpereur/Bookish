@@ -18,6 +18,7 @@ import type { Post } from "@/types/postTypes";
 import type { UserProfile, UserRelations } from "@/types/userTypes";
 import type { BookList } from "@/types/bookListTypes";
 import type { Club } from "@/types/clubTypes";
+import BookListSkeleton from "@/components/library/book-list-skeleton";
 import {
   BookOpen,
   CircleDashed,
@@ -360,7 +361,7 @@ export default function Profile() {
   }, []);
 
   const renderEmptyState = useCallback(
-    (type: "posts" | "reviews" | "clubs", action: () => void) => {
+    (type: "posts" | "reviews" | "clubs" | "listes", action: () => void) => {
       const configs = {
         posts: {
           icon: MessageSquare,
@@ -376,6 +377,11 @@ export default function Profile() {
           icon: Users,
           message: "Vous ne faites partie d'aucun club",
           buttonText: "Découvrir des clubs",
+        },
+        listes: {
+          icon: BookOpen,
+          message: "Vous n'avez encore créé aucune liste",
+          buttonText: "Créer une liste",
         },
       };
 
@@ -395,90 +401,98 @@ export default function Profile() {
     []
   );
 
-  const renderPostCard = useCallback((post: Post, isReview = false) => (
-    <button
-      key={post.id}
-      onClick={() => router.push(`/feed/${post.id}`)}
-      className="w-full text-left p-4 border rounded-lg space-y-3 hover:bg-accent transition-colors"
-    >
-      <div className="flex gap-3">
-        <Avatar className="h-10 w-10">
-          <AvatarFallback>
-            {post.user?.username?.charAt(0).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
-        <div className="flex-1">
-          <div className="flex items-center justify-between">
-            <span className="font-medium">{post.user?.username}</span>
-            <span className="text-sm text-muted-foreground">
-              {safeFormatDistanceToNow(post.createdAt, true)}
-            </span>
-          </div>
-          <h3 className="text-sm text-muted-foreground">{post.title}</h3>
-          {isReview && (
-            <Badge variant="secondary" className="mt-1">
-              Critique de livre
-            </Badge>
-          )}
-        </div>
-      </div>
-      <p className="text-sm">{post.content}</p>
-      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-        <div className="flex items-center gap-1">
-          <Heart className="w-4 h-4" />
-          <span>{post.likesCount}</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <MessageSquare className="w-4 h-4" />
-          <span>{post.commentsCount}</span>
-        </div>
-      </div>
-    </button>
-  ), [router]);
-
-  const renderClubCard = useCallback((club: Club) => (
-    <button
-      key={club.id}
-      onClick={() => router.push(`/clubs/${club.id}`)}
-      className="w-full text-left p-4 border rounded-lg space-y-3 hover:bg-accent transition-colors"
-    >
-      <div className="flex gap-3">
-        <div className="relative h-12 w-12 overflow-hidden rounded-lg">
-          {club.cover_image ? (
-            <Image
-              src={club.cover_image}
-              alt={club.name}
-              fill
-              className="object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-muted flex items-center justify-center">
-              <Users className="h-6 w-6 text-muted-foreground" />
+  const renderPostCard = useCallback(
+    (post: Post, isReview = false) => (
+      <button
+        key={post.id}
+        onClick={() => router.push(`/feed/${post.id}`)}
+        className="w-full text-left p-4 border rounded-lg space-y-3 hover:bg-accent transition-colors"
+      >
+        <div className="flex gap-3">
+          <Avatar className="h-10 w-10">
+            <AvatarFallback>
+              {post.user?.username?.charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1">
+            <div className="flex items-center justify-between">
+              <span className="font-medium">{post.user?.username}</span>
+              <span className="text-sm text-muted-foreground">
+                {safeFormatDistanceToNow(post.createdAt, true)}
+              </span>
             </div>
-          )}
-        </div>
-        <div className="flex-1">
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium">{club.name}</h3>
-            <Badge variant={club.type === "Private" ? "secondary" : "outline"}>
-              {club.type === "Private" ? "Privé" : "Public"}
-            </Badge>
-          </div>
-          <p className="text-sm text-muted-foreground line-clamp-2">
-            {club.description}
-          </p>
-          <div className="flex items-center gap-2 mt-2">
-            <Badge variant="outline" className="text-xs">
-              {club.member_count} membre{club.member_count > 1 ? "s" : ""}
-            </Badge>
-            <Badge variant="outline" className="text-xs">
-              {club.genre}
-            </Badge>
+            <h3 className="text-sm text-muted-foreground">{post.title}</h3>
+            {isReview && (
+              <Badge variant="secondary" className="mt-1">
+                Critique de livre
+              </Badge>
+            )}
           </div>
         </div>
-      </div>
-    </button>
-  ), [router]);
+        <p className="text-sm">{post.content}</p>
+        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+          <div className="flex items-center gap-1">
+            <Heart className="w-4 h-4" />
+            <span>{post.likesCount}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <MessageSquare className="w-4 h-4" />
+            <span>{post.commentsCount}</span>
+          </div>
+        </div>
+      </button>
+    ),
+    [router]
+  );
+
+  const renderClubCard = useCallback(
+    (club: Club) => (
+      <button
+        key={club.id}
+        onClick={() => router.push(`/clubs/${club.id}`)}
+        className="w-full text-left p-4 border rounded-lg space-y-3 hover:bg-accent transition-colors"
+      >
+        <div className="flex gap-3">
+          <div className="relative h-12 w-12 overflow-hidden rounded-lg">
+            {club.cover_image ? (
+              <Image
+                src={club.cover_image}
+                alt={club.name}
+                fill
+                className="object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-muted flex items-center justify-center">
+                <Users className="h-6 w-6 text-muted-foreground" />
+              </div>
+            )}
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center justify-between">
+              <h3 className="font-medium">{club.name}</h3>
+              <Badge
+                variant={club.type === "Private" ? "secondary" : "outline"}
+              >
+                {club.type === "Private" ? "Privé" : "Public"}
+              </Badge>
+            </div>
+            <p className="text-sm text-muted-foreground line-clamp-2">
+              {club.description}
+            </p>
+            <div className="flex items-center gap-2 mt-2">
+              <Badge variant="outline" className="text-xs">
+                {club.member_count} membre{club.member_count > 1 ? "s" : ""}
+              </Badge>
+              <Badge variant="outline" className="text-xs">
+                {club.genre}
+              </Badge>
+            </div>
+          </div>
+        </div>
+      </button>
+    ),
+    [router]
+  );
 
   // Loading state
   if (loadingStates.profile) {
@@ -782,21 +796,17 @@ export default function Profile() {
               </TabsContent>
 
               <TabsContent value="listes" className="w-full">
-                <BookListCards
-                  bookLists={tabData.bookLists}
-                  isLoadingLists={loadingStates.bookLists}
-                />
-              </TabsContent>
-
-              <TabsContent value="posts" className="w-full">
-                {loadingStates.posts ? (
-                  renderSkeleton("post")
-                ) : tabData.userPosts.length === 0 ? (
-                  renderEmptyState("posts", () => router.push("/feed/create"))
+                {loadingStates.bookLists ? (
+                  <BookListSkeleton />
+                ) : tabData.bookLists.length === 0 ? (
+                  renderEmptyState("listes", () =>
+                    router.push("/library/create")
+                  )
                 ) : (
-                  <div className="space-y-4">
-                    {tabData.userPosts.map((post) => renderPostCard(post))}
-                  </div>
+                  <BookListCards
+                    bookLists={tabData.bookLists}
+                    isLoadingLists={false}
+                  />
                 )}
               </TabsContent>
 

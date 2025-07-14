@@ -26,7 +26,7 @@ export default function Library() {
 
       const sortedLists = response.data.sort(
         (a: BookList, b: BookList) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
       setBookLists(sortedLists);
     } catch (error) {

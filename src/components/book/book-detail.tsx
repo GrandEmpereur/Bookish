@@ -102,9 +102,13 @@ export default function BookDetail({ id }: BookProps) {
     }
   };
 
-  const isBookInList = (list: BookList) =>
-    list.books?.some((b) => b.id === book?.id);
+  type BookListWithIds = BookList & {
+    book_ids?: string[];
+  };
 
+  const isBookInList = (list: BookListWithIds) =>
+    list.book_ids?.includes(book?.id ?? "");
+  
   const handleToggleBookInList = async (list: BookList) => {
     if (!book) return;
     const alreadyIn = isBookInList(list);
