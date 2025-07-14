@@ -44,6 +44,7 @@ import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 import { AchievementsShowcase } from "@/components/ui/achievements-showcase";
 import { getAllBadgeDefinitions } from "@/utils/badgeSystem";
+import { safeFormatDistanceToNow } from "@/lib/date";
 
 const PIE_COLORS = ["#ec4899", "#dc2626", "#22c55e", "#ffffff"];
 
@@ -143,9 +144,9 @@ export default function Profile() {
       const userProfile: UserProfile = {
         id: responseData.user.id,
         username: responseData.user.username,
+        requesterUsername: responseData.user.username, // L'utilisateur consulte son propre profil
         email: responseData.user.email,
         created_at: responseData.user.created_at,
-        requesterUsername: responseData.user.username,
         is_verified: responseData.user.is_verified,
         profile: {
           id: responseData.profile.id,
@@ -394,52 +395,90 @@ export default function Profile() {
     []
   );
 
-  const renderPostCard = useCallback(
-    (post: Post, isReview = false) => (
-      <button
-        key={post.id}
-        onClick={() => router.push(`/feed/${post.id}`)}
-        className="w-full text-left p-4 border rounded-lg space-y-3 hover:bg-accent transition-colors"
-      >
-        <div className="flex gap-3">
-          <Avatar className="h-10 w-10">
-            <AvatarFallback>
-              {post.user?.username?.charAt(0).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1">
-            <div className="flex items-center justify-between">
-              <span className="font-medium">{post.user?.username}</span>
-              <span className="text-sm text-muted-foreground">
-                {formatDistanceToNow(new Date(post.createdAt), {
-                  addSuffix: true,
-                  locale: fr,
-                })}
-              </span>
+  const renderPostCard = useCallback((post: Post, isReview = false) => (
+    <button
+      key={post.id}
+      onClick={() => router.push(`/feed/${post.id}`)}
+      className="w-full text-left p-4 border rounded-lg space-y-3 hover:bg-accent transition-colors"
+    >
+      <div className="flex gap-3">
+        <Avatar className="h-10 w-10">
+          <AvatarFallback>
+            {post.user?.username?.charAt(0).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex-1">
+          <div className="flex items-center justify-between">
+            <span className="font-medium">{post.user?.username}</span>
+            <span className="text-sm text-muted-foreground">
+              {safeFormatDistanceToNow(post.createdAt, true)}
+            </span>
+          </div>
+          <h3 className="text-sm text-muted-foreground">{post.title}</h3>
+          {isReview && (
+            <Badge variant="secondary" className="mt-1">
+              Critique de livre
+            </Badge>
+          )}
+        </div>
+      </div>
+      <p className="text-sm">{post.content}</p>
+      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+        <div className="flex items-center gap-1">
+          <Heart className="w-4 h-4" />
+          <span>{post.likesCount}</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <MessageSquare className="w-4 h-4" />
+          <span>{post.commentsCount}</span>
+        </div>
+      </div>
+    </button>
+  ), [router]);
+
+  const renderClubCard = useCallback((club: Club) => (
+    <button
+      key={club.id}
+      onClick={() => router.push(`/clubs/${club.id}`)}
+      className="w-full text-left p-4 border rounded-lg space-y-3 hover:bg-accent transition-colors"
+    >
+      <div className="flex gap-3">
+        <div className="relative h-12 w-12 overflow-hidden rounded-lg">
+          {club.cover_image ? (
+            <Image
+              src={club.cover_image}
+              alt={club.name}
+              fill
+              className="object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-muted flex items-center justify-center">
+              <Users className="h-6 w-6 text-muted-foreground" />
             </div>
-            <h3 className="text-sm text-muted-foreground">{post.title}</h3>
-            {isReview && (
-              <Badge variant="secondary" className="mt-1">
-                Critique de livre
-              </Badge>
-            )}
+          )}
+        </div>
+        <div className="flex-1">
+          <div className="flex items-center justify-between">
+            <h3 className="font-medium">{club.name}</h3>
+            <Badge variant={club.type === "Private" ? "secondary" : "outline"}>
+              {club.type === "Private" ? "Privé" : "Public"}
+            </Badge>
+          </div>
+          <p className="text-sm text-muted-foreground line-clamp-2">
+            {club.description}
+          </p>
+          <div className="flex items-center gap-2 mt-2">
+            <Badge variant="outline" className="text-xs">
+              {club.member_count} membre{club.member_count > 1 ? "s" : ""}
+            </Badge>
+            <Badge variant="outline" className="text-xs">
+              {club.genre}
+            </Badge>
           </div>
         </div>
-        <p className="text-sm">{post.content}</p>
-        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-          <div className="flex items-center gap-1">
-            <Heart className="w-4 h-4" />
-            <span>{post.likesCount}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <MessageSquare className="w-4 h-4" />
-            <span>{post.commentsCount}</span>
-          </div>
-        </div>
-      </button>
-    ),
-    [router]
-  );
+      </div>
+    </button>
+  ), [router]);
 
   // Loading state
   if (loadingStates.profile) {

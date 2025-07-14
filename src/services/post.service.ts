@@ -49,6 +49,68 @@ export interface GetPostsPaginatedResponse {
   };
 }
 
+// Adaptateur pour transformer les données backend vers frontend
+function adaptPostFromBackend(backendPost: any): Post {
+  return {
+    id: backendPost.id,
+    title: backendPost.title,
+    subject: backendPost.subject,
+    content: backendPost.content,
+    userId: backendPost.user_id || "unknown", // fallback si pas d'user_id
+    clubId: backendPost.club_id || null,
+    likesCount: backendPost.likes_count || 0,
+    commentsCount: backendPost.comments_count || 0,
+    createdAt: backendPost.created_at,
+    updatedAt: backendPost.updated_at,
+    // Transformer les images en media
+    media: backendPost.images?.map((img: any) => ({
+      id: img.id,
+      userId: backendPost.user_id || "unknown",
+      postId: backendPost.id,
+      type: "image" as const,
+      url: img.url,
+      key: img.id, // fallback
+      size: 0, // pas dans la réponse backend
+      width: img.width,
+      height: img.height,
+      thumbnailUrl: img.thumbnail_url,
+      mimeType: "image/jpeg", // fallback
+      originalName: "", // pas dans la réponse backend
+      visibility: "public" as const,
+    })) || [],
+    // Créer un utilisateur par défaut car le backend ne l'envoie pas
+    user: {
+      id: backendPost.user_id || "unknown",
+      username: "Utilisateur", // placeholder
+      requesterUsername: "Utilisateur", // placeholder
+      email: "",
+      created_at: "",
+      is_verified: false,
+      profile: {
+        id: "",
+        first_name: "",
+        last_name: "",
+        birth_date: "",
+        bio: "",
+        profile_picture_url: null,
+        role: "USER" as const,
+        reading_habit: "occasional_reader" as const,
+        usage_purpose: "both" as const,
+        preferred_genres: [],
+        profile_visibility: "public" as const,
+        allow_follow_requests: true,
+        email_notifications: true,
+        push_notifications: true,
+        newsletter_subscribed: false,
+      },
+      stats: {
+        followers_count: 0,
+        following_count: 0,
+      },
+    },
+  };
+}
+
 class PostService {
   /**
    * Méthode utilitaire pour gérer les requêtes HTTP via le client centralisé
@@ -76,7 +138,27 @@ class PostService {
       orderDirection
     });
 
-    return this.makeRequest<GetPostsPaginatedResponse>("GET", `/posts?${queryParams.toString()}`);
+    const response = await this.makeRequest<any>("GET", `/posts?${queryParams.toString()}`);
+
+    // Adapter les posts du backend vers le format frontend
+    const adaptedPosts = response.data?.posts?.map(adaptPostFromBackend) || [];
+
+    return {
+      status: response.status,
+      message: response.message,
+      data: {
+        posts: adaptedPosts,
+        pagination: response.data?.pagination || {
+          current_page: page,
+          per_page: limit,
+          total: 0,
+          total_pages: 1,
+          has_more: false,
+          next_page: null,
+          prev_page: null,
+        }
+      }
+    };
   }
 
   // Méthode dépréciée - garder pour rétrocompatibilité
@@ -91,7 +173,16 @@ class PostService {
   }
 
   async getPost(id: string): Promise<GetPostResponse> {
-    return this.makeRequest<GetPostResponse>("GET", `/posts/${id}`);
+    const response = await this.makeRequest<any>("GET", `/posts/${id}`);
+
+    // Adapter le post du backend vers le format frontend
+    const adaptedPost = adaptPostFromBackend(response.data);
+
+    return {
+      status: response.status,
+      message: response.message,
+      data: adaptedPost,
+    };
   }
 
   async createPost(data: CreatePostFormData): Promise<GetPostResponse> {
