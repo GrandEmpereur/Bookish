@@ -36,9 +36,14 @@ export default function AuthorDetail({ id }: AuthorProps) {
         setAuthor(authorRes.data);
 
         const booksArray = Array.isArray(booksRes.data) ? booksRes.data : [];
-        const related = booksArray.filter(
-          (book: Book) => book.author === authorRes.data.name
-        );
+
+        const normalize = (str: string) => str.toLowerCase().replace(/\s/g, "");
+
+        const authorNameNormalized = normalize(authorRes.data.name);
+
+        const related = booksArray.filter((book: Book) => {
+          return normalize(book.author) === authorNameNormalized;
+        });
 
         setBooks(related);
       } catch (err) {

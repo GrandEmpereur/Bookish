@@ -62,7 +62,15 @@ export default function BookDetail({ id }: BookProps) {
   const goToAuthorPage = async () => {
     try {
       const res = await authorService.getAuthors();
-      const author = res.data.find((a) => a.name === book?.author);
+
+      const normalize = (str: string) => str.toLowerCase().replace(/\s/g, "");
+
+      const bookAuthor = book?.author ?? "";
+      const normalizedBookAuthor = normalize(bookAuthor);
+
+      const author = res.data.find(
+        (a) => normalize(a.name) === normalizedBookAuthor
+      );
 
       if (author) {
         router.push(`/authors/${author.id}`);
@@ -108,7 +116,7 @@ export default function BookDetail({ id }: BookProps) {
 
   const isBookInList = (list: BookListWithIds) =>
     list.book_ids?.includes(book?.id ?? "");
-  
+
   const handleToggleBookInList = async (list: BookList) => {
     if (!book) return;
     const alreadyIn = isBookInList(list);
