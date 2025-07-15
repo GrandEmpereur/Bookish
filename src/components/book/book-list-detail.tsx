@@ -250,7 +250,11 @@ export default function BookListDetail({ id }: BookListDetailProps) {
             <h2 className="text-lg font-semibold">Livres dans la liste</h2>
             {bookList.books && bookList.books.length > 0 ? (
               bookList.books.map((book) => (
-                <Card key={book.id} className="p-4">
+                <Card
+                  key={book.id}
+                  className="p-4"
+                  onClick={() => router.push(`/books/${book.id}`)}
+                >
                   <div className="flex gap-4">
                     {book.coverImage ? (
                       <div className="relative w-16 h-24 shrink-0">
