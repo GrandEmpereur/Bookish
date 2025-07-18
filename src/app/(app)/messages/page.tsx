@@ -142,6 +142,13 @@ const MessagesPage: React.FC = () => {
       {!selectedConversation ? (
         <div className="flex-1 overflow-y-auto">
           {loading && <div>Chargement...</div>}
+
+          {!loading && conversations.length === 0 && (
+            <div className="text-center text-gray-400 mt-10">
+              Aucun message pour le moment. Commence une nouvelle discussion !
+            </div>
+          )}
+
           {conversations.map((conv) => (
             <div
               key={conv.user.id}
@@ -189,24 +196,30 @@ const MessagesPage: React.FC = () => {
           </div>
 
           <div className="flex-1 overflow-y-auto px-2 space-y-2">
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`max-w-[75%] p-2 rounded-xl text-sm ${
-                  msg.senderId === currentUserId
-                    ? "ml-auto bg-green-100"
-                    : "bg-gray-100"
-                }`}
-              >
-                <p>{msg.content}</p>
-                <span className="block text-xs text-gray-400 mt-1 text-right">
-                  {new Date(msg.createdAt).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </span>
+            {messages.length === 0 ? (
+              <div className="text-center text-gray-400 mt-10">
+                Aucun message dans cette conversation.
               </div>
-            ))}
+            ) : (
+              messages.map((msg) => (
+                <div
+                  key={msg.id}
+                  className={`max-w-[75%] p-2 rounded-xl text-sm ${
+                    msg.senderId === currentUserId
+                      ? "ml-auto bg-green-100"
+                      : "bg-gray-100"
+                  }`}
+                >
+                  <p>{msg.content}</p>
+                  <span className="block text-xs text-gray-400 mt-1 text-right">
+                    {new Date(msg.createdAt).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </div>
+              ))
+            )}
           </div>
 
           <div className="flex items-center gap-2 pt-3 mt-2 border-t mb-[130px]">
