@@ -30,6 +30,8 @@ import { ReportDialog } from "@/components/ui/report-dialog";
 import { QuickReportButton } from "@/components/ui/quick-report-button";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/auth-context";
+import Unboarding from "@/components/unboarding/unboarding-pop";
+import { AnimatePresence, motion } from "framer-motion";
 
 // Fonction utilitaire pour gérer les mises à jour optimistes
 const handleOptimisticUpdate = (
@@ -59,9 +61,19 @@ export default function Feed() {
   );
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
+  const [showUnboarding, setShowUnboarding] = useState(false);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const router = useRouter();
   const { user } = useAuth();
+
+  useEffect(() => {
+    // ne s’exécute qu’au premier rendu
+    const need = localStorage.getItem("needUnboarding") === "1";
+    if (need) {
+      setShowUnboarding(true); // affiche la popup
+      localStorage.removeItem("needUnboarding"); // ne plus le réafficher
+    }
+  }, []);
 
   // Détection de la plateforme
   const isNative = Capacitor.isNativePlatform();
@@ -505,6 +517,18 @@ export default function Feed() {
               selectedPost.user?.username || "Utilisateur inconnu"
             }
           />
+          <AnimatePresence>
+            {showUnboarding && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm"
+              >
+                <Unboarding onClose={() => setShowUnboarding(false)} />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </>
       )}
     </>

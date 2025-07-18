@@ -3,13 +3,14 @@
 import { useEffect, useState } from "react";
 import { postService } from "@/services/post.service";
 import { Post } from "@/types/postTypes";
-import { safeFormatDistanceToNow } from "@/lib/date";
+import { formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale";
 import { Loader2 } from "lucide-react";
 import { CommentsSection } from "@/components/comments/comments-section";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { GetPostResponse } from "@/types/postTypes";
 import { toast } from "sonner";
-
+import {Unboarding}
 
 interface PostDetailsProps {
   postId: string;
@@ -66,7 +67,10 @@ export function PostDetails({ postId }: PostDetailsProps) {
               <div className="flex items-center justify-between">
                 <span className="font-medium">{post.user?.username}</span>
                 <span className="text-sm text-muted-foreground">
-                  {safeFormatDistanceToNow(post.createdAt, true)}
+                  {formatDistanceToNow(new Date(post.createdAt), {
+                    addSuffix: true,
+                    locale: fr,
+                  })}
                 </span>
               </div>
               <h2 className="text-sm text-muted-foreground mt-0.5">
