@@ -14,11 +14,14 @@ import {
   ProfessionalSearchResponse,
   GeneralSearchResponse,
   SearchOptions,
+  AuthorsSearchResponse,
+  AuthorSearchOptions,
 } from "@/types/searchTypes";
 
 const API_ENDPOINTS = {
   search: {
     users: "/search/users",
+    authors: "/search/authors",
     books: "/search/books",
     clubs: "/search/clubs",
     bookLists: "/search/book-lists",
@@ -96,13 +99,21 @@ class SearchService {
     return result;
   }
 
-  async searchProfessionals(options: ProfessionalSearchOptions): Promise<ProfessionalSearchResponse> {
+    async searchAuthors(options: AuthorSearchOptions): Promise<AuthorsSearchResponse> {
     const params = this.buildSearchParams(options);
-    const url = `${API_ENDPOINTS.search.professionals}?${params.toString()}`;
+    const url = `${API_ENDPOINTS.search.authors}?${params.toString()}`;
 
-    const result = await this.makeRequest<ProfessionalSearchResponse>("GET", url);
+    const result = await this.makeRequest<AuthorsSearchResponse>("GET", url);
     return result;
   }
+
+  // async searchProfessionals(options: ProfessionalSearchOptions): Promise<ProfessionalSearchResponse> {
+  //   const params = this.buildSearchParams(options);
+  //   const url = `${API_ENDPOINTS.search.professionals}?${params.toString()}`;
+
+  //   const result = await this.makeRequest<ProfessionalSearchResponse>("GET", url);
+  //   return result;
+  // }
 
   async searchGeneral(options: SearchOptions): Promise<GeneralSearchResponse> {
     const params = this.buildSearchParams(options);

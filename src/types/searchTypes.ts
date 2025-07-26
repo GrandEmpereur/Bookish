@@ -211,6 +211,23 @@ export interface ProfessionalSearchResponse {
   };
 }
 
+export interface AuthorSearchItem {
+  id: string;
+  name: string;
+  bio: string;
+  book_rights: number;
+  avatar: string | null;
+  created_at: string;
+  books: any[];
+  books_count: number;
+}
+
+export interface AuthorsSearchResponse {
+  status: "success" | "error";
+  message: string;
+  data: AuthorSearchItem[];
+}
+
 // Options pour les recherches spécifiques
 export interface UserSearchOptions extends BaseSearchOptions {
   role?: string;
@@ -244,6 +261,10 @@ export interface BookListSearchOptions extends BaseSearchOptions {
   created_by?: string;
   book_count?: number;
   visibility?: string;
+}
+export interface AuthorSearchOptions extends BaseSearchOptions {
+  category: string;
+  subcategory?: string;
 }
 
 export interface CategorySearchOptions extends BaseSearchOptions {

@@ -15,12 +15,18 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 
+import { ReviewPopover } from "@/components/review/review-popover";
+
 import { bookService } from "@/services/book.service";
 import { bookListService } from "@/services/book-list.service";
 import { authorService } from "@/services/author.service";
 
 import type { Book } from "@/types/bookTypes";
 import type { BookList } from "@/types/bookListTypes";
+
+import type { Review } from "@/types/reviewTypes";
+import { reviewService } from "@/services/review.service";
+import { userService } from "@/services/user.service";
 
 interface BookProps {
   id: string;
@@ -31,6 +37,8 @@ export default function BookDetail({ id }: BookProps) {
   const [relatedBooks, setRelatedBooks] = useState<Book[]>([]);
   const [bookLists, setBookLists] = useState<BookList[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
   const router = useRouter();
 
   const currentYear = new Date().getFullYear();
@@ -39,6 +47,19 @@ export default function BookDetail({ id }: BookProps) {
     fetchBookDetails(id);
     fetchBookLists();
   }, [id]);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await userService.getAuthenticatedProfile();
+        setCurrentUserId(res.data.user.id);
+      } catch (err) {
+        console.error("Impossible de récupérer l'utilisateur", err);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   const fetchBookDetails = async (bookId: string) => {
     try {
@@ -58,6 +79,29 @@ export default function BookDetail({ id }: BookProps) {
       setIsLoading(false);
     }
   };
+
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [averageRating, setAverageRating] = useState<number | null>(null);
+  const [totalReviews, setTotalReviews] = useState(0);
+
+  const fetchReviews = async () => {
+    try {
+      const res = await reviewService.getReviewsForBook(id);
+      const data = res.data;
+      setReviews(data.reviews);
+      setAverageRating(data.statistics.average_rating || null);
+      setTotalReviews(data.statistics.total_reviews || 0);
+    } catch (err) {
+      console.error(err);
+      toast.error("Erreur lors du chargement des avis");
+    }
+  };
+
+  useEffect(() => {
+    fetchBookDetails(id);
+    fetchBookLists();
+    fetchReviews();
+  }, [id]);
 
   const goToAuthorPage = async () => {
     try {
@@ -140,7 +184,7 @@ export default function BookDetail({ id }: BookProps) {
 
   if (isLoading) {
     return (
-      <div className="flex-1 flex items-center justify-center">
+      <div className="fixed inset-0 flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
@@ -243,13 +287,16 @@ export default function BookDetail({ id }: BookProps) {
             </p>
 
             {/* Etoiles */}
-            {/* <p className="flex items-center gap-1 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1 font-bold">
-                <Star className="w-4 h-4 text-yellow-500" fill="currentColor" />
-                4.5
-              </span>
-              <span>(2100)</span>
-            </p> */}
+            {currentUserId && (
+              <ReviewPopover
+                bookId={book.id}
+                reviews={reviews}
+                averageRating={averageRating}
+                totalReviews={totalReviews}
+                onReviewAdded={fetchReviews}
+                currentUserId={currentUserId}
+              />
+            )}
           </div>
 
           {/* Tags + description */}

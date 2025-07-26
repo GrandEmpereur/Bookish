@@ -43,6 +43,11 @@ const CATEGORY_INFO = {
     icon: Users,
     description: "Trouvez des lecteurs et auteurs",
   },
+  // authors: {
+  //   label: "Auteurs",
+  //   icon: Users,
+  //   description: "Trouvez des auteurs publiés",
+  // },
   books: {
     label: "Livres",
     icon: BookOpen,
@@ -226,6 +231,37 @@ function SearchPageContent() {
     const type = item.type || item.result_type;
 
     switch (type) {
+      // case "author":
+      //   return (
+      //     <Card
+      //       key={item.id}
+      //       className="p-2 hover:shadow-md transition-shadow"
+      //       onClick={() => router.push(`/authors/${item.id}`)}
+      //     >
+      //       <div className="flex items-center gap-3">
+      //         <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white font-semibold">
+      //           {item.name?.[0]?.toUpperCase() || "A"}
+      //         </div>
+      //         <div className="flex-1 min-w-0">
+      //           <div className="flex items-center justify-between gap-2">
+      //             <h3 className="font-semibold truncate">{item.name}</h3>
+      //             <Badge
+      //               variant="outline"
+      //               className="text-[10px] px-1.5 py-0.5 h-auto bg-background"
+      //             >
+      //               AUTEUR
+      //             </Badge>
+      //           </div>
+      //           {item.bio && (
+      //             <p className="text-sm text-muted-foreground line-clamp-2">
+      //               {item.bio}
+      //             </p>
+      //           )}
+      //         </div>
+      //       </div>
+      //     </Card>
+      //   );
+
       case "user":
         return (
           <Card
@@ -563,7 +599,7 @@ function SearchPageContent() {
                     {hasSearched && count > 0 && (
                       <Badge
                         variant="secondary"
-                        className="absolute -top-0.5 -right-0.5 h-4 w-auto min-w-[16px] px-1 py-0 text-[10px] font-medium bg-primary text-primary-foreground"
+                        className="absolute z-10 -top-0.5 -right-0.5 h-4 min-w-[16px] px-1 text-[10px] font-medium bg-primary text-primary-foreground flex items-center justify-center"
                       >
                         {count > 99 ? "99+" : count}
                       </Badge>
