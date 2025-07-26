@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FiArrowLeft, FiSend, FiPaperclip } from "react-icons/fi";
 
-// CONSTANTES
 const API_BASE_URL = "https://bookish-api-v2-0580441d6f39.herokuapp.com";
 const currentUserId = "01974528-69d6-716c-a5ef-0def322094e6";
 
