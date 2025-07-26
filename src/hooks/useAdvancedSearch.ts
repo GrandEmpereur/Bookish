@@ -3,7 +3,10 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { searchService } from "@/services/search.service";
 import { useDebounce } from "@/hooks/use-debounce";
-import { SearchCategory, GeneralSearchResponse } from "@/types/searchTypes";
+import { GeneralSearchResponse } from "@/types/searchTypes";
+
+// Extend SearchCategory to include "authors"
+export type SearchCategory = "all" | "users" | "books" | "clubs" | "book_lists" | "authors";
 import { toast } from "sonner";
 
 interface SearchState {
@@ -138,6 +141,9 @@ export const useAdvancedSearch = (options: UseAdvancedSearchOptions = {}) => {
                     case "all":
                         maxPossibleResults = categoryTotals?.total || 0;
                         break;
+                    case "authors":
+                        maxPossibleResults = categoryTotals?.authors || 0;
+                        break;
                     case "users":
                         maxPossibleResults = categoryTotals?.users || 0;
                         break;
@@ -231,6 +237,40 @@ export const useAdvancedSearch = (options: UseAdvancedSearchOptions = {}) => {
             } else {
                 // Utiliser les endpoints spécifiques pour les catégories
                 switch (currentCategory) {
+                    case "authors":
+                        response = await searchService.searchAuthors({
+                            query: state.query,
+                            page: nextPage,
+                            limit: 20,
+                            category: "all"
+                        });
+                        console.log("Authors response:", response);
+                        if (response.status === "success") {
+                            const newResults = response.data.users || [];
+                            const updatedData = [...(state.results.data || []), ...newResults];
+                            const newLoadedCount = updatedData.length;
+
+                            setState(prev => ({
+                                ...prev,
+                                results: {
+                                    ...prev.results,
+                                    data: updatedData,
+                                    loadedCount: newLoadedCount
+                                },
+                                loading: false
+                            }));
+
+                            const maxToLoad = Math.min(state.results.totals?.users || 0, 100);
+                            const hasMoreResults = newLoadedCount < maxToLoad && (response.data.pagination?.has_more || false);
+
+                            setPagination(prev => ({
+                                ...prev,
+                                page: nextPage,
+                                hasMore: hasMoreResults
+                            }));
+                        }
+                        break;
+
                     case "users":
                         response = await searchService.searchUsers({
                             query: state.query,
@@ -535,6 +575,22 @@ export const useInfiniteSearch = (options: UseInfiniteSearchOptions = {}): UseIn
             } else {
                 // Utiliser les endpoints spécifiques pour une pagination réelle
                 switch (category) {
+               case "authors":
+                response = await searchService.searchAuthors({
+                    query: searchQuery,
+                    page,
+                    limit,
+                    category: "all"
+                });
+                console.error("Authors response:", response);
+                if (response.status === "success") {
+                    newResults = (response.data.authors || []).map((author: any) => ({
+                    ...author,
+                    type: "author"
+                    }));
+                }
+                break;
+
                     case "users":
                         response = await searchService.searchUsers({
                             query: searchQuery,

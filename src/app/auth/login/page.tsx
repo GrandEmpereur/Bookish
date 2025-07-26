@@ -241,7 +241,7 @@ export default function Login() {
                   </motion.div>
                 </motion.div>
                 <motion.h2
-                  className="text-white text-lg sm:text-xl font-heading mb-2"
+                  className="text-lg sm:text-xl font-heading mb-2"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.2 }}
@@ -249,7 +249,7 @@ export default function Login() {
                   Connexion réussie !
                 </motion.h2>
                 <motion.p
-                  className="text-white/70 text-sm sm:text-base"
+                  className=" text-sm sm:text-base"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.4 }}
@@ -535,7 +535,7 @@ export default function Login() {
 
             <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t py-4">
               <span className="bg-background text-muted-foreground relative z-10 px-2">
-                Or continue with
+                Ou continuez avec
               </span>
             </div>
             <Button 
