@@ -34,9 +34,23 @@ export default function FollowingPage() {
       const response = await userService.getRelations();
 
       // Ensure we have a valid array
-      const followingData = response.data?.following;
-      if (Array.isArray(followingData)) {
-        setFollowing(followingData);
+      const followingList = response.data?.following?.list;
+      console.log("Following data:", followingList);
+
+      if (Array.isArray(followingList)) {
+        setFollowing(
+          followingList.map((user: any) => ({
+            id: user.id,
+            username: user.username,
+            profile: user.profile
+              ? {
+                  firstName: user.profile.firstName ?? "",
+                  lastName: user.profile.lastName ?? "",
+                  profilePictureUrl: user.profile.profilePictureUrl ?? null,
+                }
+              : null,
+          }))
+        );
       } else {
         setFollowing([]);
       }
@@ -75,7 +89,7 @@ export default function FollowingPage() {
           renderLoadingSkeleton()
         ) : following.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-[calc(100dvh-230px)] text-center">
-            <BookUser className="w-16 h-16 mx-auto text-muted-foreground opacity-50" />
+            <BookUser className="w-12 h-12 mx-auto text-muted-foreground opacity-50" />
             <p className="mt-2 text-muted-foreground">
               Vous ne suivez personne pour le moment.
             </p>
@@ -89,6 +103,15 @@ export default function FollowingPage() {
           </div>
         ) : (
           <div className="space-y-2">
+            {/* Stats */}
+            {!loading && following.length > 0 && (
+              <div className="mt-8 p-4 rounded-lg">
+                <p className="text-center text-sm text-muted-foreground">
+                  Vous suivez {following.length} personne
+                  {following.length > 1 ? "s" : ""}
+                </p>
+              </div>
+            )}
             {Array.isArray(following) &&
               following.map((user) => (
                 <button
@@ -117,16 +140,6 @@ export default function FollowingPage() {
                   </div>
                 </button>
               ))}
-          </div>
-        )}
-
-        {/* Stats */}
-        {!loading && following.length > 0 && (
-          <div className="mt-8 p-4 bg-muted rounded-lg">
-            <p className="text-center text-sm text-muted-foreground">
-              Vous suivez {following.length} personne
-              {following.length > 1 ? "s" : ""}
-            </p>
           </div>
         )}
       </main>

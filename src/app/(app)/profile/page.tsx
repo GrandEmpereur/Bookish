@@ -139,17 +139,15 @@ export default function Profile() {
     try {
       setLoadingStates((prev) => ({ ...prev, profile: true }));
 
-      const [profileResponse, relationsResponse, statsResponse] = await Promise.all([
-        userService.getAuthenticatedProfile(),
-        userService.getRelations(),
-        statisticsService.getReadingStatistics().catch(error => {
-          console.error("Erreur lors du chargement des statistiques:", error);
-          return { status: 'success', data: null };
-        }),
-      ]);
-
-      // Debug: Vérifier la structure de la réponse des statistiques
-      console.log("Stats Response:", statsResponse);
+      const [profileResponse, relationsResponse, statsResponse] =
+        await Promise.all([
+          userService.getAuthenticatedProfile(),
+          userService.getRelations(),
+          statisticsService.getReadingStatistics().catch((error) => {
+            console.error("Erreur lors du chargement des statistiques:", error);
+            return { status: "success", data: null };
+          }),
+        ]);
 
       const responseData = profileResponse.data as any;
 
@@ -595,7 +593,7 @@ export default function Profile() {
                 Following
               </span>
               <span className="text-xl font-bold text-white/90">
-                {relations?.following?.length || 0}
+                {relations?.following?.count || 0}
               </span>
             </button>
 
@@ -613,7 +611,7 @@ export default function Profile() {
                 Followers
               </span>
               <span className="text-xl font-bold text-white/90">
-                {relations?.followers?.length || 0}
+                {relations?.followers?.count || 0}
               </span>
             </button>
 
@@ -699,7 +697,13 @@ export default function Profile() {
                         Temps de lecture
                       </span>
                       <span className="text-[#ffffff] text-sm font-semibold text-center leading-tight">
-                        {Math.round((readingStats?.behavioral_analytics?.overview?.total_reading_time || readingStats?.summary?.total_reading_time || 0) / 60)}h
+                        {Math.round(
+                          (readingStats?.behavioral_analytics?.overview
+                            ?.total_reading_time ||
+                            readingStats?.summary?.total_reading_time ||
+                            0) / 60
+                        )}
+                        h
                       </span>
                       <span className="text-[#2F4739] text-[14px] font-bold text-center leading-tight">
                         Total
@@ -722,13 +726,17 @@ export default function Profile() {
                         <div className="text-lg font-semibold">
                           {readingStats?.summary?.reading_score || 0}
                         </div>
-                        <div className="text-xs text-white/70">Score de lecture</div>
+                        <div className="text-xs text-white/70">
+                          Score de lecture
+                        </div>
                       </div>
                       <div className="text-center">
                         <div className="text-lg font-semibold">
                           {readingStats?.summary?.current_streak || 0}
                         </div>
-                        <div className="text-xs text-white/70">Jours consécutifs</div>
+                        <div className="text-xs text-white/70">
+                          Jours consécutifs
+                        </div>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4 mt-3">
@@ -749,112 +757,155 @@ export default function Profile() {
                 </Card>
 
                 {/* Comparison with Other Users */}
-                {readingStats?.comparison_report && readingStats.comparison_report.total_users > 0 && (
-                  <Card className="rounded-lg p-6 bg-gradient-to-r from-[#6DA37F] to-[#416E54]">
-                    <h2 className="text-lg font-semibold mb-4 text-white">
-                      Votre position parmi les lecteurs
-                    </h2>
-                    <div className="space-y-3">
-                      <div className="flex justify-between text-white">
-                        <span>Classement:</span>
-                        <span className="font-semibold">
-                          #{readingStats.comparison_report.user_rank} sur {readingStats.comparison_report.total_users}
-                        </span>
+                {readingStats?.comparison_report &&
+                  readingStats.comparison_report.total_users > 0 && (
+                    <Card className="rounded-lg p-6 bg-gradient-to-r from-[#6DA37F] to-[#416E54]">
+                      <h2 className="text-lg font-semibold mb-4 text-white">
+                        Votre position parmi les lecteurs
+                      </h2>
+                      <div className="space-y-3">
+                        <div className="flex justify-between text-white">
+                          <span>Classement:</span>
+                          <span className="font-semibold">
+                            #{readingStats.comparison_report.user_rank} sur{" "}
+                            {readingStats.comparison_report.total_users}
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-white">
+                          <span>Percentile:</span>
+                          <span className="font-semibold">
+                            {readingStats.comparison_report.percentile}%
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-white">
+                          <span>Meilleur que:</span>
+                          <span className="font-semibold">
+                            {readingStats.comparison_report.better_than_percent}
+                            % des utilisateurs
+                          </span>
+                        </div>
+                        <div className="relative w-full bg-white/20 h-3 rounded-full mt-4">
+                          <div
+                            className="bg-white absolute top-0 left-0 h-3 rounded-full"
+                            style={{
+                              width: `${readingStats.comparison_report.percentile}%`,
+                            }}
+                          />
+                        </div>
                       </div>
-                      <div className="flex justify-between text-white">
-                        <span>Percentile:</span>
-                        <span className="font-semibold">
-                          {readingStats.comparison_report.percentile}%
-                        </span>
-                      </div>
-                      <div className="flex justify-between text-white">
-                        <span>Meilleur que:</span>
-                        <span className="font-semibold">
-                          {readingStats.comparison_report.better_than_percent}% des utilisateurs
-                        </span>
-                      </div>
-                      <div className="relative w-full bg-white/20 h-3 rounded-full mt-4">
-                        <div
-                          className="bg-white absolute top-0 left-0 h-3 rounded-full"
-                          style={{
-                            width: `${readingStats.comparison_report.percentile}%`,
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </Card>
-                )}
+                    </Card>
+                  )}
 
                 {/* Monthly Trends */}
-                {readingStats?.trends_analysis && readingStats.trends_analysis.periods.length > 0 && (
-                  <Card className="rounded-lg p-6 bg-gradient-to-r from-[#6DA37F] to-[#416E54]">
-                    <h2 className="text-lg font-semibold mb-4 text-white">
-                      Tendances de lecture (6 derniers mois)
-                    </h2>
-                    <div className="space-y-4">
-                      {/* Books Read Trend */}
-                      <div>
-                        <div className="flex justify-between text-sm text-white mb-2">
-                          <span>Livres lus par mois</span>
-                          <span className={`font-semibold ${
-                            readingStats.trends_analysis.growth_rates.books_read >= 0 
-                              ? 'text-green-300' 
-                              : 'text-red-300'
-                          }`}>
-                            {readingStats.trends_analysis.growth_rates.books_read > 0 ? '+' : ''}
-                            {readingStats.trends_analysis.growth_rates.books_read}%
-                          </span>
+                {readingStats?.trends_analysis &&
+                  readingStats.trends_analysis.periods.length > 0 && (
+                    <Card className="rounded-lg p-6 bg-gradient-to-r from-[#6DA37F] to-[#416E54]">
+                      <h2 className="text-lg font-semibold mb-4 text-white">
+                        Tendances de lecture (6 derniers mois)
+                      </h2>
+                      <div className="space-y-4">
+                        {/* Books Read Trend */}
+                        <div>
+                          <div className="flex justify-between text-sm text-white mb-2">
+                            <span>Livres lus par mois</span>
+                            <span
+                              className={`font-semibold ${
+                                readingStats.trends_analysis.growth_rates
+                                  .books_read >= 0
+                                  ? "text-green-300"
+                                  : "text-red-300"
+                              }`}
+                            >
+                              {readingStats.trends_analysis.growth_rates
+                                .books_read > 0
+                                ? "+"
+                                : ""}
+                              {
+                                readingStats.trends_analysis.growth_rates
+                                  .books_read
+                              }
+                              %
+                            </span>
+                          </div>
+                          <div className="flex items-end space-x-1 h-20">
+                            {readingStats.trends_analysis.trends.books_read.map(
+                              (count, index) => {
+                                const maxValue =
+                                  Math.max(
+                                    ...readingStats.trends_analysis.trends
+                                      .books_read
+                                  ) || 1;
+                                const height =
+                                  count > 0 ? (count / maxValue) * 100 : 5;
+                                return (
+                                  <div
+                                    key={index}
+                                    className="flex-1 flex flex-col items-center"
+                                  >
+                                    <div
+                                      className="bg-white/60 w-full rounded-t-sm"
+                                      style={{ height: `${height}%` }}
+                                    />
+                                    <div className="text-xs text-white/70 mt-1">
+                                      {readingStats.trends_analysis.periods[
+                                        index
+                                      ]?.split("-")[1] || ""}
+                                    </div>
+                                  </div>
+                                );
+                              }
+                            )}
+                          </div>
                         </div>
-                        <div className="flex items-end space-x-1 h-20">
-                          {readingStats.trends_analysis.trends.books_read.map((count, index) => {
-                            const maxValue = Math.max(...readingStats.trends_analysis.trends.books_read) || 1;
-                            const height = count > 0 ? (count / maxValue) * 100 : 5;
-                            return (
-                              <div key={index} className="flex-1 flex flex-col items-center">
-                                <div
-                                  className="bg-white/60 w-full rounded-t-sm"
-                                  style={{ height: `${height}%` }}
-                                />
-                                <div className="text-xs text-white/70 mt-1">
-                                  {readingStats.trends_analysis.periods[index]?.split('-')[1] || ''}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
 
-                      {/* Pages Read Trend */}
-                      <div>
-                        <div className="flex justify-between text-sm text-white mb-2">
-                          <span>Pages lues par mois</span>
-                          <span className={`font-semibold ${
-                            readingStats.trends_analysis.growth_rates.pages_read >= 0 
-                              ? 'text-green-300' 
-                              : 'text-red-300'
-                          }`}>
-                            {readingStats.trends_analysis.growth_rates.pages_read > 0 ? '+' : ''}
-                            {readingStats.trends_analysis.growth_rates.pages_read}%
-                          </span>
-                        </div>
-                        <div className="flex items-end space-x-1 h-16">
-                          {readingStats.trends_analysis.trends.pages_read.map((count, index) => {
-                            const maxValue = Math.max(...readingStats.trends_analysis.trends.pages_read) || 1;
-                            const height = count > 0 ? (count / maxValue) * 100 : 5;
-                            return (
-                              <div key={index} className="flex-1">
-                                <div
-                                  className="bg-white/40 w-full rounded-t-sm"
-                                  style={{ height: `${height}%` }}
-                                />
-                              </div>
-                            );
-                          })}
+                        {/* Pages Read Trend */}
+                        <div>
+                          <div className="flex justify-between text-sm text-white mb-2">
+                            <span>Pages lues par mois</span>
+                            <span
+                              className={`font-semibold ${
+                                readingStats.trends_analysis.growth_rates
+                                  .pages_read >= 0
+                                  ? "text-green-300"
+                                  : "text-red-300"
+                              }`}
+                            >
+                              {readingStats.trends_analysis.growth_rates
+                                .pages_read > 0
+                                ? "+"
+                                : ""}
+                              {
+                                readingStats.trends_analysis.growth_rates
+                                  .pages_read
+                              }
+                              %
+                            </span>
+                          </div>
+                          <div className="flex items-end space-x-1 h-16">
+                            {readingStats.trends_analysis.trends.pages_read.map(
+                              (count, index) => {
+                                const maxValue =
+                                  Math.max(
+                                    ...readingStats.trends_analysis.trends
+                                      .pages_read
+                                  ) || 1;
+                                const height =
+                                  count > 0 ? (count / maxValue) * 100 : 5;
+                                return (
+                                  <div key={index} className="flex-1">
+                                    <div
+                                      className="bg-white/40 w-full rounded-t-sm"
+                                      style={{ height: `${height}%` }}
+                                    />
+                                  </div>
+                                );
+                              }
+                            )}
+                          </div>
                         </div>
                       </div>
-                                         </div>
-                   </Card>
-                 )}
+                    </Card>
+                  )}
 
                 {/* Behavioral Analytics */}
                 {readingStats?.behavioral_analytics && (
@@ -869,30 +920,64 @@ export default function Profile() {
                         <div className="grid grid-cols-2 gap-4">
                           <div className="bg-white/10 rounded-lg p-3">
                             <div className="text-white text-lg font-semibold">
-                              {readingStats.behavioral_analytics.overview.total_books_completed}
+                              {
+                                readingStats.behavioral_analytics.overview
+                                  .total_books_completed
+                              }
                             </div>
-                            <div className="text-white/70 text-sm">Livres terminés</div>
+                            <div className="text-white/70 text-sm">
+                              Livres terminés
+                            </div>
                           </div>
                           <div className="bg-white/10 rounded-lg p-3">
                             <div className="text-white text-lg font-semibold">
-                              {Math.round(readingStats.behavioral_analytics.overview.average_reading_speed)} p/min
+                              {Math.round(
+                                readingStats.behavioral_analytics.overview
+                                  .average_reading_speed
+                              )}{" "}
+                              p/min
                             </div>
-                            <div className="text-white/70 text-sm">Vitesse moyenne</div>
+                            <div className="text-white/70 text-sm">
+                              Vitesse moyenne
+                            </div>
                           </div>
                         </div>
 
                         {/* Reading Pattern */}
                         <div className="bg-white/10 rounded-lg p-4">
-                          <h3 className="text-white font-medium mb-2">Habitudes de lecture</h3>
+                          <h3 className="text-white font-medium mb-2">
+                            Habitudes de lecture
+                          </h3>
                           <div className="space-y-2 text-sm text-white/80">
                             <div>
-                              <span className="font-medium">Heure préférée:</span> {readingStats.behavioral_analytics.insights.most_active_hour}h00
+                              <span className="font-medium">
+                                Heure préférée:
+                              </span>{" "}
+                              {
+                                readingStats.behavioral_analytics.insights
+                                  .most_active_hour
+                              }
+                              h00
                             </div>
                             <div>
-                              <span className="font-medium">Durée moyenne:</span> {readingStats.behavioral_analytics.insights.reading_pattern.averageSessionDuration} minutes
+                              <span className="font-medium">
+                                Durée moyenne:
+                              </span>{" "}
+                              {
+                                readingStats.behavioral_analytics.insights
+                                  .reading_pattern.averageSessionDuration
+                              }{" "}
+                              minutes
                             </div>
                             <div>
-                              <span className="font-medium">Session la plus longue:</span> {readingStats.behavioral_analytics.insights.longest_session} minutes
+                              <span className="font-medium">
+                                Session la plus longue:
+                              </span>{" "}
+                              {
+                                readingStats.behavioral_analytics.insights
+                                  .longest_session
+                              }{" "}
+                              minutes
                             </div>
                             <div className="flex items-center">
                               <span className="font-medium">Régularité:</span>
@@ -905,25 +990,38 @@ export default function Profile() {
                                 />
                               </div>
                               <span className="ml-2 text-xs">
-                                {readingStats.behavioral_analytics.insights.reading_consistency.score}%
+                                {
+                                  readingStats.behavioral_analytics.insights
+                                    .reading_consistency.score
+                                }
+                                %
                               </span>
                             </div>
                           </div>
                         </div>
 
                         {/* Preferred Hours Visualization */}
-                        {readingStats.behavioral_analytics.insights.reading_pattern.preferredHours.length > 0 && (
+                        {readingStats.behavioral_analytics.insights
+                          .reading_pattern.preferredHours.length > 0 && (
                           <div className="bg-white/10 rounded-lg p-4">
-                            <h3 className="text-white font-medium mb-3">Heures de lecture préférées</h3>
+                            <h3 className="text-white font-medium mb-3">
+                              Heures de lecture préférées
+                            </h3>
                             <div className="flex items-end space-x-1 h-16">
                               {Array.from({ length: 24 }, (_, hour) => {
-                                const isPreferred = readingStats.behavioral_analytics.insights.reading_pattern.preferredHours.includes(hour);
+                                const isPreferred =
+                                  readingStats.behavioral_analytics.insights.reading_pattern.preferredHours.includes(
+                                    hour
+                                  );
                                 const height = isPreferred ? 100 : 20;
                                 return (
-                                  <div key={hour} className="flex-1 flex flex-col items-center">
+                                  <div
+                                    key={hour}
+                                    className="flex-1 flex flex-col items-center"
+                                  >
                                     <div
                                       className={`w-full rounded-t-sm ${
-                                        isPreferred ? 'bg-white' : 'bg-white/30'
+                                        isPreferred ? "bg-white" : "bg-white/30"
                                       }`}
                                       style={{ height: `${height}%` }}
                                     />
@@ -942,37 +1040,51 @@ export default function Profile() {
                     </Card>
 
                     {/* Recommendations */}
-                    {readingStats.behavioral_analytics.recommendations.length > 0 && (
+                    {readingStats.behavioral_analytics.recommendations.length >
+                      0 && (
                       <Card className="rounded-lg p-6 bg-gradient-to-r from-[#6DA37F] to-[#416E54]">
                         <h2 className="text-lg font-semibold mb-4 text-white">
                           Recommandations personnalisées
                         </h2>
                         <div className="space-y-3">
-                          {readingStats.behavioral_analytics.recommendations.map((recommendation, index) => (
-                            <div key={index} className="bg-white/10 rounded-lg p-4">
-                              <div className="flex items-start justify-between mb-2">
-                                <h3 className="text-white font-medium">
-                                  {recommendation.title}
-                                </h3>
-                                <span className={`text-xs px-2 py-1 rounded-full ${
-                                  recommendation.priority === 'high' 
-                                    ? 'bg-red-500/20 text-red-200' 
-                                    : recommendation.priority === 'medium'
-                                    ? 'bg-yellow-500/20 text-yellow-200'
-                                    : 'bg-green-500/20 text-green-200'
-                                }`}>
-                                  {recommendation.priority === 'high' ? 'Priorité haute' : 
-                                   recommendation.priority === 'medium' ? 'Priorité moyenne' : 'Priorité basse'}
-                                </span>
+                          {readingStats.behavioral_analytics.recommendations.map(
+                            (recommendation, index) => (
+                              <div
+                                key={index}
+                                className="bg-white/10 rounded-lg p-4"
+                              >
+                                <div className="flex items-start justify-between mb-2">
+                                  <h3 className="text-white font-medium">
+                                    {recommendation.title}
+                                  </h3>
+                                  <span
+                                    className={`text-xs px-2 py-1 rounded-full ${
+                                      recommendation.priority === "high"
+                                        ? "bg-red-500/20 text-red-200"
+                                        : recommendation.priority === "medium"
+                                          ? "bg-yellow-500/20 text-yellow-200"
+                                          : "bg-green-500/20 text-green-200"
+                                    }`}
+                                  >
+                                    {recommendation.priority === "high"
+                                      ? "Priorité haute"
+                                      : recommendation.priority === "medium"
+                                        ? "Priorité moyenne"
+                                        : "Priorité basse"}
+                                  </span>
+                                </div>
+                                <p className="text-white/80 text-sm mb-2">
+                                  {recommendation.description}
+                                </p>
+                                <div className="text-white/60 text-xs">
+                                  <span className="font-medium">
+                                    Impact attendu:
+                                  </span>{" "}
+                                  {recommendation.expected_impact}
+                                </div>
                               </div>
-                              <p className="text-white/80 text-sm mb-2">
-                                {recommendation.description}
-                              </p>
-                              <div className="text-white/60 text-xs">
-                                <span className="font-medium">Impact attendu:</span> {recommendation.expected_impact}
-                              </div>
-                            </div>
-                          ))}
+                            )
+                          )}
                         </div>
                       </Card>
                     )}

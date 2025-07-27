@@ -40,40 +40,62 @@ export interface UserProfile {
     following_count: number;
   };
 }
-
 export interface UserRelations {
-  followers: Array<{
-    id: string;
-    username: string;
-    profile: {
-      firstName: string;
-      lastName: string;
-      profilePictureUrl: string | null;
-    } | null;
-  }>;
-  following: Array<{
-    id: string;
-    username: string;
-    profile: {
-      firstName: string;
-      lastName: string;
-      profilePictureUrl: string | null;
-    } | null;
-  }>;
-  friends: Array<{
-    id: string;
-    username: string;
-    profile: {
-      firstName: string;
-      lastName: string;
-      profilePictureUrl: string | null;
-    } | null;
-  }>;
-  blocked: Array<{
-    id: string;
-    username: string;
-  }>;
+  followers: {
+    count: number;
+    list: Array<{
+      id: string;
+      username: string;
+      profile: {
+        firstName: string | null;
+        lastName: string | null;
+        fullName: string;
+        profilePictureUrl: string | null;
+      } | null;
+      following_since?: string;
+    }>;
+  };
+  following: {
+    count: number;
+    list: Array<{
+      id: string;
+      username: string;
+      profile: {
+        firstName: string | null;
+        lastName: string | null;
+        fullName: string;
+        profilePictureUrl: string | null;
+      } | null;
+      following_since?: string;
+    }>;
+  };
+  friends: {
+    count: number;
+    list: Array<{
+      id: string;
+      username: string;
+      profile: {
+        firstName: string | null;
+        lastName: string | null;
+        fullName: string;
+        profilePictureUrl: string | null;
+      } | null;
+      friends_since?: string;
+    }>;
+  };
+  blocked: {
+    count: number;
+    list: Array<{
+      id: string;
+      username: string;
+    }>;
+  };
+  pending_friend_requests: {
+    count: number;
+    list: any[]; // à adapter si besoin
+  };
 }
+
 
 export interface FriendshipStatus {
   status: "none" | "blocked" | "pending" | "accepted" | "following";
