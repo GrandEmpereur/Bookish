@@ -137,7 +137,7 @@ export default function UserDetails() {
 
   if (loading || !data) {
     return (
-      <main className="container pt-12 px-5 max-w-md">
+      <main className="container pt-8 px-5 pb-[120px] mb-2 mt-20 max-w-md">
         <Skeleton className="h-16 w-16 rounded-full mb-4" />
         <Skeleton className="h-6 w-32 mb-2" />
         <Skeleton className="h-4 w-full mb-8" />

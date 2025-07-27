@@ -35,7 +35,6 @@ export default function FollowingPage() {
 
       // Ensure we have a valid array
       const followingList = response.data?.following?.list;
-      console.log("Following data:", followingList);
 
       if (Array.isArray(followingList)) {
         setFollowing(
@@ -102,44 +101,46 @@ export default function FollowingPage() {
             </Button>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div>
             {/* Stats */}
             {!loading && following.length > 0 && (
-              <div className="mt-8 p-4 rounded-lg">
+              <div className="p-4 rounded-lg">
                 <p className="text-center text-sm text-muted-foreground">
                   Vous suivez {following.length} personne
                   {following.length > 1 ? "s" : ""}
                 </p>
               </div>
             )}
-            {Array.isArray(following) &&
-              following.map((user) => (
-                <button
-                  key={user.id}
-                  onClick={() => handleUserClick(user.id)}
-                  className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors"
-                >
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage
-                      src={user.profile?.profilePictureUrl || undefined}
-                      alt={user.username}
-                    />
-                    <AvatarFallback>
-                      {user.username.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 text-left">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{user.username}</span>
+            <div className="space-y-2">
+              {Array.isArray(following) &&
+                following.map((user) => (
+                  <button
+                    key={user.id}
+                    onClick={() => handleUserClick(user.id)}
+                    className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors"
+                  >
+                    <Avatar className="h-12 w-12">
+                      <AvatarImage
+                        src={user.profile?.profilePictureUrl || undefined}
+                        alt={user.username}
+                      />
+                      <AvatarFallback>
+                        {user.username.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 text-left">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{user.username}</span>
+                      </div>
+                      {user.profile?.firstName && user.profile?.lastName && (
+                        <p className="text-sm text-muted-foreground">
+                          {user.profile.firstName} {user.profile.lastName}
+                        </p>
+                      )}
                     </div>
-                    {user.profile?.firstName && user.profile?.lastName && (
-                      <p className="text-sm text-muted-foreground">
-                        {user.profile.firstName} {user.profile.lastName}
-                      </p>
-                    )}
-                  </div>
-                </button>
-              ))}
+                  </button>
+                ))}
+            </div>
           </div>
         )}
       </main>

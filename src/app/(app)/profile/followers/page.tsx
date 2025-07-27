@@ -68,6 +68,14 @@ export default function FollowersPage() {
   return (
     <div className="min-h-dvh bg-background">
       <main className="container mx-auto px-5 pb-[120px] max-w-md pt-25">
+        {/* Stats */}
+        {!loading && followersCount > 0 && (
+          <div className="p-4 rounded-lg">
+            <p className="text-center text-sm text-muted-foreground">
+              {followersCount} follower{followersCount > 1 ? "s" : ""}
+            </p>
+          </div>
+        )}
         {loading ? (
           renderLoadingSkeleton()
         ) : followers.length === 0 ? (
@@ -105,15 +113,6 @@ export default function FollowersPage() {
                 </div>
               </button>
             ))}
-          </div>
-        )}
-
-        {/* Stats */}
-        {!loading && followersCount > 0 && (
-          <div className="mt-8 p-4 bg-muted rounded-lg">
-            <p className="text-center text-sm text-muted-foreground">
-              {followersCount} follower{followersCount > 1 ? "s" : ""}
-            </p>
           </div>
         )}
       </main>
