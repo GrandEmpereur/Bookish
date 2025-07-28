@@ -16,6 +16,7 @@ import {
   Loader2,
   Lock,
   MessageSquare,
+  UserMinus,
   UserPlus,
   Users,
 } from "lucide-react";
@@ -36,7 +37,7 @@ interface LoadingStates {
 }
 
 export default function UserDetails() {
-  const { userId } = useParams();
+  const { userId } = useParams() as { userId: string };
   const router = useRouter();
   const [data, setData] = useState<GetUserProfileResponse | null>(null);
   const [activeTab, setActiveTab] = useState("posts");
@@ -71,9 +72,6 @@ export default function UserDetails() {
     }
   }, [data?.data?.id, hasSentRequest]);
 
-  useEffect(() => {
-    fetchUserProfile();
-  }, [fetchUserProfile]);
 
   const [loadingStates, setLoadingStates] = useState<LoadingStates>({
     profile: true,
@@ -135,6 +133,56 @@ export default function UserDetails() {
     </button>
   );
 
+  const [isFollowing, setIsFollowing] = useState<boolean | undefined>(
+    undefined
+  );
+  const [isFollowLoading, setIsFollowLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchRelations = async () => {
+      try {
+        const relations = await userService.getRelations();
+        const followingList = relations.data.following.list;
+        const isUserFollowed = followingList.some((user) => user.id === userId);
+        setIsFollowing(isUserFollowed);
+      } catch (e) {
+        console.error("Erreur lors du chargement des relations :", e);
+      }
+    };
+
+    if (userId) {
+      fetchRelations();
+      fetchUserProfile()
+    }
+  }, [userId, fetchUserProfile]);
+
+  const handleFollowToggle = async () => {
+    if (!userId || isFollowing === undefined || isFollowLoading) return;
+    setIsFollowLoading(true);
+
+    try {
+      if (isFollowing) {
+        await userService.unfollowUser(userId);
+        setIsFollowing(false);
+      } else {
+        await userService.followUser(userId);
+        setIsFollowing(true);
+      }
+    } catch (error: any) {
+      if (
+        error?.response?.status === 409 &&
+        error?.response?.data?.code === "ALREADY_FOLLOWING"
+      ) {
+        console.log("Déjà abonné");
+        setIsFollowing(true);
+      } else {
+        console.error("Erreur follow/unfollow :", error);
+      }
+    } finally {
+      setIsFollowLoading(false);
+    }
+  };
+
   if (loading || !data) {
     return (
       <main className="container pt-8 px-5 pb-[120px] mb-2 mt-20 max-w-md">
@@ -145,7 +193,6 @@ export default function UserDetails() {
       </main>
     );
   }
-
   const profile = data.data.profile;
   const posts = data.data.posts || [];
 
@@ -183,19 +230,52 @@ export default function UserDetails() {
               {profile.bio || "Aucune bio disponible"}
             </p>
           </div>
-          {isSending ? (
-            <Loader2 className="w-4 h-4 animate-spin text-purple-700" />
-          ) : (
-            <UserPlus
-              className={`w-5 h-5 text-purple-700 ${
-                hasSentRequest
-                  ? "opacity-40 pointer-events-none"
-                  : "cursor-pointer hover:text-purple-900"
-              }`}
-              onClick={sendFriendRequest}
-            />
-          )}
         </div>
+
+        <div className="flex items-center gap-3 pb-2">
+  <Button
+    onClick={sendFriendRequest}
+    variant="ghost"
+    className={`w-auto px-3 py-2 flex items-center justify-center space-x-2 ${
+      hasSentRequest ? "opacity-40 pointer-events-none" : "hover:text-[#2F4739] text-[#2F4739]"
+    }`}
+  >
+    {isSending ? (
+      <>
+        <Loader2 className="w-4 h-4 animate-spin" />
+        <span>Ami</span>
+      </>
+    ) : (
+      <>
+        <UserPlus className="w-5 h-5" />
+        <span>Demande d'ami</span>
+      </>
+    )}
+  </Button>
+
+  <Button
+    onClick={handleFollowToggle}
+    variant={isFollowing ? "outline" : "default"}
+    className="rounded-full px-4 py-2 text-sm flex items-center space-x-2"
+  >
+    {isFollowLoading ? (
+      <>
+        <Loader2 className="animate-spin h-4 w-4" />
+        <span>Chargement...</span>
+      </>
+    ) : isFollowing ? (
+      <>
+        <UserMinus className="h-4 w-4" />
+        <span>Se désabonner</span>
+      </>
+    ) : (
+      <>
+        <UserPlus className="h-4 w-4" />
+        <span>Suivre</span>
+      </>
+    )}
+  </Button>
+</div>
 
         {/* Stats */}
         <div className="relative w-full rounded-xl px-6 py-4 bg-[#2F4739] overflow-hidden">
