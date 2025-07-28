@@ -2,12 +2,9 @@ import { apiRequest } from "@/lib/api-client";
 import { ApiResponse } from "@/types/api";
 import {
   Post,
-  PostSubject,
-  CreatePostRequest,
   UpdatePostRequest,
   GetPostResponse,
   GetPostsResponse,
-  CreatePostResponse,
   UpdatePostResponse,
   ToggleLikeResponse,
   ToggleFavoriteResponse,
@@ -20,7 +17,11 @@ import {
   ReportStatus,
   ReportPriority,
 } from "@/types/postTypes";
+import { AdItem } from "@/types/adTypes";
 import { CreatePostFormData } from "@/lib/validations/post";
+
+// Union type for items returned by the feed
+export type FeedItem = Post | AdItem;
 
 // Nouveaux types pour la pagination
 export interface PaginationParams {
@@ -44,7 +45,7 @@ export interface GetPostsPaginatedResponse {
   status: string;
   message: string;
   data: {
-    posts: Post[];
+    posts: FeedItem[];
     pagination: PaginationInfo;
   };
 }
@@ -111,6 +112,13 @@ function adaptPostFromBackend(backendPost: any): Post {
   };
 }
 
+function adaptAdFromBackend(backendItem: any): AdItem {
+  return {
+    type: "ad",
+    ad: backendItem.ad,
+  };
+}
+
 class PostService {
   /**
    * Méthode utilitaire pour gérer les requêtes HTTP via le client centralisé
@@ -141,7 +149,17 @@ class PostService {
     const response = await this.makeRequest<any>("GET", `/posts?${queryParams.toString()}`);
 
     // Adapter les posts du backend vers le format frontend
-    const adaptedPosts = response.data?.posts?.map(adaptPostFromBackend) || [];
+    const adaptedPosts: FeedItem[] = [];
+
+    if (Array.isArray(response.data?.posts)) {
+      for (const item of response.data.posts) {
+        if (item.type === "ad") {
+          adaptedPosts.push(adaptAdFromBackend(item));
+        } else {
+          adaptedPosts.push(adaptPostFromBackend(item));
+        }
+      }
+    }
 
     return {
       status: response.status,
@@ -165,10 +183,12 @@ class PostService {
   async getPostsLegacy(): Promise<GetPostsResponse> {
     console.warn('getPostsLegacy est déprécié, utilisez getPosts() avec pagination');
     const response = await this.getPosts({ limit: 100 });
+    // Filtre uniquement les vrais posts, ignore les ads
+    const onlyPosts = response.data.posts.filter((p): p is Post => (p as any).subject !== undefined);
     return {
       status: response.status,
       message: response.message,
-      data: response.data.posts
+      data: onlyPosts
     };
   }
 
@@ -192,7 +212,7 @@ class PostService {
     formData.append("content", data.content);
 
     if (data.media && data.media.length > 0) {
-      data.media.forEach((file, index) => {
+      data.media.forEach((file: File) => {
         formData.append("media", file);
       });
     }
@@ -210,7 +230,7 @@ class PostService {
     const formData = new FormData();
     Object.entries(data).forEach(([key, value]) => {
       if (key === "media" && Array.isArray(value)) {
-        value.forEach((file, index) => {
+        value.forEach((file: File, index: number) => {
           formData.append(`media[${index}]`, file);
         });
       } else if (value !== undefined) {
