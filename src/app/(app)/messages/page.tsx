@@ -53,15 +53,11 @@ export default function MessagesPage() {
     queryKey: ["conversations"],
     queryFn: async () => {
       const response = await messageService.getConversations();
-      
-      console.log("🔄 Conversations récupérées:", response.data);
 
       // response.data est déjà le tableau des conversations
       if (Array.isArray(response.data)) {
-        console.log("✅ Nombre de conversations:", response.data.length);
         return response.data;
       } else {
-        console.error("❌ response.data n'est pas un tableau:", response.data);
         return [];
       }
     },
@@ -71,7 +67,6 @@ export default function MessagesPage() {
   });
 
   const handleRefresh = () => {
-    console.log("🔄 Rafraîchissement des conversations...");
     refetch();
   };
 

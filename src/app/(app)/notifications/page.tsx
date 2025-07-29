@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Capacitor } from "@capacitor/core";
-import { PushNotifications } from "@capacitor/push-notifications";
+
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { notificationService } from "@/services/notification.service";
@@ -11,6 +11,7 @@ import { Notification } from "@/types/notificationTypes";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Check, X } from "lucide-react";
+import { PushTestButton } from "@/components/ui/push-test-button";
 
 
 function getNotificationText(notification: Notification) {
@@ -156,41 +157,8 @@ const NotificationsPage = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  // Enregistrement aux notifications push sur mobile natif
-  useEffect(() => {
-    if (!Capacitor.isNativePlatform()) return;
-
-    const setupPush = async () => {
-      try {
-        let perm = await PushNotifications.checkPermissions();
-        if (perm.receive === 'prompt') {
-          perm = await PushNotifications.requestPermissions();
-        }
-        if (perm.receive !== 'granted') return;
-
-        await PushNotifications.register();
-
-        await PushNotifications.addListener('registration', token => {
-          notificationService.registerDeviceToken(token.value);
-        });
-
-        await PushNotifications.addListener('registrationError', err => {
-          console.error('Push registration error', err.error);
-        });
-
-        await PushNotifications.addListener('pushNotificationReceived', notification => {
-          // Rafraîchir la liste des notifications depuis l'API
-          notificationService.getNotifications().then(res => {
-            setNotifications(res.data.notifications || []);
-          });
-        });
-      } catch (err) {
-        console.error('Erreur configuration push', err);
-      }
-    };
-
-    setupPush();
-  }, []);
+  // Note: Le setup des notifications push est maintenant géré dans le hook usePushNotifications()
+  // qui est appelé automatiquement dans le contexte d'authentification
 
   const isNative = Capacitor.isNativePlatform();
 
@@ -201,6 +169,10 @@ const NotificationsPage = () => {
         isNative ? "pt-[120px]" : "pt-[25px]"
       )}
     >
+      {/* Bouton de test push notifications */}
+      <div className="px-4 mb-4">
+        <PushTestButton />
+      </div>
       {loading ? (
         <div>Chargement...</div>
       ) : notifications.length === 0 ? (

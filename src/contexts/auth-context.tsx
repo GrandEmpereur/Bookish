@@ -34,6 +34,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { usePushNotifications } from "@/hooks/use-push-notifications";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 interface AuthContextType {
@@ -74,6 +75,9 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [rememberMe, setRememberMe] = useState<CurrentSessionResponse["data"]["rememberMe"] | null>(null);
   const router = useRouter();
+
+  // Setup des notifications push quand l'utilisateur est connecté
+  usePushNotifications();
 
   // ------------- Vérification de session actuelle -------------
   const {

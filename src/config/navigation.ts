@@ -89,7 +89,17 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
   },
   "/library/create": {
     variant: "back",
-    title: "Nouvelle liste",
+    title: "Ajouter une liste",
+    showBack: true,
+  },
+  "/library/[id]/edit": {
+    variant: "back",
+    title: "Modifier la liste",
+    showBack: true,
+  },
+  "/library/[id]/add-book": {
+    variant: "back",
+    title: "Ajouter des livres",
     showBack: true,
   },
 
@@ -97,6 +107,13 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
   "/search": {
     variant: "back",
     title: "Recherche",
+    showBack: true,
+  },
+
+  // Recommendations
+  "/recommendations": {
+    variant: "back",
+    title: "Recommandations",
     showBack: true,
   },
 
@@ -278,6 +295,16 @@ export function getTopBarConfig(path: string): TopBarConfig {
   // Pour les book avec UUID
   if (/^\/authors\/[\w-]+$/.test(cleanPath)) {
     return topBarConfigs["/authors/[id]"];
+  }
+
+  // Pour les bibliothèques avec UUID - add-book
+  if (/^\/library\/[\w-]+\/add-book$/.test(cleanPath)) {
+    return topBarConfigs["/library/[id]/add-book"];
+  }
+
+  // Pour les bibliothèques avec UUID - edit
+  if (/^\/library\/[\w-]+\/edit$/.test(cleanPath)) {
+    return topBarConfigs["/library/[id]/edit"];
   }
 
   // Pour les bibliothèques avec UUID

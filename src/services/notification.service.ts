@@ -115,7 +115,25 @@ class NotificationService {
         { data: { token } }
       );
     } catch (error) {
-      console.error("Erreur lors de l'enregistrement du token push", error);
+      throw error;
+    }
+  }
+
+  async sendTestPush(title: string, body: string): Promise<void> {
+    try {
+      await this.makeRequest<null>(
+        "POST",
+        "/push/test",
+        {
+          data: {
+            title,
+            body,
+          },
+        }
+      );
+    } catch (error) {
+      console.error("❌ Erreur envoi push test:", error);
+      throw error;
     }
   }
 }

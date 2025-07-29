@@ -15,7 +15,7 @@ export interface Book {
   isbn: string | null;
   genre: string | null;
   publicationYear: number | null;
-  coverImage: string | null;
+  cover_image: string | null;
   publisher_id: string | null;
   language: string | null;
   format: BookFormat | null;
@@ -45,7 +45,7 @@ export interface CreateBookRequest {
   availability?: BookAvailability;
 }
 
-export interface UpdateBookRequest extends Partial<CreateBookRequest> {}
+export interface UpdateBookRequest extends Partial<CreateBookRequest> { }
 
 // Types pour les réponses
 export interface GetBookResponse {
@@ -53,9 +53,9 @@ export interface GetBookResponse {
 }
 
 export interface GetBooksResponse {
-    status: string;
-    message: string;
-    data: Book[];
+  status: string;
+  message: string;
+  data: Book[];
 }
 
 export interface CreateBookResponse {

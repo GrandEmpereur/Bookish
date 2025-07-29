@@ -3,10 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { searchService } from "@/services/search.service";
 import { useDebounce } from "@/hooks/use-debounce";
-import { GeneralSearchResponse } from "@/types/searchTypes";
-
-// Extend SearchCategory to include "authors"
-export type SearchCategory = "all" | "users" | "books" | "clubs" | "book_lists" | "authors";
+import { GeneralSearchResponse, SearchCategory } from "@/types/searchTypes";
 import { toast } from "sonner";
 
 interface SearchState {
@@ -140,9 +137,6 @@ export const useAdvancedSearch = (options: UseAdvancedSearchOptions = {}) => {
                 switch (category) {
                     case "all":
                         maxPossibleResults = categoryTotals?.total || 0;
-                        break;
-                    case "authors":
-                        maxPossibleResults = categoryTotals?.authors || 0;
                         break;
                     case "users":
                         maxPossibleResults = categoryTotals?.users || 0;
@@ -575,22 +569,6 @@ export const useInfiniteSearch = (options: UseInfiniteSearchOptions = {}): UseIn
             } else {
                 // Utiliser les endpoints spécifiques pour une pagination réelle
                 switch (category) {
-                    case "authors":
-                        response = await searchService.searchAuthors({
-                            query: searchQuery,
-                            page,
-                            limit,
-                            category: "all"
-                        });
-                        console.error("Authors response:", response);
-                        if (response.status === "success") {
-                            newResults = (response.data.authors || []).map((author: any) => ({
-                                ...author,
-                                type: "author"
-                            }));
-                        }
-                        break;
-
                     case "users":
                         response = await searchService.searchUsers({
                             query: searchQuery,

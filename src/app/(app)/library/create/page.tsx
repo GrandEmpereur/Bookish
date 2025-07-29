@@ -33,10 +33,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Capacitor } from "@capacitor/core";
+import { cn } from "@/lib/utils";
 
 export default function CreateBookList() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+
+  const isNative = Capacitor.isNativePlatform();
 
   const form = useForm<CreateBookListInput>({
     resolver: zodResolver(createBookListSchema),
@@ -69,7 +73,12 @@ export default function CreateBookList() {
   };
 
   return (
-    <div className="flex-1 px-5 pb-[120px] pt-25">
+    <div
+      className={cn(
+        "flex-1 px-5 pb-[120px]",
+        isNative ? "pt-[120px]" : "pt-[100px]"
+      )}
+    >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <FormField
