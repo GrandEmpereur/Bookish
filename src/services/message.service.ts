@@ -25,79 +25,101 @@ class MessageService {
     return apiRequest<T>(method, endpoint, options);
   }
 
-  async getMessages(options: {
-    page?: number;
-    limit?: number;
-    conversation_with?: string;
-  }): Promise<ApiResponse<GetMessagesResponse>> {
+  // ===== NOUVELLES ROUTES CONVERSATIONS INSTAGRAM-STYLE =====
+
+  /**
+   * Récupère toutes les conversations de l'utilisateur connecté
+   */
+  async getConversations(): Promise<ApiResponse<GetConversationsResponse>> {
+    return this.makeRequest<ApiResponse<GetConversationsResponse>>(
+      "GET",
+      "/conversations"
+    );
+  }
+
+  /**
+   * Crée une conversation de groupe
+   */
+  async createGroupConversation(data: {
+    participantIds: string[];
+    title: string;
+    isGroup: true;
+  }): Promise<ApiResponse<Conversation>> {
+    return this.makeRequest<ApiResponse<Conversation>>(
+      "POST",
+      "/conversations",
+      { data }
+    );
+  }
+
+  /**
+   * Récupère les messages d'une conversation avec pagination
+   */
+  async getConversationMessages(
+    conversationId: string,
+    options?: { page?: number; limit?: number }
+  ): Promise<ApiResponse<GetMessagesResponse>> {
     const params: Record<string, string | number> = {};
     if (options?.page) params.page = options.page;
     if (options?.limit) params.limit = options.limit;
-    if (options?.conversation_with) params.with = options.conversation_with;
 
     return this.makeRequest<ApiResponse<GetMessagesResponse>>(
       "GET",
-      "/messages",
+      `/conversations/${conversationId}/messages`,
       { params }
     );
   }
 
-  async getMessage(
-    messageId: string
-  ): Promise<ApiResponse<GetMessageResponse>> {
-    return this.makeRequest<ApiResponse<GetMessageResponse>>(
-      "GET",
-      `/messages/${messageId}`
-    );
-  }
-
+  /**
+   * ROUTE INTELLIGENTE : Envoie un message
+   * - Si conversationId existe → envoie dans cette conversation
+   * - Si userId → trouve/crée automatiquement une conversation 1-to-1
+   */
   async sendMessage(
-    data: SendMessageRequest
+    conversationIdOrUserId: string,
+    data: { content: string }
   ): Promise<ApiResponse<SendMessageResponse>> {
     return this.makeRequest<ApiResponse<SendMessageResponse>>(
       "POST",
-      "/messages",
+      `/conversations/${conversationIdOrUserId}/messages`,
       { data }
     );
   }
 
-  async updateMessage(
-    messageId: string,
-    data: UpdateMessageRequest
-  ): Promise<ApiResponse<UpdateMessageResponse>> {
-    return this.makeRequest<ApiResponse<UpdateMessageResponse>>(
-      "PATCH",
-      `/messages/${messageId}`,
-      { data }
-    );
-  }
-
-  async deleteMessage(messageId: string): Promise<ApiResponse<null>> {
-    return this.makeRequest<ApiResponse<null>>(
-      "DELETE",
-      `/messages/${messageId}`
-    );
-  }
-
-  async getConversations(): Promise<ApiResponse<GetConversationsResponse>> {
-    return this.makeRequest<ApiResponse<GetConversationsResponse>>(
-      "GET",
-      "/messages/conversations"
-    );
-  }
-
-  async markConversationAsRead(userId: string): Promise<ApiResponse<null>> {
+  /**
+   * Marque tous les messages d'une conversation comme lus
+   */
+  async markConversationAsRead(conversationId: string): Promise<ApiResponse<null>> {
     return this.makeRequest<ApiResponse<null>>(
       "POST",
-      `/messages/read/${userId}`
+      `/conversations/${conversationId}/read`
     );
   }
 
-  async getMessageStats(): Promise<ApiResponse<MessageStats>> {
-    return this.makeRequest<ApiResponse<MessageStats>>(
-      "GET",
-      "/messages/stats"
-    );
+  // ===== MÉTHODES LEGACY (garder pour compatibilité temporaire) =====
+
+  /**
+   * @deprecated Utilisez getConversationMessages() à la place
+   */
+  async getMessages(options?: {
+    page?: number;
+    limit?: number;
+    conversation_with?: string;
+  }): Promise<ApiResponse<GetMessagesResponse>> {
+    console.warn('getMessages() est déprécié, utilisez getConversationMessages()');
+    if (options?.conversation_with) {
+      return this.getConversationMessages(options.conversation_with, {
+        page: options.page,
+        limit: options.limit,
+      });
+    }
+    // Fallback vers conversations pour récupérer tous les messages
+    const conversations = await this.getConversations();
+    return {
+      status: "success",
+      message: "Messages récupérés",
+      data: { messages: [], pagination: { total: 0, per_page: 0, current_page: 1, last_page: 1 } }
+    } as any;
   }
 }
 

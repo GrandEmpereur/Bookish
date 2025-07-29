@@ -79,7 +79,6 @@ export default function BookListDetail({ id }: BookListDetailProps) {
         ...listData,
         books: bookDetails,
       });
-      console.log("createdAt raw value:", listData.created_at);
     } catch (error) {
       toast.error("Impossible de charger la liste");
       router.push("/library");

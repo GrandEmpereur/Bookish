@@ -2,14 +2,18 @@
 
 import Image from "next/image";
 import { Bell, Send, ChevronLeft, Search } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { getTopBarConfig, TopBarConfig } from "@/config/navigation";
 import { SearchDrawer } from "@/components/library/search-drawer";
 import { SearchDialog } from "@/components/library/search-dialog";
 import { useState } from "react";
 import { Capacitor } from "@capacitor/core";
+import { useQuery } from "@tanstack/react-query";
+import { messageService } from "@/services/message.service";
+import { useAuth } from "@/contexts/auth-context";
 
 interface TopBarProps {
   config?: TopBarConfig;
@@ -20,12 +24,29 @@ interface TopBarProps {
 export function TopBar({ config, className, dynamicTitle }: TopBarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const params = useParams();
+  const { user } = useAuth();
   const [searchOpen, setSearchOpen] = useState(false);
   const [modalType, setModalType] = useState<"drawer" | "dialog" | null>(null);
 
   // Détection de la plateforme
   const isNative = Capacitor.isNativePlatform();
   const isBrowser = !isNative;
+
+  // Récupération des conversations pour les pages de conversation
+  const conversationId = params?.id as string;
+  const { data: conversations = [] } = useQuery({
+    queryKey: ["conversations"],
+    queryFn: async () => {
+      const response = await messageService.getConversations();
+      return Array.isArray(response.data) ? response.data : [];
+    },
+    enabled: !!conversationId,
+    staleTime: 30 * 1000,
+  });
+
+  // Trouve la conversation courante
+  const currentConversation = conversations.find((conv: any) => conv.id === conversationId);
 
   // On récupère la config de base
   const baseConfig = config || getTopBarConfig(pathname);
@@ -48,6 +69,66 @@ export function TopBar({ config, className, dynamicTitle }: TopBarProps) {
   };
 
   const renderLeftSide = () => {
+    // Variant conversation : Back button + Avatar + Nom
+    if (currentConfig.variant === "conversation" && currentConfig.showConversationUser) {
+      // Si on a pas encore chargé les conversations, afficher un placeholder
+      if (!currentConversation && conversationId) {
+        return (
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              onClick={() => router.back()}
+              className="w-8 h-8 flex items-center justify-center"
+            >
+              <ChevronLeft style={{ width: "24px", height: "24px" }} />
+            </Button>
+            <Avatar className="h-8 w-8">
+              <AvatarFallback className="text-sm">?</AvatarFallback>
+            </Avatar>
+            <span className="font-medium text-base truncate">
+              Chargement...
+            </span>
+          </div>
+        );
+      }
+
+      if (currentConversation) {
+        const partner = currentConversation.is_group 
+          ? null 
+          : currentConversation.participants?.find((p: any) => p.id !== user?.id);
+        
+        
+        const displayName = currentConversation.is_group 
+          ? currentConversation.title 
+          : partner?.username;
+
+        const avatarText = currentConversation.is_group 
+          ? currentConversation.title?.charAt(0).toUpperCase() 
+          : partner?.username?.charAt(0).toUpperCase();
+
+        
+        return (
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              onClick={() => router.back()}
+              className="w-8 h-8 flex items-center justify-center"
+            >
+              <ChevronLeft style={{ width: "24px", height: "24px" }} />
+            </Button>
+            <Avatar className="h-8 w-8">
+              <AvatarFallback className="text-sm">
+                {avatarText || "?"}
+              </AvatarFallback>
+            </Avatar>
+            <span className="font-medium text-base whitespace-nowrap">
+              {displayName || "Conversation"}
+            </span>
+          </div>
+        );
+      }
+    }
+
     if (currentConfig.showBack) {
       return (
         <Button
@@ -113,6 +194,9 @@ export function TopBar({ config, className, dynamicTitle }: TopBarProps) {
   };
 
   const renderTitle = () => {
+    // Pour le variant conversation, le titre est géré dans renderLeftSide
+    if (currentConfig.variant === "conversation") return null;
+    
     if (!currentConfig.title) return null;
 
     return currentConfig.title;

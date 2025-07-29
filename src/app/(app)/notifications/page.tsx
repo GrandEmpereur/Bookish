@@ -1,6 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { Capacitor } from "@capacitor/core";
+import { PushNotifications } from "@capacitor/push-notifications";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { notificationService } from "@/services/notification.service";
 import { userService } from "@/services/user.service";
@@ -113,7 +116,6 @@ const NotificationsPage = () => {
   };
 
   const handleFriendRequestResponse = async (notificationId: string, senderId: string, acceptRequest: boolean) => {
-    console.log('senderId reçu:', senderId);
     
     if (!senderId || senderId === 'undefined') {
       console.error('Impossible de traiter la demande d\'ami: senderId invalide');
@@ -133,7 +135,6 @@ const NotificationsPage = () => {
       
       // Si l'erreur est 404 (demande déjà traitée), supprimer simplement la notification
       if (error?.message?.includes('404') || error?.status === 404) {
-        console.log('La demande d\'ami a déjà été traitée, suppression de la notification');
         setNotifications(prev => 
           prev.filter(notif => notif.id !== notificationId)
         );
@@ -150,16 +151,56 @@ const NotificationsPage = () => {
   useEffect(() => {
     notificationService.getNotifications()
       .then((res) => {
-        console.log('Réponse brute de l\'API /notifications:', res);
         setNotifications(res.data.notifications || []);
-        console.log('Notifications reçues:', res.data.notifications || []);
       })
       .finally(() => setLoading(false));
   }, []);
 
+  // Enregistrement aux notifications push sur mobile natif
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+
+    const setupPush = async () => {
+      try {
+        let perm = await PushNotifications.checkPermissions();
+        if (perm.receive === 'prompt') {
+          perm = await PushNotifications.requestPermissions();
+        }
+        if (perm.receive !== 'granted') return;
+
+        await PushNotifications.register();
+
+        await PushNotifications.addListener('registration', token => {
+          notificationService.registerDeviceToken(token.value);
+        });
+
+        await PushNotifications.addListener('registrationError', err => {
+          console.error('Push registration error', err.error);
+        });
+
+        await PushNotifications.addListener('pushNotificationReceived', notification => {
+          // Rafraîchir la liste des notifications depuis l'API
+          notificationService.getNotifications().then(res => {
+            setNotifications(res.data.notifications || []);
+          });
+        });
+      } catch (err) {
+        console.error('Erreur configuration push', err);
+      }
+    };
+
+    setupPush();
+  }, []);
+
+  const isNative = Capacitor.isNativePlatform();
+
   return (
-    <div className="max-w-xl mx-auto py-8">
-      <h1 className="text-2xl font-bold mb-6 text-center">Notifications</h1>
+    <div
+      className={cn(
+        "max-w-xl mx-auto pb-8",
+        isNative ? "pt-[120px]" : "pt-[25px]"
+      )}
+    >
       {loading ? (
         <div>Chargement...</div>
       ) : notifications.length === 0 ? (

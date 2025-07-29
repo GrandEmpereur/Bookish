@@ -178,9 +178,6 @@ export default function Profile() {
         stats: responseData.stats,
       };
 
-      // Debug: Vérifier les données extraites
-      console.log("Reading Stats Data:", statsResponse.data);
-
       setProfileData((prev) => ({
         ...prev,
         profile: userProfile,

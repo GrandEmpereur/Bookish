@@ -56,14 +56,6 @@ export function LevelProgress({
   const xpToNext = Math.max(0, totalXP - currentXP);
   const xpForNext = totalXP;
   
-  // Debug logging
-  console.log('LevelProgress Debug:', {
-    level,
-    currentXP,
-    totalXP,
-    progress,
-    xpToNext
-  });
   const rewards = getLevelUpRewards(level);
   const unlockedFeatures = getUnlockedFeatures(level);
 

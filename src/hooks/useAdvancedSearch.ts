@@ -244,7 +244,7 @@ export const useAdvancedSearch = (options: UseAdvancedSearchOptions = {}) => {
                             limit: 20,
                             category: "all"
                         });
-                        console.log("Authors response:", response);
+
                         if (response.status === "success") {
                             const newResults = response.data.users || [];
                             const updatedData = [...(state.results.data || []), ...newResults];
@@ -575,21 +575,21 @@ export const useInfiniteSearch = (options: UseInfiniteSearchOptions = {}): UseIn
             } else {
                 // Utiliser les endpoints spécifiques pour une pagination réelle
                 switch (category) {
-               case "authors":
-                response = await searchService.searchAuthors({
-                    query: searchQuery,
-                    page,
-                    limit,
-                    category: "all"
-                });
-                console.error("Authors response:", response);
-                if (response.status === "success") {
-                    newResults = (response.data.authors || []).map((author: any) => ({
-                    ...author,
-                    type: "author"
-                    }));
-                }
-                break;
+                    case "authors":
+                        response = await searchService.searchAuthors({
+                            query: searchQuery,
+                            page,
+                            limit,
+                            category: "all"
+                        });
+                        console.error("Authors response:", response);
+                        if (response.status === "success") {
+                            newResults = (response.data.authors || []).map((author: any) => ({
+                                ...author,
+                                type: "author"
+                            }));
+                        }
+                        break;
 
                     case "users":
                         response = await searchService.searchUsers({

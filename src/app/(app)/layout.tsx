@@ -13,11 +13,21 @@ export default function FeedLayout({
   const pathname = usePathname();
   const topBarConfig = getTopBarConfig(pathname);
 
+  // Routes où cacher le bottom bar
+  const hideBottomBarRoutes = [
+    "/messages/", // Toutes les pages de conversation
+  ];
+
+  // Vérifier si on doit cacher le bottom bar
+  const shouldHideBottomBar = hideBottomBarRoutes.some(route => 
+    pathname.startsWith(route) && pathname !== "/messages"
+  );
+
   return (
     <div className="min-h-dvh flex flex-col bg-background w-full">
       <TopBar config={topBarConfig} />
       <main className="">{children}</main>
-      <BottomBar />
+      {!shouldHideBottomBar && <BottomBar />}
     </div>
   );
 }

@@ -3,12 +3,13 @@ import { Bell, Send, Search, Settings } from "lucide-react";
 type ModalType = "drawer" | "dialog";
 
 export type TopBarConfig = {
-  variant: "standard" | "back";
+  variant: "standard" | "back" | "conversation";
   title?: string;
   showBack?: boolean;
   showLogo?: boolean;
   hideTopBar?: boolean;
   showBackAbsolute?: boolean;
+  showConversationUser?: boolean; // Pour afficher avatar + nom utilisateur
   rightIcons?: {
     icon: typeof Bell | typeof Send | typeof Search | typeof Settings;
     onClick?: () => void;
@@ -69,7 +70,7 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
     rightIcons: [
       {
         icon: Search,
-        onClick: () => {},
+        onClick: () => { },
         modalType: "dialog",
       },
     ],
@@ -81,7 +82,7 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
     rightIcons: [
       {
         icon: Search,
-        onClick: () => {},
+        onClick: () => { },
         modalType: "dialog",
       },
     ],
@@ -163,6 +164,11 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
     title: "Messages",
     showBack: true,
   },
+  "/messages/[id]": {
+    variant: "conversation",
+    showBack: true,
+    showConversationUser: true,
+  },
 
   // Profile settings
   "/profile/settings": {
@@ -214,7 +220,7 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
     rightIcons: [
       {
         icon: Search,
-        onClick: () => {},
+        onClick: () => { },
         modalType: "dialog",
       },
     ],
@@ -242,6 +248,11 @@ export function getTopBarConfig(path: string): TopBarConfig {
 
   if (cleanPath === "/messages") {
     return topBarConfigs["/messages"];
+  }
+
+  // Pour les conversations avec UUID
+  if (/^\/messages\/[\w-]+$/.test(cleanPath)) {
+    return topBarConfigs["/messages/[id]"];
   }
 
   // Pour les posts avec UUID

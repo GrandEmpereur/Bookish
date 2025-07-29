@@ -11,10 +11,15 @@ export interface Message {
   created_at: string;
 }
 
-// Types pour les requêtes
+// Types pour les requêtes (nouvelles API conversations)
 export interface SendMessageRequest {
   content: string;
-  recipient_id: string;
+}
+
+export interface CreateGroupConversationRequest {
+  participantIds: string[];
+  title: string;
+  isGroup: true;
 }
 
 export interface UpdateMessageRequest {
@@ -52,44 +57,60 @@ export interface MessageStats {
   received_messages: number;
 }
 
-// Types pour les conversations
+// Types pour les conversations (structure backend Instagram-style)
 export interface Conversation {
   id: string;
-  participants: UserProfile[];
-  last_message: Message;
-  unread_count: number;
-  updated_at: string;
+  title?: string; // pour les groupes
+  isGroup: boolean;
+  participants: ConversationParticipant[];
+  lastMessage?: Message;
+  unreadCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ConversationParticipant {
+  id: string;
+  username: string;
+  profilePictureUrl?: string;
+  // Autres champs utilisateur essentiels
 }
 
 export interface GetConversationsResponse {
   conversations: Conversation[];
-  stats: MessageStats;
+  pagination?: {
+    total: number;
+    per_page: number;
+    current_page: number;
+    last_page: number;
+  };
 }
 
-// Interface pour le service de messagerie
+// Interface pour le service de messagerie (nouvelle API)
 export interface MessagerieService {
-  getMessages(options: {
+  // Conversations
+  getConversations(): Promise<ApiResponse<GetConversationsResponse>>;
+  createGroupConversation(data: CreateGroupConversationRequest): Promise<ApiResponse<Conversation>>;
+
+  // Messages
+  getConversationMessages(
+    conversationId: string,
+    options?: { page?: number; limit?: number }
+  ): Promise<ApiResponse<GetMessagesResponse>>;
+
+  // Route intelligente (conversationId OU userId)
+  sendMessage(
+    conversationIdOrUserId: string,
+    data: SendMessageRequest
+  ): Promise<ApiResponse<SendMessageResponse>>;
+
+  // Actions
+  markConversationAsRead(conversationId: string): Promise<ApiResponse<null>>;
+
+  // Legacy (rétrocompatibilité)
+  getMessages(options?: {
     page?: number;
     limit?: number;
     conversation_with?: string;
   }): Promise<ApiResponse<GetMessagesResponse>>;
-
-  getMessage(messageId: string): Promise<ApiResponse<GetMessageResponse>>;
-
-  sendMessage(
-    data: SendMessageRequest
-  ): Promise<ApiResponse<SendMessageResponse>>;
-
-  updateMessage(
-    messageId: string,
-    data: UpdateMessageRequest
-  ): Promise<ApiResponse<UpdateMessageResponse>>;
-
-  deleteMessage(messageId: string): Promise<ApiResponse<null>>;
-
-  getConversations(): Promise<ApiResponse<GetConversationsResponse>>;
-
-  markConversationAsRead(userId: string): Promise<ApiResponse<null>>;
-
-  getMessageStats(): Promise<ApiResponse<MessageStats>>;
 }

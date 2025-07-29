@@ -2,10 +2,16 @@
 
 import { useState } from "react";
 
-export default function Unboarding() {
+interface UnboardingProps {
+  onClose?: () => void;
+}
+
+export default function Unboarding({ onClose }: UnboardingProps) {
   const [showPopup, setShowPopup] = useState(true);
+
   const handleClose = () => {
     setShowPopup(false);
+    onClose?.();
   };
 
   if (!showPopup) return null;

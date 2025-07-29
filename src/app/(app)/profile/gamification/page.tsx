@@ -175,10 +175,8 @@ export default function GamificationPage() {
   const fetchDashboard = useCallback(async () => {
     try {
       setLoading('dashboard', true);
-      console.log("Fetching dashboard data...");
       
       const response = await gamificationService.getDashboard();
-      console.log("Raw API response:", response);
       
       // Check if response exists
       if (!response) {
@@ -189,7 +187,6 @@ export default function GamificationPage() {
       
       // The API returns data directly, not in a .data property
       const apiData = (response.data || response) as any;
-      console.log("API data:", apiData);
       
       const exp = apiData.experience || {};
       const missionStats = apiData.missionStats || {};
@@ -224,11 +221,9 @@ export default function GamificationPage() {
         upcomingEvents: apiData.upcomingEvents || []
       } as unknown as GamificationDashboard;
       
-      console.log("Transformed dashboard:", transformedDashboard);
       
       // Apply local bonuses (from completed missions not yet synced with server)
       const dashboardWithLocalBonuses = applyLocalBonuses(transformedDashboard);
-      console.log("Dashboard with local bonuses:", dashboardWithLocalBonuses);
       
       setDashboard(dashboardWithLocalBonuses);
     } catch (error) {
@@ -401,11 +396,8 @@ export default function GamificationPage() {
       const apiBadges = badgeData?.badges || [];
       const badgeCounts = badgeData?.counts || { common: 0, uncommon: 0, rare: 0, epic: 0, legendary: 0 };
       
-      console.log("Badge data from API:", badgeData);
-      console.log("Badge counts:", badgeCounts);
       
       if (apiBadges.length === 0) {
-        console.log("No badges returned from API, will use enhanced badges as fallback");
         setBadges([]);
         return;
       }
@@ -433,9 +425,6 @@ export default function GamificationPage() {
       })) as GamificationBadge[];
       
       setBadges(transformedBadges);
-      
-      // You could also use the counts for statistics display
-      console.log(`Badge statistics: ${badgeCounts.common} common, ${badgeCounts.rare} rare, ${badgeCounts.legendary} legendary badges available`);
       
     } catch (error) {
       console.error("Error fetching badges:", error);
@@ -490,14 +479,11 @@ export default function GamificationPage() {
   const fetchShop = useCallback(async () => {
     try {
       setLoading('shop', true);
-      console.log("🛍️ Fetching shop data...");
       
       const response = await gamificationService.getShop();
-      console.log("🛍️ Shop API response:", response);
       
       // Handle different response structures
       const shopData = response.data || response;
-      console.log("🛍️ Shop data:", shopData);
       
       if (!shopData) {
         console.error("❌ No shop data received");
@@ -507,7 +493,6 @@ export default function GamificationPage() {
       
       // API returns { items: [], userCoins: 50 }
       const apiShopItems = shopData.items || [];
-      console.log("🛍️ API shop items:", apiShopItems);
       
       if (!Array.isArray(apiShopItems)) {
         console.error("❌ Shop items is not an array:", apiShopItems);
@@ -524,7 +509,6 @@ export default function GamificationPage() {
           isAvailable: item.available !== false // API uses 'available' field
         })) as ShopItem[];
         
-        console.log("🛍️ Transformed shop items:", transformedShopItems);
         setShopItems(transformedShopItems);
       }
       
@@ -542,7 +526,6 @@ export default function GamificationPage() {
       
       const totalCoins = baseCoins + localCoinsBonus;
       
-      console.log("💰 Shop coins:", { baseCoins, localBonus: localCoinsBonus, totalCoins });
       setUserCoins(totalCoins);
     } catch (error) {
       console.error("❌ Error fetching shop:", error);
@@ -770,8 +753,6 @@ export default function GamificationPage() {
         return;
       }
 
-      console.log("🎯 Completing mission:", { missionId, mission });
-
       // Calculate rewards
       const xpReward = mission.reward.type === 'experience' ? mission.reward.amount || 25 : 25; // Default 25 XP
       const bookcoinsReward = mission.reward.type === 'bookcoins' ? mission.reward.amount || 0 : 0;
@@ -781,30 +762,24 @@ export default function GamificationPage() {
 
       try {
         // Try to call API to complete mission
-        console.log("📡 Calling API to complete mission...");
         await gamificationService.completeMission({ missionId });
-        console.log("✅ API call successful");
 
         // Dismiss loading toast
         toast.dismiss();
 
         // Refetch data from server
-        console.log("🔄 Refetching data from server...");
         await Promise.all([fetchDashboard(), fetchMissions()]);
-        console.log("✅ Data refetched");
 
       } catch (apiError) {
         console.warn("⚠️ API endpoint not available, using local update:", apiError);
         toast.dismiss();
 
                  // Fallback: Work with existing dashboard structure
-         console.log("🔄 Using dashboard-based completion...");
          
          // Save mission completion to localStorage for persistence
          saveCompletedMission(missionId, { xp: xpReward, coins: bookcoinsReward });
          
          // Instead of updating locally, let's refetch dashboard which will apply bonuses
-         console.log("🔄 Refetching dashboard to apply bonuses...");
          await fetchDashboard();
       }
 
@@ -828,8 +803,7 @@ export default function GamificationPage() {
       if (xpReward > 0) rewardMessage += ` +${xpReward} XP`;
       if (bookcoinsReward > 0) rewardMessage += ` +${bookcoinsReward} BookCoins`;
       
-      toast.success(rewardMessage);
-      console.log("🎉 Mission completed successfully!");
+      toast.success(rewardMessage); 
       
     } catch (error) {
       console.error("❌ Error completing mission:", error);
@@ -1132,7 +1106,6 @@ export default function GamificationPage() {
         fetchLeaderboard();
         break;
       case "shop":
-        console.log("🛍️ Shop tab selected, fetching shop data...");
         fetchShop();
         break;
       case "events":
@@ -1231,9 +1204,7 @@ export default function GamificationPage() {
       return dashboardData; // No local changes
     }
 
-    console.log("🔄 Applying local bonuses:", bonuses);
-    console.log("📋 Local completed missions:", completedMissions);
-
+    
     const baseXP = dashboardData.experience;
     const baseLevelXP = (dashboardData as any).currentLevelXP || 0;
     const newTotalXP = baseXP + bonuses.xp;

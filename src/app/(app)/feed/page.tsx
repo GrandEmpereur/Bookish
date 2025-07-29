@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { safeFormatDistanceToNow } from "@/lib/date";
 import Image from "next/image";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Share } from "@capacitor/share";
 import { likeService } from "@/services/like.service";
 import { favoriteService } from "@/services/favorite.service";
@@ -256,7 +256,7 @@ export default function Feed() {
     setSelectedPost(post);
     setReportDialogOpen(true);
   };
-
+  
   // Skeleton de chargement initial
   if (initialLoading) {
     return (
@@ -332,6 +332,10 @@ export default function Feed() {
                     }
 
                     const post = item as Post;
+                    const profileImage =
+                      (post.user as any)?.profile_picture_path ||
+                      (post.user as any)?.profile_picture_url ||
+                      post.user?.profile?.profile_picture_url;
 
                     return (
                       <article
@@ -341,14 +345,22 @@ export default function Feed() {
                         {/* En-tête du post */}
                         <div className="flex gap-3">
                           <Avatar className="h-10 w-10 md:h-12 md:w-12">
+                            {profileImage && (
+                              <AvatarImage
+                                src={profileImage}
+                                alt={post.user.username}
+                              />
+                            )}
                             <AvatarFallback>
-                              {post.user?.username.charAt(0).toUpperCase()}
+                              {post.user?.username
+                                ? post.user.username.charAt(0).toUpperCase()
+                                : "U"}
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex-1">
                             <div className="flex items-center justify-between">
                               <span className="font-medium text-base md:text-lg">
-                                {post.user?.username}
+                                {post.user?.username || "Utilisateur"}
                               </span>
                               <span className="text-sm text-muted-foreground">
                                 {safeFormatDistanceToNow(post.createdAt)}
@@ -458,9 +470,7 @@ export default function Feed() {
                             </div>
 
                             {/* Desktop: Dialog complet - uniquement si ce n'est pas son propre post */}
-                            {user &&
-                              (user as any).user &&
-                              (user as any).user.id !== post.userId && (
+                            {user && user.id !== post.userId && (
                                 <Button
                                   variant="ghost"
                                   size="sm"

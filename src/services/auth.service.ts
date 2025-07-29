@@ -13,6 +13,7 @@ import {
   RegisterStepOneRequest,
   RegisterStepTwoRequest,
   RegisterStepThreeRequest,
+  CurrentSessionResponse,
 } from "@/types/authTypes";
 import { apiRequest } from "@/lib/api-client";
 
@@ -102,6 +103,11 @@ class AuthService {
   async logout(): Promise<AuthResponse<LogoutResponse>> {
     // Le backend s'occupe de supprimer les cookies de session.
     return this.makeRequest("POST", "/auth/logout");
+  }
+
+  // Recuperation de la session actuelle
+  async getCurrentSession(): Promise<AuthResponse<CurrentSessionResponse>> {
+    return this.makeRequest("GET", "/session/check");
   }
 }
 

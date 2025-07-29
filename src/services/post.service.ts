@@ -79,36 +79,7 @@ function adaptPostFromBackend(backendPost: any): Post {
       originalName: "", // pas dans la réponse backend
       visibility: "public" as const,
     })) || [],
-    // Créer un utilisateur par défaut car le backend ne l'envoie pas
-    user: {
-      id: backendPost.user_id || "unknown",
-      username: "Utilisateur", // placeholder
-      requesterUsername: "Utilisateur", // placeholder
-      email: "",
-      created_at: "",
-      is_verified: false,
-      profile: {
-        id: "",
-        first_name: "",
-        last_name: "",
-        birth_date: "",
-        bio: "",
-        profile_picture_url: null,
-        role: "USER" as const,
-        reading_habit: "occasional_reader" as const,
-        usage_purpose: "both" as const,
-        preferred_genres: [],
-        profile_visibility: "public" as const,
-        allow_follow_requests: true,
-        email_notifications: true,
-        push_notifications: true,
-        newsletter_subscribed: false,
-      },
-      stats: {
-        followers_count: 0,
-        following_count: 0,
-      },
-    },
+    user: backendPost.user as any,
   };
 }
 
