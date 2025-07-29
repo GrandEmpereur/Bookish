@@ -1,115 +1,77 @@
 "use client";
 
-import { FloatingActionButton } from "@/components/ui/floating-action-button";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Badge } from "@/components/ui/badge";
-import Image from "next/image";
-import { Lock, Globe, Users } from "lucide-react";
-import { useState } from "react";
-import { cn } from "@/lib/utils";
-import { MOCK_CLUBS } from "@/config/mock-data";
-
-type TabType = "all" | "my";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { FloatingActionButton } from "@/components/ui/floating-action-button";
+import { ClubCard } from "@/components/club/club-card";
+import { clubService } from "@/services/club.service";
+import type { Club } from "@/types/clubTypes";
+import { Users } from "lucide-react";
 
 export default function Clubs() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<TabType>("all");
+  const [activeTab, setActiveTab] = useState<"all" | "my">("all");
+  const [clubs, setClubs] = useState<Club[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Filtrer les clubs selon le tab actif
-  const displayedClubs =
-    activeTab === "all"
-      ? MOCK_CLUBS
-      : MOCK_CLUBS.filter((club) => club.isMember);
+  useEffect(() => {
+    const fetchClubs = async () => {
+      try {
+        const res = await clubService.getClubs();
+        setClubs(res.data.clubs);
+      } catch (err) {
+        console.error("Erreur de chargement des clubs :", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const ClubGrid = ({ clubs }: { clubs: typeof MOCK_CLUBS }) => (
-    <div className="grid grid-cols-2 gap-4">
-      {clubs.map((club) => (
-        <div
-          key={club.id}
-          className="group cursor-pointer bg-background rounded-2xl overflow-hidden"
-          onClick={() => router.push(`/clubs/${club.id}`)}
-        >
-          {/* Image */}
-          <div className="relative aspect-square overflow-hidden rounded-2xl mb-3">
-            <Image
-              src={club.coverImage}
-              alt={club.name}
-              fill
-              draggable="false"
-              className="object-cover"
-              sizes="(max-width: 768px) 50vw, 33vw"
-              priority={false}
-            />
-          </div>
-
-          {/* Contenu */}
-          <div className="space-y-1 px-1">
-            {/* Titre */}
-            <h3 className="text-xl font-semibold">{club.name}</h3>
-
-            {/* Modérateur */}
-            <div className="flex items-center gap-1">
-              <span className="text-muted-foreground text-sm">
-                {club.moderator.username}
-              </span>
-              <span className="text-muted-foreground text-sm">
-                {club.moderator.role}
-              </span>
-            </div>
-
-            {/* Membres */}
-            <div className="flex items-center gap-1">
-              <span className="text-muted-foreground text-sm flex items-center gap-1">
-                <Users className="w-4 h-4" />
-                {club.memberCount}
-              </span>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
+    fetchClubs();
+  }, []);
 
   return (
     <>
-      <div className="flex-1 px-5 pb-[120px] pt-[120px]">
+      <div className="flex-1 px-5 pb-[120px] pt-25">
         <div className="space-y-6">
-          {/* Tabs en haut */}
-          <div className="flex space-x-4 border-b">
-            <button
-              onClick={() => setActiveTab("all")}
-              className={cn(
-                "pb-2 transition-colors",
-                activeTab === "all"
-                  ? "border-b-2 border-primary font-medium"
-                  : "text-muted-foreground"
-              )}
-            >
-              Tous les clubs
-            </button>
-            <button
-              onClick={() => setActiveTab("my")}
-              className={cn(
-                "pb-2 transition-colors",
-                activeTab === "my"
-                  ? "border-b-2 border-primary font-medium"
-                  : "text-muted-foreground"
-              )}
-            >
-              Mes clubs
-            </button>
-          </div>
+          <Tabs
+            value={activeTab}
+            onValueChange={(val) => setActiveTab(val as "all" | "my")}
+            className="w-full"
+          >
+            <TabsList className="w-full flex justify-center items-center border-b border-b-gray-200 rounded-none bg-transparent h-auto pb-0  gap-6">
+              <TabsTrigger
+                value="all"
+                className="border-b-2 border-b-transparent px-0 pb-2 pt-0 text-[15px] text-gray-500 font-medium rounded-none bg-transparent h-auto data-[state=active]:border-b-[#416E54] data-[state=active]:text-[#416E54] data-[state=active]:shadow-none"
+              >
+                Tous les clubs
+              </TabsTrigger>
+              <TabsTrigger
+                value="my"
+                className="border-b-2 border-b-transparent px-0 pb-2 pt-0 text-[15px] text-gray-500 font-medium rounded-none bg-transparent h-auto data-[state=active]:border-b-[#416E54] data-[state=active]:text-[#416E54] data-[state=active]:shadow-none"
+              >
+                Mes clubs
+              </TabsTrigger>
+            </TabsList>
 
-          {/* Affichage conditionnel selon le tab actif */}
-          {displayedClubs.length > 0 ? (
-            <ClubGrid clubs={displayedClubs} />
-          ) : (
-            <div className="text-center py-10 text-muted-foreground">
-              {activeTab === "my"
-                ? "Vous n'avez pas encore rejoint de club"
-                : "Aucun club disponible"}
+            <div className="w-full mt-4">
+              <TabsContent value="all" className="w-full">
+                <ClubGrid clubs={clubs} />
+              </TabsContent>
+              <TabsContent value="my" className="w-full">
+                {clubs.filter((c) => c.isMember).length > 0 ? (
+                  <ClubGrid clubs={clubs.filter((c) => c.isMember)} />
+                ) : (
+                  <div className="text-center py-8">
+                    <Users className="w-12 h-12 mx-auto text-muted-foreground opacity-50" />
+                    <p className="mt-4 text-muted-foreground">
+                      Vous n'avez pas encore rejoint de club
+                    </p>
+                  </div>
+                )}
+              </TabsContent>
             </div>
-          )}
+          </Tabs>
         </div>
       </div>
 
@@ -120,3 +82,11 @@ export default function Clubs() {
     </>
   );
 }
+
+const ClubGrid = ({ clubs }: { clubs: Club[] }) => (
+  <div className="grid grid-cols-2 gap-4">
+    {clubs.map((club) => (
+      <ClubCard key={club.id} club={club} variant="grid" />
+    ))}
+  </div>
+);

@@ -105,6 +105,37 @@ class NotificationService {
       }
     );
   }
+
+  // Enregistre le token de push pour l'utilisateur courant
+  async registerDeviceToken(token: string): Promise<void> {
+    try {
+      await this.makeRequest<null>(
+        "POST",
+        "/push/register",
+        { data: { token } }
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async sendTestPush(title: string, body: string): Promise<void> {
+    try {
+      await this.makeRequest<null>(
+        "POST",
+        "/push/test",
+        {
+          data: {
+            title,
+            body,
+          },
+        }
+      );
+    } catch (error) {
+      console.error("❌ Erreur envoi push test:", error);
+      throw error;
+    }
+  }
 }
 
 export const notificationService = new NotificationService();

@@ -56,7 +56,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
               {children}
             </div>
           </main>
-          <Toaster position="bottom-right" />
+          <Toaster position="top-right" />
         </AuthProvider>
         <Analytics />
       </body>

@@ -38,6 +38,8 @@ import {
 } from "@/components/ui/select";
 import Image from "next/image";
 import { use } from "react";
+import { Capacitor } from "@capacitor/core";
+import { cn } from "@/lib/utils";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -50,6 +52,8 @@ export default function EditBookList({ params }: PageProps) {
   const [coverImagePreview, setCoverImagePreview] = useState<string | null>(
     null
   );
+
+  const isNative = Capacitor.isNativePlatform();
 
   const form = useForm<UpdateBookListInput>({
     resolver: zodResolver(updateBookListSchema),
@@ -82,8 +86,8 @@ export default function EditBookList({ params }: PageProps) {
 
       form.reset(formData);
 
-      if (response.data.coverImage) {
-        setCoverImagePreview(response.data.coverImage);
+      if (response.data.cover_image) {
+        setCoverImagePreview(response.data.cover_image);
       }
     } catch (error) {
       toast.error("Impossible de charger la liste");
@@ -155,7 +159,12 @@ export default function EditBookList({ params }: PageProps) {
   }
 
   return (
-    <div className="flex-1 px-5 pb-[120px] pt-[120px]">
+    <div
+      className={cn(
+        "flex-1 px-5 pb-[120px]",
+        isNative ? "pt-[120px]" : "pt-[100px]"
+      )}
+    >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <FormField

@@ -15,11 +15,18 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 
+import { ReviewPopover } from "@/components/review/review-popover";
+
 import { bookService } from "@/services/book.service";
 import { bookListService } from "@/services/book-list.service";
+import { authorService } from "@/services/author.service";
 
 import type { Book } from "@/types/bookTypes";
 import type { BookList } from "@/types/bookListTypes";
+
+import type { Review } from "@/types/reviewTypes";
+import { reviewService } from "@/services/review.service";
+import { userService } from "@/services/user.service";
 
 interface BookProps {
   id: string;
@@ -30,6 +37,8 @@ export default function BookDetail({ id }: BookProps) {
   const [relatedBooks, setRelatedBooks] = useState<Book[]>([]);
   const [bookLists, setBookLists] = useState<BookList[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
   const router = useRouter();
 
   const currentYear = new Date().getFullYear();
@@ -38,6 +47,19 @@ export default function BookDetail({ id }: BookProps) {
     fetchBookDetails(id);
     fetchBookLists();
   }, [id]);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await userService.getAuthenticatedProfile();
+        setCurrentUserId(res.data.id);
+      } catch (err) {
+        console.error("Impossible de récupérer l'utilisateur", err);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   const fetchBookDetails = async (bookId: string) => {
     try {
@@ -55,6 +77,52 @@ export default function BookDetail({ id }: BookProps) {
       toast.error("Erreur de chargement du livre");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [averageRating, setAverageRating] = useState<number | null>(null);
+  const [totalReviews, setTotalReviews] = useState(0);
+
+  const fetchReviews = async () => {
+    try {
+      const res = await reviewService.getReviewsForBook(id);
+      const data = res.data;
+      setReviews(data.reviews);
+      setAverageRating(data.statistics.average_rating || null);
+      setTotalReviews(data.statistics.total_reviews || 0);
+    } catch (err) {
+      console.error(err);
+      toast.error("Erreur lors du chargement des avis");
+    }
+  };
+
+  useEffect(() => {
+    fetchBookDetails(id);
+    fetchBookLists();
+    fetchReviews();
+  }, [id]);
+
+  const goToAuthorPage = async () => {
+    try {
+      const res = await authorService.getAuthors();
+
+      const normalize = (str: string) => str.toLowerCase().replace(/\s/g, "");
+
+      const bookAuthor = book?.author ?? "";
+      const normalizedBookAuthor = normalize(bookAuthor);
+
+      const author = res.data.find(
+        (a) => normalize(a.name) === normalizedBookAuthor
+      );
+
+      if (author) {
+        router.push(`/authors/${author.id}`);
+      } else {
+        toast.error("Auteur introuvable");
+      }
+    } catch (err) {
+      toast.error("Erreur lors de la recherche de l'auteur");
     }
   };
 
@@ -86,8 +154,12 @@ export default function BookDetail({ id }: BookProps) {
     }
   };
 
-  const isBookInList = (list: BookList) =>
-    list.books?.some((b) => b.id === book?.id);
+  type BookListWithIds = BookList & {
+    book_ids?: string[];
+  };
+
+  const isBookInList = (list: BookListWithIds) =>
+    list.book_ids?.includes(book?.id ?? "");
 
   const handleToggleBookInList = async (list: BookList) => {
     if (!book) return;
@@ -112,7 +184,7 @@ export default function BookDetail({ id }: BookProps) {
 
   if (isLoading) {
     return (
-      <div className="flex-1 flex items-center justify-center">
+      <div className="fixed inset-0 flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
@@ -123,13 +195,11 @@ export default function BookDetail({ id }: BookProps) {
   }
 
   return (
-    <div className="space-y-6 pt-[38px] bg-accent-100 overflow-hidden">
+    <div className="space-y-3 pt-[38px] bg-accent-100 overflow-hidden">
       {/* Image + bouton ajout */}
-      <div
-        className="w-[130px] h-[200px] relative mx-auto px-5 "
-      >
+      <div className="w-[130px] h-[180px] relative mx-auto px-5 ">
         <Image
-          src={book.coverImage || "/placeholder.png"}
+                          src={book.cover_image || "/placeholder.png"}
           alt={book.title}
           fill
           className="object-cover [box-shadow:var(--shadow-strong)]"
@@ -174,6 +244,13 @@ export default function BookDetail({ id }: BookProps) {
           </Popover>
         </div>
       </div>
+      {book.genre && (
+        <div className="flex justify-center">
+          <Badge variant="default" className="capitalize">
+            {book.genre}
+          </Badge>
+        </div>
+      )}
 
       <div className="relative ">
         <div className="absolute top-[-130px]  -translate-x-1/2 w-full z-1  ">
@@ -189,7 +266,7 @@ export default function BookDetail({ id }: BookProps) {
 
         {/* Titre / auteur / note */}
         <div className="space-y-6 bg-white mt-16 pt-2 px-5 z-[8] relative">
-          <div className="flex flex-col gap-2 ">
+          <div className="flex flex-col gap-1 ">
             <div className="flex gap-2">
               <h1 className="text-2xl font-bold">{book.title}</h1>
               {book.publicationYear && (
@@ -200,29 +277,30 @@ export default function BookDetail({ id }: BookProps) {
             </div>
 
             <p className="text-muted-foreground text-sm">
-              par <span className="underline">{book.author}</span>
+              par{" "}
+              <button
+                onClick={goToAuthorPage}
+                className="underline hover:text-primary transition-colors"
+              >
+                {book.author}
+              </button>
             </p>
 
             {/* Etoiles */}
-            {/* <p className="flex items-center gap-1 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1 font-bold">
-                <Star className="w-4 h-4 text-yellow-500" fill="currentColor" />
-                4.5
-              </span>
-              <span>(2100)</span>
-            </p> */}
+            {currentUserId && (
+              <ReviewPopover
+                bookId={book.id}
+                reviews={reviews}
+                averageRating={averageRating}
+                totalReviews={totalReviews}
+                onReviewAdded={fetchReviews}
+                currentUserId={currentUserId}
+              />
+            )}
           </div>
 
           {/* Tags + description */}
           <div className="flex flex-col gap-2">
-            {book.genre && (
-              <div className="flex gap-2 flex-wrap">
-                <Badge variant="default" className="capitalize">
-                  {book.genre}
-                </Badge>
-              </div>
-            )}
-
             <h2 className="text-lg font-bold">Description</h2>
             <p className="text-sm text-muted-foreground whitespace-pre-line">
               {book.description || "Aucune description disponible."}

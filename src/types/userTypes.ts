@@ -1,26 +1,20 @@
 import { ApiResponse } from "./api";
 
 // Types énumérés
-export type UserRole =
-  | "USER"
-  | "AUTHOR"
-  | "PUBLISHER"
-  | "PUBLISHERHOUSE"
-  | "MODERATOR"
-  | "ADMIN";
-export type ReadingHabit =
-  | "library_rat"
-  | "occasional_reader"
-  | "beginner_reader";
-export type UsagePurpose = "find_books" | "find_community" | "both";
-export type ProfileVisibility = "public" | "private" | "friends_only";
-export type RelationType = "follow" | "friend" | "block";
-export type RelationStatus = "accepted" | "declined" | "pending";
+
+export type UserRole = 'USER' | 'AUTHOR' | 'PUBLISHER' | 'PUBLISHERHOUSE' | 'MODERATOR' | 'ADMIN';
+export type ReadingHabit = 'library_rat' | 'occasional_reader' | 'beginner_reader';
+export type UsagePurpose = 'find_books' | 'find_community' | 'both' | 'créer_compte_professionel';
+export type ProfileVisibility = 'public' | 'private' | 'friends_only';
+export type RelationType = 'follow' | 'friend' | 'block';
+export type RelationStatus = 'accepted' | 'declined' | 'pending';
+
 
 // Types de base
 export interface UserProfile {
   id: string;
   username: string;
+  requesterUsername: string;
   email: string;
   created_at: string;
   is_verified: boolean;
@@ -46,40 +40,62 @@ export interface UserProfile {
     following_count: number;
   };
 }
-
 export interface UserRelations {
-  followers: Array<{
-    id: string;
-    username: string;
-    profile: {
-      firstName: string;
-      lastName: string;
-      profilePictureUrl: string | null;
-    } | null;
-  }>;
-  following: Array<{
-    id: string;
-    username: string;
-    profile: {
-      firstName: string;
-      lastName: string;
-      profilePictureUrl: string | null;
-    } | null;
-  }>;
-  friends: Array<{
-    id: string;
-    username: string;
-    profile: {
-      firstName: string;
-      lastName: string;
-      profilePictureUrl: string | null;
-    } | null;
-  }>;
-  blocked: Array<{
-    id: string;
-    username: string;
-  }>;
+  followers: {
+    count: number;
+    list: Array<{
+      id: string;
+      username: string;
+      profile: {
+        firstName: string | null;
+        lastName: string | null;
+        fullName: string;
+        profilePictureUrl: string | null;
+      } | null;
+      following_since?: string;
+    }>;
+  };
+  following: {
+    count: number;
+    list: Array<{
+      id: string;
+      username: string;
+      profile: {
+        firstName: string | null;
+        lastName: string | null;
+        fullName: string;
+        profilePictureUrl: string | null;
+      } | null;
+      following_since?: string;
+    }>;
+  };
+  friends: {
+    count: number;
+    list: Array<{
+      id: string;
+      username: string;
+      profile: {
+        firstName: string | null;
+        lastName: string | null;
+        fullName: string;
+        profilePictureUrl: string | null;
+      } | null;
+      friends_since?: string;
+    }>;
+  };
+  blocked: {
+    count: number;
+    list: Array<{
+      id: string;
+      username: string;
+    }>;
+  };
+  pending_friend_requests: {
+    count: number;
+    list: any[]; // à adapter si besoin
+  };
 }
+
 
 export interface FriendshipStatus {
   status: "none" | "blocked" | "pending" | "accepted" | "following";
@@ -122,10 +138,58 @@ export interface GetAuthenticatedProfileResponse {
 
 export interface GetUserProfileResponse {
   status: "success";
+  message: string;
   data: {
-    profile: UserProfile;
+    id: string;
+    username: string;
+    is_verified: boolean;
+    created_at: string;
+    profile: {
+      first_name: string | null;
+      last_name: string | null;
+      full_name: string | null;
+      profile_picture_path: string | null;
+      profile_picture_url: string | null;
+      bio?: string | null;
+      readingHabit?: string;
+      usagePurpose?: string;
+      preferredGenres?: string[];
+      role?: string;
+    };
+    stats?: {
+      followers_count: number;
+      following_count: number;
+    };
+    posts: {
+      id: string;
+      title: string;
+      subject: string;
+      content: string;
+      likes_count: number;
+      comments_count: number;
+      images: string[];
+      has_images: boolean;
+      images_count: number;
+      created_at: string;
+      updated_at: string;
+    }[];
+    posts_count: number;
+    clubs: any[];
+    clubs_count: number;
+    book_lists: {
+      id: string;
+      name: string;
+      description: string;
+      cover_image: string | null;
+      visibility: string;
+      genre: string;
+      book_count: number;
+      created_at: string;
+    }[];
+    book_lists_count: number;
   };
 }
+
 
 export interface GetUserRelationsResponse {
   status: "success";

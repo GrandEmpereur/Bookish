@@ -7,12 +7,12 @@ import type {
 
 // Types pour les requêtes
 export interface RegisterRequest {
-    firstName: string;
-    lastName: string;
-    username: string;
-    email: string;
-    password: string;
-    birthDate: string;
+  firstName: string;
+  lastName: string;
+  username: string;
+  email: string;
+  password: string;
+  birthDate: string;
 }
 
 export interface RegisterStep1Request {
@@ -74,6 +74,18 @@ export interface RegisterStepThreeRequest {
   preferredGenres: string[];
 }
 
+export interface CurrentSessionResponse {
+  status: "success" | "error" | "fail";
+  data: {
+    sessionActive: boolean;
+    rememberMe: {
+      valid: boolean;
+      expired: boolean;
+      expires_at: string;
+    };
+  };
+}
+
 // Types pour les réponses
 export interface ApiBaseResponse {
   status: "success" | "error" | "fail";
@@ -129,17 +141,17 @@ export interface RegisterStep3Response extends ApiBaseResponse {
   };
 }
 
-export interface VerifyEmailResponse extends ApiBaseResponse {}
+export interface VerifyEmailResponse extends ApiBaseResponse { }
 
-export interface ResendVerificationResponse extends ApiBaseResponse {}
+export interface ResendVerificationResponse extends ApiBaseResponse { }
 
-export interface RequestPasswordResetResponse extends ApiBaseResponse {}
+export interface RequestPasswordResetResponse extends ApiBaseResponse { }
 
-export interface VerifyResetCodeResponse extends ApiBaseResponse {}
+export interface VerifyResetCodeResponse extends ApiBaseResponse { }
 
-export interface ResetPasswordResponse extends ApiBaseResponse {}
+export interface ResetPasswordResponse extends ApiBaseResponse { }
 
-export interface LogoutResponse extends ApiBaseResponse {}
+export interface LogoutResponse extends ApiBaseResponse { }
 
 export interface RegisterStepOneResponse {
   status: "success";

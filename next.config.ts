@@ -5,8 +5,30 @@ const nextConfig: NextConfig = {
   trailingSlash: true,
   images: {
     unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'vjdbycecqpoysonfppie.supabase.co',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'loremflickr.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
+        pathname: '/**',
+      },
+    ],
   },
-  allowedDevOrigins: ["192.168.1.68", "localhost", "127.0.0.1", "0.0.0.0"],
+  allowedDevOrigins: ['local-origin.dev', '*.local-origin.dev', '192.168.1.86', '10.2.160.133', '192.168.1.169'],
   // Configuration Turbopack pour éviter les conflits avec webpack
   turbopack: {
     // Résolution d'alias si nécessaire

@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { postService, PaginationParams } from '@/services/post.service';
 import { Post } from '@/types/postTypes';
+import { AdItem } from '@/types/adTypes';
+import { FeedItem } from '@/services/post.service';
 import { toast } from 'sonner';
 
 export interface UseInfinitePostsOptions {
@@ -11,7 +13,7 @@ export interface UseInfinitePostsOptions {
 }
 
 export interface UseInfinitePostsReturn {
-    posts: Post[];
+    posts: FeedItem[];
     loading: boolean;
     initialLoading: boolean;
     hasMore: boolean;
@@ -34,7 +36,7 @@ export const useInfinitePosts = (options: UseInfinitePostsOptions = {}): UseInfi
         enabled = true
     } = options;
 
-    const [posts, setPosts] = useState<Post[]>([]);
+    const [posts, setPosts] = useState<FeedItem[]>([]);
     const [loading, setLoading] = useState(false);
     const [initialLoading, setInitialLoading] = useState(true);
     const [hasMore, setHasMore] = useState(true);
@@ -73,8 +75,9 @@ export const useInfinitePosts = (options: UseInfinitePostsOptions = {}): UseInfi
                 setPosts(prevPosts => {
                     // Éviter les doublons lors de l'ajout
                     if (append) {
-                        const existingIds = new Set(prevPosts.map(p => p.id));
-                        const filteredNewPosts = newPosts.filter(p => !existingIds.has(p.id));
+                        const getItemId = (item: FeedItem): string => (item as any).subject ? (item as Post).id : (item as AdItem).ad.id;
+                        const existingIds = new Set(prevPosts.map(getItemId));
+                        const filteredNewPosts = newPosts.filter(item => !existingIds.has(getItemId(item)));
                         return [...prevPosts, ...filteredNewPosts];
                     }
                     return newPosts;
@@ -121,9 +124,12 @@ export const useInfinitePosts = (options: UseInfinitePostsOptions = {}): UseInfi
 
     const updatePost = useCallback((postId: string, updates: Partial<Post>) => {
         setPosts(prevPosts =>
-            prevPosts.map(post =>
-                post.id === postId ? { ...post, ...updates } : post
-            )
+            prevPosts.map(item => {
+                if ((item as any).subject && (item as Post).id === postId) {
+                    return { ...(item as Post), ...updates } as FeedItem;
+                }
+                return item;
+            })
         );
     }, []);
 

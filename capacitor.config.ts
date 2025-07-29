@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: "Bookish",
   webDir: "src/app",
   server: {
-    url: "https://bookish.bartosik.fr",
+    url: "http://192.168.1.98:3000",
     cleartext: true,
   },
   plugins: {
@@ -15,6 +15,9 @@ const config: CapacitorConfig = {
     CapacitorCookies: {
       enabled: true,
     },
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
+    }
   },
   ios: {
     scheme: "Bookish",

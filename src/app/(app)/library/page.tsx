@@ -9,11 +9,15 @@ import type { BookList } from "@/types/bookListTypes";
 import BookListCards from "@/components/library/book-list-cards";
 import { FloatingActionButton } from "@/components/ui/floating-action-button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Capacitor } from "@capacitor/core";
+import { cn } from "@/lib/utils";
 
 export default function Library() {
   const [bookLists, setBookLists] = useState<BookList[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+
+  const isNative = Capacitor.isNativePlatform();
 
   useEffect(() => {
     loadBookLists();
@@ -26,7 +30,7 @@ export default function Library() {
 
       const sortedLists = response.data.sort(
         (a: BookList, b: BookList) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
       setBookLists(sortedLists);
     } catch (error) {
@@ -39,7 +43,12 @@ export default function Library() {
 
   return (
     <>
-      <ScrollArea className="flex-1 px-5 pb-[120px] pt-[120px]">
+      <ScrollArea
+        className={cn(
+          "flex-1 px-5 pb-[120px]",
+          isNative ? "pt-[120px]" : "pt-[100px]"
+        )}
+      >
         <div className="space-y-6">
           <BookListCards bookLists={bookLists} isLoadingLists={isLoading} />
         </div>

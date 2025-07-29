@@ -14,8 +14,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { formatDistanceToNow } from "date-fns";
-import { fr } from "date-fns/locale";
+import { safeFormatDistanceToNow } from "@/lib/date";
 import Image from "next/image";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Share } from "@capacitor/share";
@@ -72,6 +71,8 @@ export default function PostPage() {
       setLoading(false);
     }
   };
+
+  const colorLike = "var(--color-like)";
 
   const loadLocalStates = () => {
     try {
@@ -300,10 +301,7 @@ export default function PostPage() {
                     {post.user?.username}
                   </span>
                   <span className="text-sm text-muted-foreground">
-                    {formatDistanceToNow(new Date(post.createdAt), {
-                      addSuffix: true,
-                      locale: fr,
-                    })}
+                    {safeFormatDistanceToNow(post.createdAt, true)}
                   </span>
                 </div>
                 <h1 className="text-base text-muted-foreground mt-0.5 font-medium">
@@ -338,16 +336,14 @@ export default function PostPage() {
                   size="sm"
                   className={cn(
                     "text-muted-foreground hover:text-primary flex items-center gap-2",
-                    isLiked && "text-primary"
+                    isLiked && "text-like"
                   )}
                   onClick={handleLike}
                 >
                   <Heart
-                    className={cn(
-                      "h-6 w-6 transition-all duration-300",
-                      isLiked ? "scale-110 fill-current" : "scale-100 fill-none"
-                    )}
-                    strokeWidth={2}
+                    className={cn("h-6 w-6 transition-all duration-300")}
+                    fill={isLiked ? colorLike : "none"}
+                    stroke={isLiked ? colorLike : "currentColor"}
                   />
                   <span className="text-base">{post.likesCount}</span>
                 </Button>

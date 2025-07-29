@@ -11,15 +11,17 @@ export interface BookList {
   id: string;
   name: string;
   description: string;
-  coverImage: string;
+  cover_image: string;
   visibility: BookListVisibility;
   genre: string;
-  bookCount: number;
-  createdAt: string;
-  books: Array<{
+  book_count: number;
+  created_at: string;
+  book_ids: [],
+  books?: Array<{
     id: string;
     title: string;
     author: string;
+    genre: string;
     coverImage: string;
   }>;
 }

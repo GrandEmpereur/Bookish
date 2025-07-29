@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { Capacitor } from "@capacitor/core";
+import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -101,8 +103,15 @@ export default function CreatePost() {
     }
   };
 
+  const isNative = Capacitor.isNativePlatform();
+
   return (
-    <div className="flex-1 px-5 pb-[120px] pt-[120px]">
+    <div
+      className={cn(
+        "flex-1 px-5 pb-[120px]",
+        isNative ? "pt-[120px]" : "pt-[25px]"
+      )}
+    >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <FormField

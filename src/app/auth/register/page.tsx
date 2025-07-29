@@ -157,7 +157,7 @@ export default function Register() {
 
       {/* Éléments décoratifs */}
       <motion.div
-        className="absolute top-20 right-12 text-green-400/30"
+        className="absolute top-16 right-12 text-green-400/30"
         animate={{ rotate: 360 }}
         transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
         style={{ willChange: "transform" }}
@@ -166,8 +166,8 @@ export default function Register() {
       </motion.div>
 
       <motion.div
-        className="absolute bottom-24 left-8 text-purple-400/25"
-        animate={{ y: [-4, 4] }}
+        className="absolute bottom-28 left-8 text-purple-400/25"
+        animate={{ scale: [1, 1.4, 1] }}
         transition={{
           duration: 3.8,
           repeat: Infinity,
@@ -176,12 +176,12 @@ export default function Register() {
         }}
         style={{ willChange: "transform" }}
       >
-        <Heart size={16} className="sm:w-[18px] sm:h-[18px]" />
+        <Sparkles size={16} className="sm:w-[18px] sm:h-[18px]" />
       </motion.div>
 
       <motion.div
-        className="absolute top-32 left-16 text-blue-400/20"
-        animate={{ scale: [1, 1.4, 1] }}
+        className="absolute top-36 left-16 text-blue-400/20"
+        animate={{ y: [-4, 4] }}
         transition={{
           duration: 5,
           repeat: Infinity,
@@ -189,13 +189,13 @@ export default function Register() {
         }}
         style={{ willChange: "transform" }}
       >
-        <Sparkles size={12} className="sm:w-[14px] sm:h-[14px]" />
+        <Heart size={12} className="sm:w-[14px] sm:h-[14px]" />
       </motion.div>
 
       <div className="flex-1 flex flex-col max-w-sm sm:max-w-md mx-auto w-full justify-center relative z-10">
         {/* Titre animé */}
         <motion.h1
-          className="text-[28px] sm:text-[32px] text-center font-heading leading-tight mb-12 sm:mb-14"
+          className="text-[28px] sm:text-[32px] text-center font-heading leading-tight mb-8 sm:mb-14"
           variants={itemVariants}
         >
           Créez votre compte

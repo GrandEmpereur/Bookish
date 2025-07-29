@@ -3,12 +3,13 @@ import { Bell, Send, Search, Settings } from "lucide-react";
 type ModalType = "drawer" | "dialog";
 
 export type TopBarConfig = {
-  variant: 'standard' | 'back';
+  variant: "standard" | "back" | "conversation";
   title?: string;
   showBack?: boolean;
   showLogo?: boolean;
   hideTopBar?: boolean;
   showBackAbsolute?: boolean;
+  showConversationUser?: boolean; // Pour afficher avatar + nom utilisateur
   rightIcons?: {
     icon: typeof Bell | typeof Send | typeof Search | typeof Settings;
     onClick?: () => void;
@@ -88,53 +89,81 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
   },
   "/library/create": {
     variant: "back",
-    title: "Nouvelle liste",
+    title: "Ajouter une liste",
+    showBack: true,
+  },
+  "/library/[id]/edit": {
+    variant: "back",
+    title: "Modifier la liste",
+    showBack: true,
+  },
+  "/library/[id]/add-book": {
+    variant: "back",
+    title: "Ajouter des livres",
+    showBack: true,
+  },
+
+  // Search
+  "/search": {
+    variant: "back",
+    title: "Recherche",
+    showBack: true,
+  },
+
+  // Recommendations
+  "/recommendations": {
+    variant: "back",
+    title: "Recommandations",
     showBack: true,
   },
 
   // Profile
-  '/profile': {
-    variant: 'back',
-    title: 'Profile',
+  "/profile": {
+    variant: "back",
+    title: "Profile",
     showBack: true,
     rightIcons: [
       {
         icon: Settings,
-        href: '/profile/settings'
-      }
-    ]
+        href: "/profile/settings",
+      },
+    ],
   },
-  '/profile/suivie/classements': {
-    variant: 'back',
-    title: 'Classements',
-    showBack: true
+  "/profile/suivie/classements": {
+    variant: "back",
+    title: "Classements",
+    showBack: true,
   },
-  '/profile/suivie/objectifs': {
-    variant: 'back',
-    title: 'Objectifs',
-    showBack: true
+  "/profile/suivie/objectifs": {
+    variant: "back",
+    title: "Objectifs",
+    showBack: true,
   },
-  '/profile/following': {
-    variant: 'back',
-    title: 'Following',
-    showBack: true
+  "/profile/following": {
+    variant: "back",
+    title: "Following",
+    showBack: true,
   },
-  '/profile/followers': {
-    variant: 'back',
-    title: 'Followers',
-    showBack: true
+  "/profile/followers": {
+    variant: "back",
+    title: "Followers",
+    showBack: true,
   },
-
+  "/profile/gamification": {
+    variant: "back",
+    title: "Gamification",
+    showBack: true,
+  },
   // Books
-  '/books/[id]': {
-    variant: 'back',
+  "/books/[id]": {
+    variant: "back",
     showBackAbsolute: true,
     // hideTopBar: true,
   },
 
   // Authors
-  '/authors/[id]': {
-    variant: 'back',
+  "/authors/[id]": {
+    variant: "back",
     showBackAbsolute: true,
     // hideTopBar: true,
   },
@@ -146,46 +175,58 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
     showBack: true,
   },
 
+  // Messages
+  "/messages": {
+    variant: "back",
+    title: "Messages",
+    showBack: true,
+  },
+  "/messages/[id]": {
+    variant: "conversation",
+    showBack: true,
+    showConversationUser: true,
+  },
+
   // Profile settings
-  '/profile/settings': {
-    variant: 'back',
-    title: 'Paramètres',
-    showBack: true
+  "/profile/settings": {
+    variant: "back",
+    title: "Paramètres",
+    showBack: true,
   },
-  '/profile/settings/profile': {
-    variant: 'back',
-    title: 'Mon profile',
-    showBack: true
+  "/profile/settings/profile": {
+    variant: "back",
+    title: "Mon profile",
+    showBack: true,
   },
-  '/profile/settings/bookmarked': {
-    variant: 'back',
-    title: 'Mes favoris',
-    showBack: true
+  "/profile/settings/bookmarked": {
+    variant: "back",
+    title: "Mes favoris",
+    showBack: true,
   },
-  '/profile/settings/statistics': {
-    variant: 'back',
-    title: 'Statistiques',
-    showBack: true
+  "/profile/settings/statistics": {
+    variant: "back",
+    title: "Statistiques",
+    showBack: true,
   },
-  '/profile/settings/notifications': {
-    variant: 'back',
-    title: 'Notificationsss',
-    showBack: true
+  "/profile/settings/notifications": {
+    variant: "back",
+    title: "Notificationsss",
+    showBack: true,
   },
-  '/profile/settings/help': {
-    variant: 'back',
-    title: 'Aide',
-    showBack: true
+  "/profile/settings/help": {
+    variant: "back",
+    title: "Aide",
+    showBack: true,
   },
-  '/profile/settings/policy': {
-    variant: 'back',
-    title: 'Politique de confidentialité',
-    showBack: true
+  "/profile/settings/policy": {
+    variant: "back",
+    title: "Politique de confidentialité",
+    showBack: true,
   },
-  '/profile/settings/delete': {
-    variant: 'back',
-    title: 'Supprimer mon compte',
-    showBack: true
+  "/profile/settings/delete": {
+    variant: "back",
+    title: "Supprimer mon compte",
+    showBack: true,
   },
 
   // Clubs
@@ -222,6 +263,15 @@ export function getTopBarConfig(path: string): TopBarConfig {
     return topBarConfigs["/feed"];
   }
 
+  if (cleanPath === "/messages") {
+    return topBarConfigs["/messages"];
+  }
+
+  // Pour les conversations avec UUID
+  if (/^\/messages\/[\w-]+$/.test(cleanPath)) {
+    return topBarConfigs["/messages/[id]"];
+  }
+
   // Pour les posts avec UUID
   if (/^\/feed\/[\w-]+$/.test(cleanPath) && cleanPath !== "/feed/create") {
     return topBarConfigs["/feed/[id]"];
@@ -239,17 +289,30 @@ export function getTopBarConfig(path: string): TopBarConfig {
 
   // Pour les book avec UUID
   if (/^\/books\/[\w-]+$/.test(cleanPath)) {
-    return topBarConfigs['/books/[id]'];
+    return topBarConfigs["/books/[id]"];
   }
 
   // Pour les book avec UUID
   if (/^\/authors\/[\w-]+$/.test(cleanPath)) {
-    return topBarConfigs['/authors/[id]'];
+    return topBarConfigs["/authors/[id]"];
+  }
+
+  // Pour les bibliothèques avec UUID - add-book
+  if (/^\/library\/[\w-]+\/add-book$/.test(cleanPath)) {
+    return topBarConfigs["/library/[id]/add-book"];
+  }
+
+  // Pour les bibliothèques avec UUID - edit
+  if (/^\/library\/[\w-]+\/edit$/.test(cleanPath)) {
+    return topBarConfigs["/library/[id]/edit"];
   }
 
   // Pour les bibliothèques avec UUID
-  if (/^\/library\/[\w-]+$/.test(cleanPath) && cleanPath !== '/library/create') {
-    return topBarConfigs['/library/[id]'];
+  if (
+    /^\/library\/[\w-]+$/.test(cleanPath) &&
+    cleanPath !== "/library/create"
+  ) {
+    return topBarConfigs["/library/[id]"];
   }
 
   // Pour les autres routes

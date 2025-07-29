@@ -69,11 +69,12 @@ export function BottomBar() {
             <div
               className={cn(
                 "flex items-center justify-center",
-                item.isSearch && "bg-primary p-4 rounded-full shadow-lg -mt-10 [box-shadow:var(--shadow-strong)]"
+                item.isSearch &&
+                  "bg-primary p-3 rounded-full shadow-lg -mt-10 [box-shadow:var(--shadow-strong)]"
               )}
             >
               <item.icon
-                size={item.isSearch ? 24 : 20}
+                size={item.isSearch ? 20 : 20}
                 className={cn(
                   item.isSearch
                     ? "text-white"
@@ -87,7 +88,7 @@ export function BottomBar() {
               className={cn(
                 "text-xs",
                 pathname === item.href
-                  ? "text-primary-800 font-bold"
+                  ? "text-primary-800 font-semibold"
                   : "text-muted-foreground font-normal"
               )}
             >

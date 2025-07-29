@@ -241,7 +241,7 @@ export default function Login() {
                   </motion.div>
                 </motion.div>
                 <motion.h2
-                  className="text-white text-lg sm:text-xl font-heading mb-2"
+                  className="text-gray-700 text-lg sm:text-xl font-heading mb-2"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.2 }}
@@ -249,7 +249,7 @@ export default function Login() {
                   Connexion réussie !
                 </motion.h2>
                 <motion.p
-                  className="text-white/70 text-sm sm:text-base"
+                  className="text-gray-700 text-sm sm:text-base"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.4 }}
@@ -318,8 +318,8 @@ export default function Login() {
                             <Input
                               {...field}
                               type="email"
-                              placeholder="votre@email.com"
-                              className="h-12 sm:h-14 bg-accent-100 border-0 text-base placeholder:text-muted-500 transition-shadow duration-200 focus:shadow-lg focus:shadow-primary/10"
+                              placeholder="Adresse e-mail"
+                              className="h-12 sm:h-14 bg-accent-100 border-0 text-base pr-12 transition-shadow duration-200 focus:shadow-lg focus:shadow-primary/10"
                               disabled={isSubmitting || isSuccess}
                             />
                           </FormControl>
@@ -532,6 +532,33 @@ export default function Login() {
                 </motion.p>
               </form>
             </Form>
+
+            <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t py-4">
+              <span className="bg-background text-muted-foreground relative z-10 px-2">
+                Ou continuez avec
+              </span>
+            </div>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => {
+                window.location.href =
+                  "https://bookish-api.bartosik.fr/auth/google/redirect";
+              }}
+              disabled={isSubmitting || isSuccess}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                className="w-5 h-5 mr-2"
+              >
+                <path
+                  d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"
+                  fill="currentColor"
+                />
+              </svg>
+              Connexion avec Google
+            </Button>
           </motion.div>
         </motion.div>
       </motion.div>

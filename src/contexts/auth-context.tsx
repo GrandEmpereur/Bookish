@@ -10,6 +10,7 @@ import {
 import { useRouter } from "next/navigation";
 import { authService } from "@/services/auth.service";
 import { userService } from "@/services/user.service";
+import type { CurrentSessionResponse } from "@/types/authTypes";
 import type { UserProfile as User } from "@/types/userTypes";
 import type {
   LoginRequest,
@@ -33,12 +34,16 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { usePushNotifications } from "@/hooks/use-push-notifications";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
+  /** Indique si une session est actuellement active */
   isAuthenticated: boolean;
+  /** Informations concernant le remember-me et son expiration */
+  rememberMe: CurrentSessionResponse["data"]["rememberMe"] | null;
   login: (data: LoginRequest) => Promise<void>;
   register: (data: RegisterRequest) => Promise<AuthResponse<RegisterResponse>>;
   logout: () => Promise<void>;
@@ -68,7 +73,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 function AuthProviderInner({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const [user, setUser] = useState<User | null>(null);
+  const [rememberMe, setRememberMe] = useState<CurrentSessionResponse["data"]["rememberMe"] | null>(null);
   const router = useRouter();
+
+  // Setup des notifications push quand l'utilisateur est connecté
+  usePushNotifications();
+
+  // ------------- Vérification de session actuelle -------------
+  const {
+    data: sessionData,
+    isLoading: sessionLoading,
+    isFetching: sessionFetching,
+  } = useQuery({
+    queryKey: ["session"],
+    queryFn: () => authService.getCurrentSession(),
+    retry: 1,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+
+  const sessionActive = sessionData?.data.sessionActive ?? false;
 
   const {
     data: profileData,
@@ -79,14 +103,21 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
   } = useQuery({
     queryKey: ["me"],
     queryFn: () => userService.getAuthenticatedProfile(),
+    enabled: sessionActive, // ne récupère le profil que si une session est active
     retry: 1,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
 
-  const isLoading = profileLoading || profileFetching;
+  const isLoading = sessionLoading || sessionFetching || (sessionActive && (profileLoading || profileFetching));
 
   useEffect(() => {
+    // Met à jour le rememberMe à chaque récupération de session
+    if (sessionData) {
+      setRememberMe(sessionData.data.rememberMe);
+    }
+
+    // Gestion du profil utilisateur uniquement si session active
     if (profileData) {
       setUser(profileData.data);
     }
@@ -94,13 +125,16 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
     if (profileIsError && (profileError as any)?.status === 401) {
       setUser(null);
     }
-  }, [profileData, profileIsError, profileError]);
+  }, [sessionData, profileData, profileIsError, profileError]);
 
   // ---------------- Mutations ----------------
   const loginMutation = useMutation({
     mutationFn: (data: LoginRequest) => authService.login(data),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["me"] });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["session"] }),
+        queryClient.invalidateQueries({ queryKey: ["me"] }),
+      ]);
       toast.success("Connexion réussie", {
         description: "Bienvenue sur Bookish !",
       });
@@ -127,6 +161,7 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
     onSuccess: () => {
       // L'API gère l'invalidation des cookies, on se contente de nettoyer le cache et rediriger
       setUser(null);
+      setRememberMe(null);
       queryClient.clear();
       router.replace("/auth/login");
       toast.success("Déconnexion réussie", { description: "À bientôt !" });
@@ -150,7 +185,10 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
   };
 
   const refreshUser = async () => {
-    await queryClient.invalidateQueries({ queryKey: ["me"] });
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["session"] }),
+      queryClient.invalidateQueries({ queryKey: ["me"] }),
+    ]);
   };
 
   const verifyEmail = async (data: VerifyEmailRequest) => {
@@ -241,7 +279,8 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
       value={{
         user,
         isLoading,
-        isAuthenticated: !!user,
+        isAuthenticated: sessionActive,
+        rememberMe,
         login,
         register,
         logout,

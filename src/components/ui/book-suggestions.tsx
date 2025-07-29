@@ -37,7 +37,7 @@ export default function BookSuggestions({
                 </Tag>
               )}
             <Image
-              src={book.coverImage || "/placeholder.png"}
+              src={book.cover_image || "/placeholder.png"}
               alt={book.title}
               fill
               className="object-cover"

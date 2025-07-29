@@ -1,13 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { Image as ImageIcon } from "lucide-react";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 import { Share2, Users, MessageCircle, Heart, Lock, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { MOCK_CLUBS } from "@/config/mock-data";
+import { clubService } from "@/services/club.service";
+import { Club } from "@/types/clubTypes";
+
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -16,25 +23,57 @@ import { isSameDay } from "date-fns";
 interface ClubDetailsProps {
   clubId: string;
 }
-
 export default function ClubDetails({ clubId }: ClubDetailsProps) {
-  const [activeTab, setActiveTab] = useState("publications");
+  const [club, setClub] = useState<Club | null>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
-  // Trouver le club correspondant
-  const club = MOCK_CLUBS.find((c) => c.id === clubId) || MOCK_CLUBS[0];
+  useEffect(() => {
+    const fetchClub = async () => {
+      try {
+        const res = await clubService.getClub(clubId);
+        setClub(res.data.club);
+      } catch {
+        toast.error("Impossible de charger le club.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchClub();
+  }, [clubId]);
+
+  if (loading) {
+    return (
+      <div className="flex-1 flex items-center justify-center pt-20">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (!club) {
+    return <div className="text-center pt-10">Club introuvable</div>;
+  }
 
   return (
-    <div className="flex-1 pb-[120px] pt-[98px]">
+    <div className="flex-1 pb-[120px] pt-[74px]">
       {/* Cover Image avec boutons */}
       <div className="relative w-full h-[300px]">
-        <Image
-          src={club.coverImage}
-          alt={club.name}
-          fill
-          className="object-cover"
-          draggable={false}
-          priority
-        />
+        {club.cover_image ? (
+          <Image
+            src={club.cover_image}
+            alt={club.name}
+            fill
+            className="object-cover"
+            draggable={false}
+            priority
+          />
+        ) : (
+          <div className="w-full h-full bg-muted flex items-center justify-center">
+            <ImageIcon className="text-muted-foreground w-8 h-8" />
+          </div>
+        )}
+
         <div className="absolute top-4 right-4 flex items-center gap-2">
           <Button size="icon" variant="default" className="rounded-full">
             <Share2 className="h-4 w-4" />
@@ -50,30 +89,35 @@ export default function ClubDetails({ clubId }: ClubDetailsProps) {
         {/* En-tête du club */}
         <div className="space-y-4 pt-6">
           <div>
-            <div className="flex items-center justify-between">
+            <div className="flex items-start justify-between">
               <h1 className="text-2xl font-bold">{club.name}</h1>
-              {club.type === "public" ? (
-                <Badge variant="outline" className="flex items-center gap-1">
+              {club.type === "Public" ? (
+                <Badge
+                  variant="outline"
+                  className="flex mt-2 items-center gap-1"
+                >
                   <Globe className="h-3 w-3" />
                   Public
                 </Badge>
               ) : (
-                <Badge variant="secondary" className="flex items-center gap-1">
+                <Badge
+                  variant="outline"
+                  className="flex mt-2 items-center gap-1"
+                >
                   <Lock className="h-3 w-3" />
                   Privé
                 </Badge>
               )}
             </div>
-            <div className="flex items-center gap-1 text-muted-foreground">
-              <Users className="h-4 w-4" />
-              <span>{club.memberCount} membres</span>
+            <div className="flex items-center gap-1 text-muted-foreground text-xs">
+              <Users className="h-3 w-3" />
+              <span>{club.member_count} membres</span>
             </div>
           </div>
 
-          {/* Liste des membres importants */}
           <div className="space-y-4">
             {/* Administrateurs */}
-            {club.members.administrators.map((admin) => (
+            {/* {club.members?.administrators?.map((admin) => (
               <div key={admin.id} className="flex items-center gap-3">
                 <Avatar>
                   <AvatarImage src={admin.avatarUrl} alt={admin.username} />
@@ -81,10 +125,12 @@ export default function ClubDetails({ clubId }: ClubDetailsProps) {
                 </Avatar>
                 <div>
                   <p className="text-sm font-medium">{admin.username}</p>
-                  <p className="text-xs text-muted-foreground">{admin.role}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Modère ce club
+                  </p>
                 </div>
               </div>
-            ))}
+            ))} */}
           </div>
         </div>
 
@@ -96,9 +142,8 @@ export default function ClubDetails({ clubId }: ClubDetailsProps) {
           </TabsList>
           <TabsContent value="publications" className="mt-6">
             <div className="space-y-4">
-              {club.posts.map((post) => (
+              {/* {club.posts?.map((post) => (
                 <div key={post.id} className="bg-card rounded-lg p-4 space-y-4">
-                  {/* En-tête du post */}
                   <div className="flex items-center gap-3">
                     <Avatar>
                       <AvatarImage
@@ -115,10 +160,8 @@ export default function ClubDetails({ clubId }: ClubDetailsProps) {
                     </div>
                   </div>
 
-                  {/* Contenu du post */}
                   <p className="text-sm">{post.content}</p>
 
-                  {/* Image du post (si présente) */}
                   {post.image && (
                     <div className="relative aspect-video w-full rounded-lg overflow-hidden">
                       <Image
@@ -130,11 +173,10 @@ export default function ClubDetails({ clubId }: ClubDetailsProps) {
                     </div>
                   )}
 
-                  {/* Actions du post */}
                   <div className="flex items-center gap-4 pt-2">
                     <button className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors">
                       <Heart
-                        className={`h-4 w-4 ${post.isLiked ? "fill-primary text-primary" : ""}`}
+                        className={`h-4 w-4 ${post.isLiked ? "fill-like text-like" : ""}`}
                       />
                       <span>{post.likesCount}</span>
                     </button>
@@ -144,14 +186,14 @@ export default function ClubDetails({ clubId }: ClubDetailsProps) {
                     </button>
                   </div>
                 </div>
-              ))}
+              ))} */}
             </div>
           </TabsContent>
           <TabsContent value="chat" className="mt-6">
             {club.isMember ? (
               <div className="flex flex-col space-y-4">
-                {club.chat?.map((message, index) => {
-                  const isFirstMessageOfDay =
+                {/* {club.chat?.map((message: ClubChatMessage, index: number) => {
+                  const isFirstMessageOfDay: boolean =
                     index === 0 ||
                     !isSameDay(
                       new Date(message.timestamp),
@@ -210,15 +252,15 @@ export default function ClubDetails({ clubId }: ClubDetailsProps) {
                       </div>
                     </div>
                   );
-                })}
+                })} */}
               </div>
             ) : (
-              <div className="text-center py-10 space-y-4">
+              <div className="text-center space-y-3">
                 <p className="text-muted-foreground">
                   Vous devez être membre du club pour accéder au chat
                 </p>
                 <Button
-                  variant="default"
+                  variant="secondary"
                   className="rounded-full"
                   onClick={() => {
                     /* logique pour rejoindre */

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { searchService } from "@/services/search.service";
 import { useDebounce } from "@/hooks/use-debounce";
-import { SearchCategory, GeneralSearchResponse } from "@/types/searchTypes";
+import { GeneralSearchResponse, SearchCategory } from "@/types/searchTypes";
 import { toast } from "sonner";
 
 interface SearchState {
@@ -231,6 +231,40 @@ export const useAdvancedSearch = (options: UseAdvancedSearchOptions = {}) => {
             } else {
                 // Utiliser les endpoints spécifiques pour les catégories
                 switch (currentCategory) {
+                    case "authors":
+                        response = await searchService.searchAuthors({
+                            query: state.query,
+                            page: nextPage,
+                            limit: 20,
+                            category: "all"
+                        });
+
+                        if (response.status === "success") {
+                            const newResults = response.data.users || [];
+                            const updatedData = [...(state.results.data || []), ...newResults];
+                            const newLoadedCount = updatedData.length;
+
+                            setState(prev => ({
+                                ...prev,
+                                results: {
+                                    ...prev.results,
+                                    data: updatedData,
+                                    loadedCount: newLoadedCount
+                                },
+                                loading: false
+                            }));
+
+                            const maxToLoad = Math.min(state.results.totals?.users || 0, 100);
+                            const hasMoreResults = newLoadedCount < maxToLoad && (response.data.pagination?.has_more || false);
+
+                            setPagination(prev => ({
+                                ...prev,
+                                page: nextPage,
+                                hasMore: hasMoreResults
+                            }));
+                        }
+                        break;
+
                     case "users":
                         response = await searchService.searchUsers({
                             query: state.query,

@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import BookListSkeleton from "@/components/library/book-list-skeleton";
 
 import type { BookList } from "@/types/bookListTypes";
 
@@ -21,23 +22,8 @@ export default function BookListCards({
 }: BookListCardsProps) {
   const router = useRouter();
 
-  const renderBookListSkeleton = () => (
-    <div className="space-y-4">
-      {[1, 2, 3].map((i) => (
-        <div key={i} className="flex gap-6 p-4 border rounded-lg">
-          <Skeleton className="h-[120px] w-[80px]" />
-          <div className="flex-1 space-y-2">
-            <Skeleton className="h-6 w-3/4" />
-            <Skeleton className="h-4 w-1/2" />
-            <Skeleton className="h-4 w-1/4" />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-
   if (isLoadingLists) {
-    return <div className="space-y-6">{renderBookListSkeleton()}</div>;
+    return <div className="space-y-6">{BookListSkeleton()}</div>;
   }
 
   if (!bookLists || bookLists.length === 0) {
@@ -67,10 +53,10 @@ export default function BookListCards({
           onClick={() => router.push(`/library/${list.id}`)}
         >
           <div className="p-4 flex flex-row gap-4">
-            {list.coverImage ? (
+            {list.cover_image ? (
               <div className="relative w-24 h-32 shrink-0">
                 <Image
-                  src={list.coverImage}
+                  src={list.cover_image}
                   alt={list.name}
                   fill
                   className="object-cover rounded-md"
@@ -96,7 +82,8 @@ export default function BookListCards({
                       className="text-xs flex items-center gap-1"
                     >
                       <BookOpen className="h-3 w-3" />
-                      {list.bookCount} {list.bookCount > 1 ? "livres" : "livre"}
+                      {list.book_count}{" "}
+                      {list.book_count > 1 ? "livres" : "livre"}
                     </Badge>
                   </div>
 

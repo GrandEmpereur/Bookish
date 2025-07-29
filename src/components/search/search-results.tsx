@@ -339,9 +339,9 @@ const BookCard = ({ book }: { book: Book }) => {
     >
       <CardContent className="p-0">
         <div className="aspect-[3/4] relative overflow-hidden rounded-t-lg">
-          {book.coverImage ? (
-            <Image
-              src={book.coverImage}
+                      {book.cover_image ? (
+              <Image
+                src={book.cover_image}
               alt={book.title}
               fill
               className="object-cover"
@@ -439,7 +439,7 @@ const BookListCard = ({ bookList }: { bookList: BookList }) => {
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <div className="flex items-center gap-1">
               <BookOpen className="h-3 w-3" />
-              <span>{bookList.bookCount || 0} livres</span>
+              <span>{bookList.book_count || 0} livres</span>
             </div>
             <div className="flex items-center gap-1">
               <User className="h-3 w-3" />

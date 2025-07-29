@@ -90,6 +90,10 @@ export default function Genres() {
 
       // Attendre un peu pour montrer le succès puis rediriger
       setTimeout(() => {
+        // ✅ Indique au feed qu’il doit afficher le popup une seule fois
+
+        localStorage.setItem("needUnboarding", "1");
+
         // Nettoyage et redirection vers le feed
         sessionStorage.removeItem("verificationEmail");
         router.replace("/feed");

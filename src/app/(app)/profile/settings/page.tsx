@@ -38,7 +38,7 @@ const SettingItem = ({
 }) => (
   <Button
     variant="ghost"
-    className="flex items-center justify-between w-full px-5 py-7"
+    className="flex items-center justify-between w-full px-5 py-7 rounded-none"
     onClick={onClick}
   >
     <div className="flex items-center space-x-2">
@@ -79,8 +79,8 @@ const SettingsPage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col gap-10 px-5 pb-[120px] pt-[120px]">
-      <Card className="shadow-md rounded-xl">
+    <div className="flex flex-col gap-10 px-5 pb-[120px] pt-25">
+      <Card className="shadow-md rounded-xl py-0">
         <CardContent className="p-0 divide-y">
           <SettingItem
             title="Profil"
@@ -105,7 +105,7 @@ const SettingsPage: React.FC = () => {
         </CardContent>
       </Card>
 
-      <Card className="shadow-md rounded-xl">
+      <Card className="shadow-md rounded-xl py-0">
         <CardContent className="p-0 divide-y">
           <SettingItem
             title="Obtenir de l'aide"
