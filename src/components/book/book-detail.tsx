@@ -52,7 +52,7 @@ export default function BookDetail({ id }: BookProps) {
     const fetchUser = async () => {
       try {
         const res = await userService.getAuthenticatedProfile();
-        setCurrentUserId(res.data.user.id);
+        setCurrentUserId(res.data.id);
       } catch (err) {
         console.error("Impossible de récupérer l'utilisateur", err);
       }
@@ -199,7 +199,7 @@ export default function BookDetail({ id }: BookProps) {
       {/* Image + bouton ajout */}
       <div className="w-[130px] h-[180px] relative mx-auto px-5 ">
         <Image
-          src={book.coverImage || "/placeholder.png"}
+                          src={book.cover_image || "/placeholder.png"}
           alt={book.title}
           fill
           className="object-cover [box-shadow:var(--shadow-strong)]"

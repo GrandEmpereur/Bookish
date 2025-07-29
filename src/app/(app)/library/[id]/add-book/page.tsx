@@ -22,6 +22,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import Image from "next/image";
 import { use } from "react";
 import type { Book as BookType } from "@/types/bookTypes";
+import type { SearchBook } from "@/types/searchTypes";
 import { useDebounce } from "@/hooks/use-debounce";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -40,9 +41,9 @@ export default function AddBookToList({ params }: PageProps) {
   const isNative = Capacitor.isNativePlatform();
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<BookType[]>([]);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [selectedBooks, setSelectedBooks] = useState<BookType[]>([]);
+  const [selectedBooks, setSelectedBooks] = useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSelectedModal, setShowSelectedModal] = useState(false);
 
@@ -159,7 +160,7 @@ export default function AddBookToList({ params }: PageProps) {
   }, [id, router, selectedBooks]);
 
   const BookCard = ({ book, isSelected, onSelect, onRemove }: {
-    book: BookType;
+    book: any; // SearchBook compatible
     isSelected: boolean;
     onSelect: () => void;
     onRemove?: () => void;

@@ -59,7 +59,7 @@ export interface GeneralSearchResponse {
           total: number;
         };
         books: {
-          data: Book[];
+          data: SearchBook[];
           total: number;
         };
         clubs: {
@@ -110,12 +110,21 @@ export interface UserSearchResponse {
   };
 }
 
+// Type spécifique pour les livres dans les résultats de recherche
+export interface SearchBook {
+  id: string;
+  title: string;
+  author: string;
+  cover_image: string;
+  genre: string;
+}
+
 // ==== RECHERCHE BOOKS ====
 export interface BookSearchResponse {
   status: "success" | "error";
   message: string;
   data: {
-    books: Book[];
+    books: SearchBook[];
     pagination: SearchPagination;
     metrics: SearchMetrics;
     search_params: {

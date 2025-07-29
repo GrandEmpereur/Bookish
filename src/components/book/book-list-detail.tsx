@@ -72,7 +72,7 @@ export default function BookListDetail({ id }: BookListDetailProps) {
             const book = res.data;
             return {
               ...book,
-              coverImage: (book as any).coverImage ?? "",
+              coverImage: book.cover_image ?? "",
               genre: book.genre ?? "",
             };
           })
@@ -263,10 +263,10 @@ export default function BookListDetail({ id }: BookListDetailProps) {
                 >
                   <div>
                     <div className="flex gap-4">
-                      {book.coverImage ? (
-                        <div className="relative w-20 h-28 shrink-0 rounded-lg overflow-hidden shadow-sm border">
-                          <Image
-                            src={book.coverImage}
+                                          {book.coverImage ? (
+                      <div className="relative w-20 h-28 shrink-0 rounded-lg overflow-hidden shadow-sm border">
+                        <Image
+                          src={book.coverImage}
                             alt={book.title}
                             fill
                             className="object-cover"
