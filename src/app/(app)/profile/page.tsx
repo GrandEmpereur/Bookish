@@ -583,10 +583,10 @@ export default function Profile() {
                 fill="currentColor"
               />
               <span className="text-xs uppercase text-white/70 tracking-wide">
-                Following
+                Amis
               </span>
               <span className="text-xl font-bold text-white/90">
-                {relations?.following?.count || 0}
+                {relations?.friends?.count || 0}
               </span>
             </button>
 
