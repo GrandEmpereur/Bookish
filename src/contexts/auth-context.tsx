@@ -136,7 +136,7 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
         queryClient.invalidateQueries({ queryKey: ["me"] }),
       ]);
       toast.success("Connexion réussie", {
-        description: "Bienvenue sur Bookish !",
+        description: <span className="text-foreground font-medium">Bienvenue sur Bookish !</span>,
       });
       router.replace("/feed");
     },

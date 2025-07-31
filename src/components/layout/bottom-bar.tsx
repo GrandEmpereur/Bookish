@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Home, Library, Search, Users, User } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
+import { useBottomBar } from "@/hooks/use-bottom-bar";
 
 const navigationItems = [
   {
@@ -37,10 +38,16 @@ const navigationItems = [
 
 export function BottomBar() {
   const pathname = usePathname();
+  const bottomBarConfig = useBottomBar();
 
   // Détection de la plateforme
   const isNative = Capacitor.isNativePlatform();
   const isBrowser = !isNative;
+
+  // Ne pas afficher la bottom bar si elle doit être cachée
+  if (!bottomBarConfig.visible) {
+    return null;
+  }
 
   return (
     <nav

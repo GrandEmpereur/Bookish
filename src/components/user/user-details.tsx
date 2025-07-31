@@ -99,9 +99,9 @@ export default function UserDetails() {
     >
       <div className="flex gap-3">
         <div className="relative h-12 w-12 overflow-hidden rounded-lg">
-          {club.cover_image ? (
+          {club.club_picture ? (
             <Image
-              src={club.cover_image}
+              src={club.club_picture}
               alt={club.name}
               fill
               className="object-cover"

@@ -35,9 +35,9 @@ export const ClubCard = ({ club, variant = "grid" }: Props) => {
             : "h-12 w-12 rounded-lg"
         )}
       >
-        {club.cover_image ? (
+        {club.club_picture ? (
           <Image
-            src={club.cover_image}
+            src={club.club_picture}
             alt={club.name}
             fill
             className="object-cover"
@@ -57,21 +57,15 @@ export const ClubCard = ({ club, variant = "grid" }: Props) => {
         <div className="flex items-center justify-between">
           <h3 className="font-medium leading-[1.3]">{club.name}</h3>
 
-          {variant === "list" && club.type && (
-            <Badge variant={club.type === "Private" ? "secondary" : "outline"}>
+          {club.type && (
+            <Badge 
+              variant={club.type === "Private" ? "secondary" : "outline"}
+              className={variant === "grid" ? "text-xs" : ""}
+            >
               {club.type === "Private" ? "Privé" : "Public"}
             </Badge>
           )}
         </div>
-
-        {/* {variant === "grid" && (
-          <div className="flex items-center gap-1">
-            <span className="text-muted-foreground text-sm">Modéré par</span>
-            <span className="text-muted-foreground text-sm">
-              {club.moderator.username}
-            </span>
-          </div>
-        )} */}
 
         {variant === "list" && club.description && (
           <p className="text-sm text-muted-foreground line-clamp-2">
@@ -87,7 +81,7 @@ export const ClubCard = ({ club, variant = "grid" }: Props) => {
 
           {club.genre && (
             <Badge variant="outline" className="text-xs">
-              {club.genre}
+              {club.genre.charAt(0).toUpperCase() + club.genre.slice(1)}
             </Badge>
           )}
         </div>
