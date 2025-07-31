@@ -210,7 +210,7 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
   },
   "/profile/settings/notifications": {
     variant: "back",
-    title: "Notificationsss",
+    title: "Notifications",
     showBack: true,
   },
   "/profile/settings/help": {

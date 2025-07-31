@@ -5,6 +5,8 @@ import { Bell, Send, ChevronLeft, Search } from "lucide-react";
 import { usePathname, useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { NotificationBadge } from "@/components/ui/notification-badge";
+import { NotificationBadgeIcon } from "@/components/ui/notification-badge-icon";
 import { cn } from "@/lib/utils";
 import { getTopBarConfig, TopBarConfig } from "@/config/navigation";
 import { SearchDrawer } from "@/components/library/search-drawer";
@@ -178,14 +180,27 @@ export function TopBar({ config, className, dynamicTitle }: TopBarProps) {
       <div className="flex items-center gap-4">
         {currentConfig.rightIcons.map((iconConfig, index) => {
           const Icon = iconConfig.icon;
+          const isNotificationIcon = Icon === Bell;
+          
           return (
             <Button
               key={index}
               variant="ghost"
               onClick={() => handleIconClick(iconConfig)}
-              className="w-8 h-8 rounded-full bg-accent flex items-center justify-center hover:bg-accent/80 transition-colors"
+              className={cn(
+                "w-8 h-8 rounded-full bg-accent flex items-center justify-center hover:bg-accent/80 transition-colors",
+                isNotificationIcon && "relative"
+              )}
             >
-              <Icon size={20} />
+              {isNotificationIcon ? (
+                <>
+                  <Bell size={20} />
+                  {/* Badge positionné par rapport au bouton */}
+                  <NotificationBadgeIcon />
+                </>
+              ) : (
+                <Icon size={20} />
+              )}
             </Button>
           );
         })}
