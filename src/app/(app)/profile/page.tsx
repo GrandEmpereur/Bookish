@@ -117,12 +117,6 @@ export default function Profile() {
   const [activeTab, setActiveTab] = useState("Suivi");
   const [profileRetryCount, setProfileRetryCount] = useState(0);
 
-  // Memoized values
-  const isOwnProfile = useMemo(
-    () => profileData.profile?.id === user?.id,
-    [profileData.profile?.id, user?.id]
-  );
-
   const defaultGenres = useMemo(
     () => user?.profile?.preferred_genres?.slice(0, 2) || [],
     [user?.profile?.preferred_genres]
@@ -235,7 +229,7 @@ export default function Profile() {
       }
 
       const userPosts = postsArray.filter(
-        (post) => post.userId === profileData.profile?.id
+        (post) => post.user && post.user.id === profileData.profile?.id
       );
       setTabData((prev) => ({ ...prev, userPosts }));
     } catch (error) {
@@ -1173,6 +1167,68 @@ export default function Profile() {
                     bookLists={tabData.bookLists}
                     isLoadingLists={false}
                   />
+                )}
+              </TabsContent>
+
+              <TabsContent value="posts" className="w-full">
+                {loadingStates.posts ? (
+                  <BookListSkeleton />
+                ) : tabData.userPosts.length === 0 ? (
+                  renderEmptyState("posts", () => router.push("/library"))
+                ) : (
+                  tabData.userPosts.map((post) => (
+                    <div className="space-y-4 mt-4">
+                      <button
+                        key={post.id}
+                        onClick={() => router.push(`/feed/${post.id}`)}
+                        className="w-full text-left p-4 border rounded-lg space-y-3 hover:bg-accent transition-colors"
+                      >
+                        <div key={post.id} className="flex gap-3 mb-4">
+                          <Avatar className="h-10 w-10">
+                            <AvatarFallback>
+                              {post.user.username?.charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between">
+                              <span className="font-medium">
+                                {post.user.username}
+                              </span>
+                              <span className="text-sm text-muted-foreground">
+                                {formatDistanceToNow(new Date(post.createdAt), {
+                                  addSuffix: true,
+                                  locale: fr,
+                                })}
+                              </span>
+                            </div>
+                            <h3 className="text-sm text-muted-foreground">
+                              {post.title}
+                            </h3>
+                            {post.subject === "book_review" && (
+                              <div className="mt-1 inline-block bg-muted text-muted-foreground text-xs px-2 py-0.5 rounded-full">
+                                Critique de livre
+                              </div>
+                            )}
+                            {post.subject === "reading_progress" && (
+                              <div className="mt-2 text-sm text-muted-foreground">
+                                {post.content}
+                              </div>
+                            )}
+                            <div className="flex items-center mt-2 space-x-4 text-sm text-muted-foreground">
+                              <span className="flex items-center">
+                                <Heart className="mr-1" />
+                                {post.likesCount} Likes
+                              </span>
+                              <span className="flex items-center">
+                                <MessageSquare className="mr-1" />
+                                {post.commentsCount} Commentaires
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </button>
+                    </div>
+                  ))
                 )}
               </TabsContent>
 
