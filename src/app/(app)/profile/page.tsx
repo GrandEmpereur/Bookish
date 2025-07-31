@@ -116,12 +116,6 @@ export default function Profile() {
   const [activeTab, setActiveTab] = useState("Suivi");
   const [profileRetryCount, setProfileRetryCount] = useState(0);
 
-  // Memoized values
-  const isOwnProfile = useMemo(
-    () => profileData.profile?.id === user?.id,
-    [profileData.profile?.id, user?.id]
-  );
-
   const defaultGenres = useMemo(
     () => user?.profile?.preferred_genres?.slice(0, 2) || [],
     [user?.profile?.preferred_genres]
@@ -234,7 +228,7 @@ export default function Profile() {
       }
 
       const userPosts = postsArray.filter(
-        (post) => post.userId === profileData.profile?.id
+        (post) => post.user && post.user.id === profileData.profile?.id
       );
       setTabData((prev) => ({ ...prev, userPosts }));
     } catch (error) {
