@@ -12,6 +12,8 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Check, X } from "lucide-react";
 import { PushTestButton } from "@/components/ui/push-test-button";
+import { useNotificationsCount } from "@/hooks/use-notifications-count";
+
 
 
 function getNotificationText(notification: Notification) {
@@ -95,6 +97,22 @@ const NotificationsPage = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingRequests, setProcessingRequests] = useState<Set<string>>(new Set());
+  const { invalidateCount } = useNotificationsCount();
+
+  // Utiliser localStorage pour persister les notifications traitées
+  const getProcessedNotifications = (): Set<string> => {
+    if (typeof window === 'undefined') return new Set();
+    const stored = localStorage.getItem('processedNotifications');
+    return stored ? new Set(JSON.parse(stored)) : new Set();
+  };
+
+  const addProcessedNotification = (notificationId: string) => {
+    const processed = getProcessedNotifications();
+    processed.add(notificationId);
+    localStorage.setItem('processedNotifications', JSON.stringify([...processed]));
+    console.log('🚫 Notification ajoutée au localStorage:', notificationId);
+    console.log('🚫 localStorage actuel:', [...processed]);
+  };
 
   const handleDeleteNotification = async (notificationId: string) => {
     try {
@@ -105,6 +123,9 @@ const NotificationsPage = () => {
       setNotifications(prev => 
         prev.filter(notif => notif.id !== notificationId)
       );
+      
+      // Invalider le cache du count pour mettre à jour le badge
+      invalidateCount();
     } catch (error) {
       console.error('Erreur lors de la suppression de la notification:', error);
     } finally {
@@ -125,20 +146,43 @@ const NotificationsPage = () => {
     
     try {
       setProcessingRequests(prev => new Set(prev).add(notificationId));
+      
+      // Répondre à la demande d'ami
       await userService.respondToFriendRequest(senderId, acceptRequest);
       
-      // Mettre à jour l'état local pour retirer la notification ou la marquer comme traitée
+      // Supprimer la notification côté serveur aussi
+      await notificationService.deleteNotification(notificationId);
+      
+      // Marquer la notification comme traitée pour éviter qu'elle réapparaisse
+      addProcessedNotification(notificationId);
+      
+      // Mettre à jour l'état local pour retirer la notification
       setNotifications(prev => 
         prev.filter(notif => notif.id !== notificationId)
       );
-    } catch (error: any) {
-      console.error('Erreur lors de la réponse à la demande d\'ami:', error);
       
-      // Si l'erreur est 404 (demande déjà traitée), supprimer simplement la notification
-      if (error?.message?.includes('404') || error?.status === 404) {
+      // Invalider le cache du count pour mettre à jour le badge
+      invalidateCount();
+    } catch (error: any) {
+      // Vérifier si c'est une erreur "demande déjà traitée"
+      const isRequestAlreadyProcessed = 
+        error?.message?.includes('404') || 
+        error?.status === 404 ||
+        error?.message?.includes('NO_PENDING_FRIEND_REQUEST') ||
+        error?.response?.data?.code === 'NO_PENDING_FRIEND_REQUEST';
+        
+      if (isRequestAlreadyProcessed) {
+        // Marquer comme traitée pour éviter la réapparition
+        addProcessedNotification(notificationId);
+        
+        // Supprimer silencieusement la notification obsolète
         setNotifications(prev => 
           prev.filter(notif => notif.id !== notificationId)
         );
+        invalidateCount();
+      } else {
+        // Pour les vraies erreurs, les afficher
+        console.error('Erreur lors de la réponse à la demande d\'ami:', error);
       }
     } finally {
       setProcessingRequests(prev => {
@@ -152,10 +196,27 @@ const NotificationsPage = () => {
   useEffect(() => {
     notificationService.getNotifications()
       .then((res) => {
-        setNotifications(res.data.notifications || []);
+        const notificationsList = res.data.notifications || [];
+        const processedNotifications = getProcessedNotifications();
+        
+        // Filtrer les notifications déjà traitées côté client
+        const filteredNotifications = notificationsList.filter(
+          notif => !processedNotifications.has(notif.id)
+        );
+        
+        console.log('🔍 DEBUG FILTRAGE:');
+        console.log('- Notifications de l\'API:', notificationsList.map(n => n.id));
+        console.log('- localStorage processed:', [...processedNotifications]);
+        console.log('- Notifications finales:', filteredNotifications.map(n => n.id));
+        
+
+        
+        setNotifications(filteredNotifications);
+        // Invalider le cache pour s'assurer que le badge est à jour
+        invalidateCount();
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, []); // Charger une seule fois au début
 
   // Note: Le setup des notifications push est maintenant géré dans le hook usePushNotifications()
   // qui est appelé automatiquement dans le contexte d'authentification
@@ -166,7 +227,7 @@ const NotificationsPage = () => {
     <div
       className={cn(
         "max-w-xl mx-auto pb-8",
-        isNative ? "pt-[120px]" : "pt-[25px]"
+        isNative ? "pt-[120px]" : "pt-[80px]"
       )}
     >
       {/* Bouton de test push notifications */}
@@ -178,11 +239,11 @@ const NotificationsPage = () => {
       ) : notifications.length === 0 ? (
         <div className="text-center text-muted-foreground">Aucune notification</div>
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 px-4">
           {notifications.map((notif) => (
             <div
               key={notif.id}
-              className={`relative flex items-center gap-4 rounded-xl px-4 py-3 ${!notif.read ? "bg-muted/40" : ""}`}
+              className={`relative rounded-xl px-4 py-3 ${!notif.read ? "bg-muted/40" : ""}`}
             >
               {/* Bouton de suppression pour toutes les notifications */}
               <Button
@@ -190,55 +251,59 @@ const NotificationsPage = () => {
                 variant="ghost"
                 onClick={() => handleDeleteNotification(notif.id)}
                 disabled={processingRequests.has(notif.id)}
-                className="absolute top-2 right-2 w-6 h-6 p-0 text-muted-foreground hover:text-red-600 hover:bg-red-50"
+                className="absolute top-2 right-2 w-6 h-6 p-0 text-muted-foreground hover:text-red-600 hover:bg-red-50 z-10"
               >
                 <X className="w-3 h-3" />
               </Button>
 
-              <Avatar>
-                {notif.user?.profile?.profile_picture_url ? (
-                  <AvatarImage src={notif.user.profile.profile_picture_url} alt="avatar" />
-                ) : (
-                  <AvatarFallback>
-                    {notif.user?.username || "?"}
-                  </AvatarFallback>
-                )}
-              </Avatar>
-              <div className="flex-1 min-w-0 pr-8">
-                <div className="text-base text-muted-foreground">
-                  {getNotificationText(notif)}
-                </div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  {formatDate(notif.created_at)}
-                </div>
-                {notif.type === "friend_request" && (
-                  <div className="flex gap-2 mt-2">
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        const userId = notif.data?.senderId || notif.data?.requesterId || notif.user?.id || notif.user_id;
-                        handleFriendRequestResponse(notif.id, userId, true);
-                      }}
-                      disabled={processingRequests.has(notif.id)}
-                      className="bg-green-600 hover:bg-green-700 text-white"
-                    >
-                      <Check className="w-4 h-4 mr-1" />
-                      Confirmer
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        const userId = notif.data?.senderId || notif.data?.requesterId || notif.user?.id || notif.user_id;
-                        handleFriendRequestResponse(notif.id, userId, false);
-                      }}
-                      disabled={processingRequests.has(notif.id)}
-                      className="border-red-200 text-red-600 hover:bg-red-50"
-                    >
-                      Refuser
-                    </Button>
+              <div className="flex items-start gap-3 pr-8">
+                <Avatar className="flex-shrink-0">
+                  {notif.user?.profile?.profile_picture_url ? (
+                    <AvatarImage src={notif.user.profile.profile_picture_url} alt="avatar" />
+                  ) : (
+                    <AvatarFallback>
+                      {notif.user?.username || "?"}
+                    </AvatarFallback>
+                  )}
+                </Avatar>
+                
+                <div className="flex-1 min-w-0">
+                  <div className="text-base text-muted-foreground mb-1">
+                    {getNotificationText(notif)}
                   </div>
-                )}
+                  <div className="text-xs text-muted-foreground mb-2">
+                    {formatDate(notif.created_at)}
+                  </div>
+                  
+                  {notif.type === "friend_request" && (
+                    <div className="flex gap-2 mt-3">
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          const userId = notif.data?.senderId || notif.data?.requesterId || notif.user?.id || notif.user_id;
+                          handleFriendRequestResponse(notif.id, userId, true);
+                        }}
+                        disabled={processingRequests.has(notif.id)}
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                      >
+                        <Check className="w-4 h-4 mr-1" />
+                        Confirmer
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          const userId = notif.data?.senderId || notif.data?.requesterId || notif.user?.id || notif.user_id;
+                          handleFriendRequestResponse(notif.id, userId, false);
+                        }}
+                        disabled={processingRequests.has(notif.id)}
+                        className="border-red-200 text-red-600 hover:bg-red-50"
+                      >
+                        Refuser
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
               {notif.data?.image_url && (
                 <img
