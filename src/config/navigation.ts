@@ -149,6 +149,11 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
     title: "Followers",
     showBack: true,
   },
+  "/profile/requests": {
+    variant: "back",
+    title: "Mes demandes",
+    showBack: true,
+  },
   "/profile/gamification": {
     variant: "back",
     title: "Gamification",
@@ -229,27 +234,42 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
     showBack: true,
   },
 
-  // Clubs
+  // Clubs 
   "/clubs": {
     variant: "back",
     title: "Clubs",
     showBack: true,
-    rightIcons: [
-      {
-        icon: Search,
-        onClick: () => { },
-        modalType: "dialog",
-      },
-    ],
   },
-  "/clubs/create/": {
-    variant: "back",
-    title: "Créer un club",
-    showBack: true,
-  },
-  "/clubs/[clubId]": {
+  "/clubs/[id]": {
     variant: "back",
     title: "Club",
+    showBack: true,
+  },
+  "/clubs/create": {
+    variant: "back",
+    title: "Création de club",
+    showBack: true,
+  },
+
+  "/clubs/[id]/members": {
+    variant: "back",
+    title: "Membres",
+    showBack: true,
+  },
+
+  "/clubs/[id]/moderation": {
+    variant: "back",
+    title: "Modération",
+    showBack: true,
+  },
+  "/clubs/[id]/join-request": {
+    variant: "back",
+    title: "Demande d'adhésion",
+    showBack: true,
+  },
+  "/clubs/[id]/invitations": {
+    variant: "back",
+    title: "Invitations",
     showBack: true,
   },
 };
@@ -277,15 +297,7 @@ export function getTopBarConfig(path: string): TopBarConfig {
     return topBarConfigs["/feed/[id]"];
   }
 
-  // Pour les clubs
-  if (cleanPath === "/clubs") {
-    return topBarConfigs["/clubs"];
-  }
 
-  // Pour les clubs avec UUID
-  if (/^\/clubs\/[\w-]+$/.test(cleanPath)) {
-    return topBarConfigs["/clubs/[clubId]"];
-  }
 
   // Pour les book avec UUID
   if (/^\/books\/[\w-]+$/.test(cleanPath)) {
@@ -313,6 +325,45 @@ export function getTopBarConfig(path: string): TopBarConfig {
     cleanPath !== "/library/create"
   ) {
     return topBarConfigs["/library/[id]"];
+  }
+
+  // Clubs - Les routes plus spécifiques doivent être testées en premier
+  if (cleanPath === "/clubs") {
+    return topBarConfigs["/clubs"];
+  }
+
+  if (cleanPath === "/clubs/create") {
+    return topBarConfigs["/clubs/create"];
+  }
+
+  if (/^\/clubs\/[\w-]+\/join-request$/.test(cleanPath)) {
+    return topBarConfigs["/clubs/[id]/join-request"];
+  }
+
+  if (/^\/profile\/requests$/.test(cleanPath)) {
+    return topBarConfigs["/profile/requests"];
+  }
+
+  if (/^\/clubs\/[\w-]+\/invitations$/.test(cleanPath)) {
+    return topBarConfigs["/clubs/[id]/invitations"];
+  }
+
+  // Routes spécifiques de clubs avec UUID
+  if (/^\/clubs\/[\w-]+\/members$/.test(cleanPath)) {
+    return topBarConfigs["/clubs/[id]/members"];
+  }
+
+  if (/^\/clubs\/[\w-]+\/invitations$/.test(cleanPath)) {
+    return topBarConfigs["/clubs/[id]/invitations"];
+  }
+
+  if (/^\/clubs\/[\w-]+\/moderation$/.test(cleanPath)) {
+    return topBarConfigs["/clubs/[id]/moderation"];
+  }
+
+  // Club avec UUID (route générale, doit être en dernier)
+  if (/^\/clubs\/[\w-]+$/.test(cleanPath)) {
+    return topBarConfigs["/clubs/[id]"];
   }
 
   // Pour les autres routes

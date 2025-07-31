@@ -14,6 +14,10 @@ export function useBottomBar(): BottomBarConfig {
             pattern: /^\/messages\/[^/]+$/, // Pages de conversation (/messages/id)
             reason: "Conversation individuelle"
         },
+        {
+            pattern: /^\/clubs\/[^/]+.*$/, // Toutes les pages de club (/clubs/id, /clubs/id/posts, etc.)
+            reason: "Pages de club"
+        },
     ];
 
     // Vérifier si on doit cacher le bottom bar
