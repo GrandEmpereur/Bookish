@@ -28,6 +28,7 @@ import { toast } from "sonner";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Club } from "@/types/clubTypes";
+import { safeFormatDistanceToNow } from "@/lib/date";
 
 interface LoadingStates {
   profile: boolean;
@@ -350,23 +351,18 @@ export default function UserDetails() {
                       </Avatar>
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
-                          <span className="font-medium">
-                            {data.data.username}
-                          </span>
-                          <span className="text-sm text-muted-foreground">
-                            {formatDistanceToNow(new Date(post.created_at), {
-                              addSuffix: true,
-                              locale: fr,
-                            })}
-                          </span>
+                        <span className="font-medium">{data.data?.username}</span>
+              <span className="text-sm text-muted-foreground">
+                {safeFormatDistanceToNow(data.data?.created_at, true)}
+              </span>
                         </div>
                         <h3 className="text-sm text-muted-foreground">
                           {post.title}
                         </h3>
                         {post.subject === "book_review" && (
-                          <div className="mt-1 inline-block bg-muted text-muted-foreground text-xs px-2 py-0.5 rounded-full">
+                          <Badge variant="secondary" className="mt-1">
                             Critique de livre
-                          </div>
+                          </Badge>
                         )}
                       </div>
                     </div>
