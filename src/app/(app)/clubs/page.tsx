@@ -10,6 +10,7 @@ import { Users, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { FloatingActionButton } from "@/components/ui/floating-action-button";
 import { useAuth } from "@/contexts/auth-context";
+import { Capacitor } from "@capacitor/core";
 
 export default function Clubs() {
   const router = useRouter();
@@ -19,6 +20,10 @@ export default function Clubs() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+
+  // Détection responsive pour le padding-top
+  const isNativePlatform = Capacitor.isNativePlatform();
+  const topPadding = isNativePlatform ? "pt-[120px]" : "pt-[100px]";
 
   useEffect(() => {
     const fetchClubs = async () => {
@@ -108,7 +113,7 @@ export default function Clubs() {
   );
 
   return (
-    <div className="flex-1 px-5 pt-25">
+    <div className={`flex-1 px-5 ${topPadding} pb-[120px]`}>
       <div className="space-y-6">
         <Tabs
           value={activeTab}

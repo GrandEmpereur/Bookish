@@ -260,7 +260,10 @@ export default function Feed() {
   // Skeleton de chargement initial
   if (initialLoading) {
     return (
-      <div className="flex-1 px-4 md:px-8 lg:px-0 pb-[120px] pt-25 md:pt-[90px]">
+      <div className={cn(
+        "flex-1 px-4 md:px-8 lg:px-0 pb-[120px]",
+        isNative ? "pt-[130px]" : "pt-[100px]"
+      )}>
         <div className="max-w-2xl mx-auto space-y-6">
           {[...Array(3)].map((_, index) => (
             <div
@@ -310,7 +313,7 @@ export default function Feed() {
       <div
         className={cn(
           "flex-1 px-4 md:px-8 lg:px-0 pb-[120px]",
-          isNative ? "pt-[130px]" : "pt-[90px]"
+          isNative ? "pt-[130px]" : "pt-[100px]"
         )}
       >
         {/* Container principal centré avec largeur max */}

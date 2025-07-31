@@ -86,7 +86,7 @@ export default function ForgotPassword() {
       transition: {
         duration: 0.4,
         staggerChildren: 0.08,
-        ease: "easeOut",
+
       },
     },
     exit: {
@@ -94,7 +94,7 @@ export default function ForgotPassword() {
       y: -20,
       transition: {
         duration: 0.3,
-        ease: "easeOut",
+
       },
     },
   };
@@ -106,7 +106,7 @@ export default function ForgotPassword() {
       y: 0,
       transition: {
         duration: 0.4,
-        ease: "easeOut",
+
       },
     },
   };
@@ -119,7 +119,7 @@ export default function ForgotPassword() {
       transition: {
         duration: 0.5,
         delay: 0.2,
-        ease: "easeOut",
+
       },
     },
   };
@@ -235,7 +235,7 @@ export default function ForgotPassword() {
                         <Input
                           {...field}
                           type="email"
-                          placeholder="Email"
+                          placeholder="Adresse e-mail"
                           className="h-12 sm:h-14 bg-accent-100 border-0 text-base placeholder:text-muted-500 transition-all duration-200 focus:shadow-lg focus:shadow-primary/10"
                           disabled={form.formState.isSubmitting || isSuccess}
                         />

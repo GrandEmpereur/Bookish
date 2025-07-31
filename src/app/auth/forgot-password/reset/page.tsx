@@ -95,7 +95,7 @@ export default function ResetPassword() {
       transition: {
         duration: 0.4,
         staggerChildren: 0.1,
-        ease: "easeOut",
+
       },
     },
     exit: {
@@ -103,7 +103,7 @@ export default function ResetPassword() {
       y: -20,
       transition: {
         duration: 0.3,
-        ease: "easeOut",
+
       },
     },
   };
@@ -115,7 +115,7 @@ export default function ResetPassword() {
       y: 0,
       transition: {
         duration: 0.4,
-        ease: "easeOut",
+
       },
     },
   };
@@ -128,7 +128,7 @@ export default function ResetPassword() {
       transition: {
         duration: 0.5,
         delay: 0.2,
-        ease: "easeOut",
+
       },
     },
   };

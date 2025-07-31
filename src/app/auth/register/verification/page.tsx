@@ -118,7 +118,7 @@ export default function Verification() {
       transition: {
         duration: 0.4,
         staggerChildren: 0.1,
-        ease: "easeOut",
+
       },
     },
     exit: {
@@ -126,7 +126,7 @@ export default function Verification() {
       y: -20,
       transition: {
         duration: 0.3,
-        ease: "easeOut",
+
       },
     },
   };
@@ -138,7 +138,7 @@ export default function Verification() {
       y: 0,
       transition: {
         duration: 0.4,
-        ease: "easeOut",
+
       },
     },
   };
@@ -151,7 +151,7 @@ export default function Verification() {
       transition: {
         duration: 0.5,
         delay: 0.3,
-        ease: "easeOut",
+
       },
     },
   };

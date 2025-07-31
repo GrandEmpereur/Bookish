@@ -76,9 +76,6 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
   const [rememberMe, setRememberMe] = useState<CurrentSessionResponse["data"]["rememberMe"] | null>(null);
   const router = useRouter();
 
-  // Setup des notifications push quand l'utilisateur est connecté
-  usePushNotifications();
-
   // ------------- Vérification de session actuelle -------------
   const {
     data: sessionData,
@@ -110,6 +107,11 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
   });
 
   const isLoading = sessionLoading || sessionFetching || (sessionActive && (profileLoading || profileFetching));
+  
+  usePushNotifications({
+    isAuthenticated: !!user,
+    userId: user?.id
+  });
 
   useEffect(() => {
     // Met à jour le rememberMe à chaque récupération de session

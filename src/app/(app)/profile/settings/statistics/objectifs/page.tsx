@@ -1,8 +1,10 @@
 "use client"
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Trophy } from "lucide-react";
+import { Capacitor } from "@capacitor/core";
+import { cn } from "@/lib/utils";
 
 type Objective = {
   id: string;
@@ -13,6 +15,14 @@ type Objective = {
 
 export default function ObjectivesPage() {
   const router = useRouter();
+  const [isNative, setIsNative] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Handle hydration and platform detection
+  useEffect(() => {
+    setIsMounted(true);
+    setIsNative(Capacitor.isNativePlatform());
+  }, []);
 
   // state for each list
   const [today,    setToday   ] = useState<Objective[]>([
@@ -93,8 +103,11 @@ export default function ObjectivesPage() {
     </div>
   );
 
+  // Determine padding based on platform and hydration
+  const topPadding = !isMounted ? "pt-[100px]" : isNative ? "pt-[130px]" : "pt-[100px]";
+
   return (
-    <div className="min-h-screen bg-gray-50 p-4 space-y-6 my-24">
+    <div className={cn("min-h-screen bg-gray-50 p-4 space-y-6", topPadding)}>
 
       {/* Banner with “Voir le classement” */}
       <div className="relative bg-yellow-50 rounded-lg px-4 py-3 overflow-hidden">

@@ -178,7 +178,7 @@ export default function UserDetails() {
         error?.response?.status === 409 &&
         error?.response?.data?.code === "ALREADY_FOLLOWING"
       ) {
-        console.log("Déjà abonné");
+        
         setIsFollowing(true);
       } else {
         console.error("Erreur follow/unfollow :", error);
@@ -320,7 +320,7 @@ export default function UserDetails() {
         >
           <TabsList className="w-full flex justify-center items-center border-b border-b-gray-200 rounded-none bg-transparent h-auto pb-0 gap-6">
             {[
-              { label: "Posts", value: "posts" },
+              { label: "Publications", value: "posts" },
               { label: "Listes", value: "liste" },
               { label: "Clubs", value: "club" },
             ].map((tab) => (

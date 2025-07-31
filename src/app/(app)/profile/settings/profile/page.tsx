@@ -13,6 +13,8 @@ import { ArrowLeft, Save, Loader2 } from "lucide-react";
 import { userService } from "@/services/user.service";
 import { UpdateProfileRequest, ReadingHabit, UsagePurpose, ProfileVisibility } from "@/types/userTypes";
 import { useRouter } from "next/navigation";
+import { Capacitor } from "@capacitor/core";
+import { cn } from "@/lib/utils";
 
 const AVAILABLE_GENRES = [
     "Fiction", "Non-fiction", "Mystery", "Romance", "Sci-Fi", "Fantasy", "Biography", 
@@ -23,6 +25,8 @@ const EditProfilePage: React.FC = () => {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [isNative, setIsNative] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
     
     const [profileData, setProfileData] = useState<UpdateProfileRequest>({
         first_name: "",
@@ -41,6 +45,12 @@ const EditProfilePage: React.FC = () => {
 
     useEffect(() => {
         loadUserProfile();
+    }, []);
+
+    // Handle hydration and platform detection
+    useEffect(() => {
+        setIsMounted(true);
+        setIsNative(Capacitor.isNativePlatform());
     }, []);
 
     const loadUserProfile = async () => {
@@ -129,8 +139,11 @@ const EditProfilePage: React.FC = () => {
         );
     }
 
+    // Determine padding based on platform and hydration
+    const topPadding = !isMounted ? "pt-[100px]" : isNative ? "pt-[110px]" : "pt-[75px]";
+
     return (
-        <div className="min-h-screen bg-gray-50 pb-24">
+        <div className={cn("min-h-screen bg-gray-50 pb-24", topPadding)}>
             {/* Header */}
             <div className="bg-white border-b px-4 py-4 sticky top-0 z-10">
                 <div className="flex items-center justify-between">

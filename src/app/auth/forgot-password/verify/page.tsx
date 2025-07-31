@@ -81,7 +81,7 @@ export default function VerifyResetCode() {
       transition: {
         duration: 0.4,
         staggerChildren: 0.1,
-        ease: "easeOut",
+
       },
     },
     exit: {
@@ -89,7 +89,7 @@ export default function VerifyResetCode() {
       y: -20,
       transition: {
         duration: 0.3,
-        ease: "easeOut",
+
       },
     },
   };
@@ -101,7 +101,7 @@ export default function VerifyResetCode() {
       y: 0,
       transition: {
         duration: 0.4,
-        ease: "easeOut",
+
       },
     },
   };
@@ -114,7 +114,7 @@ export default function VerifyResetCode() {
       transition: {
         duration: 0.5,
         delay: 0.3,
-        ease: "easeOut",
+
       },
     },
   };

@@ -15,6 +15,7 @@ import { UniversalImagePicker } from "@/components/ui/universal-image-picker";
 
 import { clubService } from "@/services/club.service";
 import type { ClubType } from "@/types/clubTypes";
+import { Capacitor } from "@capacitor/core";
 
 const GENRES = [
   "fantasy",
@@ -44,6 +45,10 @@ export default function CreateClub() {
   const [clubPicture, setClubPicture] = useState<File | null>(null);
   const [clubPicturePreview, setClubPicturePreview] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Détection responsive pour le padding-top
+  const isNativePlatform = Capacitor.isNativePlatform();
+  const topPadding = isNativePlatform ? "pt-[140px]" : "pt-[100px]";
 
   /* ----------------------------- Handlers ------------------------------ */
 
@@ -143,7 +148,7 @@ export default function CreateClub() {
   /* ------------------------------ UI ---------------------------------- */
 
   return (
-    <div className="flex-1 px-5 pt-25 pb-[120px]">
+    <div className={`flex-1 px-5 ${topPadding} pb-[120px]`}>
       <div className="max-w-2xl mx-auto space-y-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Nom du club */}

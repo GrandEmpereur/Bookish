@@ -5,20 +5,17 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
-  Loader2, 
-  Book, 
-  Plus, 
-  Search, 
-  X, 
-  Check, 
-  BookOpen
-} from "lucide-react";
+import { Loader2, Book, Plus, Search, X, Check, BookOpen } from "lucide-react";
 import { bookListService } from "@/services/book-list.service";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import Image from "next/image";
 import { use } from "react";
 import type { Book as BookType } from "@/types/bookTypes";
@@ -38,14 +35,20 @@ export default function AddBookToList({ params }: PageProps) {
   const { id } = use(params);
   const router = useRouter();
 
-  const isNative = Capacitor.isNativePlatform();
-
+  const [isNative, setIsNative] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedBooks, setSelectedBooks] = useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSelectedModal, setShowSelectedModal] = useState(false);
+
+  // Detect native platform on client side only
+  useEffect(() => {
+    setIsNative(Capacitor.isNativePlatform());
+    setIsMounted(true);
+  }, []);
 
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
@@ -68,10 +71,10 @@ export default function AddBookToList({ params }: PageProps) {
           page,
           limit: 20,
         });
-        
+
         const books = response.data.books || [];
         setSearchResults((prev) => (reset ? books : [...prev, ...books]));
-        
+
         const pagination = response.data.pagination;
         if (pagination) {
           setHasMore(pagination.current_page < pagination.total_pages);
@@ -105,20 +108,17 @@ export default function AddBookToList({ params }: PageProps) {
     if (page > 1) fetchBooks();
   }, [page, fetchBooks]);
 
-  const handleSelectBook = useCallback(
-    (book: BookType) => {
-      setSelectedBooks((prev) => {
-        if (prev.some((b) => b.id === book.id)) return prev;
-        if (prev.length >= 50) {
-          toast.error("Vous ne pouvez pas ajouter plus de 50 livres à la fois");
-          return prev;
-        }
-        return [...prev, book];
-      });
-      toast.success(`"${book.title}" ajouté à la sélection`);
-    },
-    []
-  );
+  const handleSelectBook = useCallback((book: BookType) => {
+    setSelectedBooks((prev) => {
+      if (prev.some((b) => b.id === book.id)) return prev;
+      if (prev.length >= 50) {
+        toast.error("Vous ne pouvez pas ajouter plus de 50 livres à la fois");
+        return prev;
+      }
+      return [...prev, book];
+    });
+    toast.success(`"${book.title}" ajouté à la sélection`);
+  }, []);
 
   const handleRemoveBook = useCallback((bookId: string) => {
     setSelectedBooks((prev) => prev.filter((book) => book.id !== bookId));
@@ -159,73 +159,78 @@ export default function AddBookToList({ params }: PageProps) {
     }
   }, [id, router, selectedBooks]);
 
-  const BookCard = ({ book, isSelected, onSelect, onRemove }: {
+  const BookCard = ({
+    book,
+    isSelected,
+    onSelect,
+    onRemove,
+  }: {
     book: any; // SearchBook compatible
     isSelected: boolean;
     onSelect: () => void;
     onRemove?: () => void;
   }) => (
     <div>
-        <div className="flex gap-4">
-          {book.cover_image ? (
-            <div className="relative w-20 h-28 shrink-0 rounded-lg overflow-hidden shadow-sm border">
-              <Image
-                src={book.cover_image}
-                alt={book.title}
-                fill
-                className="object-cover"
-                sizes="80px"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  const parent = target.parentElement;
-                  if (parent) {
-                    parent.innerHTML = `
+      <div className="flex gap-4">
+        {book.cover_image ? (
+          <div className="relative w-20 h-28 shrink-0 rounded-lg overflow-hidden shadow-sm border">
+            <Image
+              src={book.cover_image}
+              alt={book.title}
+              fill
+              className="object-cover"
+              sizes="80px"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = "none";
+                const parent = target.parentElement;
+                if (parent) {
+                  parent.innerHTML = `
                       <div class="w-full h-full bg-muted flex items-center justify-center">
                         <svg class="h-8 w-8 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253z" />
                         </svg>
                       </div>
                     `;
-                  }
-                }}
-              />
+                }
+              }}
+            />
+          </div>
+        ) : (
+          <div className="w-20 h-28 shrink-0 bg-muted flex items-center justify-center rounded-lg border">
+            <BookOpen className="h-8 w-8 text-muted-foreground" />
+          </div>
+        )}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex-1 min-w-0">
+              <h3 className="font-medium text-sm leading-tight truncate">
+                {book.title}
+              </h3>
+              <p className="text-sm text-muted-foreground mt-1 truncate">
+                {book.author}
+              </p>
+              {book.genre && (
+                <Badge variant="secondary" className="text-xs mt-2">
+                  {book.genre}
+                </Badge>
+              )}
             </div>
-          ) : (
-            <div className="w-20 h-28 shrink-0 bg-muted flex items-center justify-center rounded-lg border">
-              <BookOpen className="h-8 w-8 text-muted-foreground" />
-            </div>
-          )}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-2">
-              <div className="flex-1 min-w-0">
-                <h3 className="font-medium text-sm leading-tight truncate">
-                  {book.title}
-                </h3>
-                <p className="text-sm text-muted-foreground mt-1 truncate">
-                  {book.author}
-                </p>
-                {book.genre && (
-                  <Badge variant="secondary" className="text-xs mt-2">
-                    {book.genre}
-                  </Badge>
-                )}
-              </div>
-              <Button
-                variant={isSelected ? "destructive" : "outline"}
-                size="sm"
-                onClick={isSelected ? onRemove : onSelect}
-                className="shrink-0"
-              >
-                {isSelected ? (
-                  <X className="h-4 w-4" />
-                ) : (
-                  <Plus className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
+            <Button
+              variant={isSelected ? "destructive" : "outline"}
+              size="sm"
+              onClick={isSelected ? onRemove : onSelect}
+              className="shrink-0"
+            >
+              {isSelected ? (
+                <X className="h-4 w-4" />
+              ) : (
+                <Plus className="h-4 w-4" />
+              )}
+            </Button>
           </div>
         </div>
+      </div>
     </div>
   );
 
@@ -233,27 +238,30 @@ export default function AddBookToList({ params }: PageProps) {
     <div>
       {[...Array(6)].map((_, i) => (
         <div key={i}>
+          <div>
+            <Skeleton />
             <div>
               <Skeleton />
-              <div>
-                <Skeleton />
-                <Skeleton />
-                <Skeleton />
-              </div>
+              <Skeleton />
               <Skeleton />
             </div>
+            <Skeleton />
+          </div>
         </div>
       ))}
     </div>
   );
 
+  // Use consistent padding until mounted to prevent hydration mismatch
+  const topPadding = !isMounted
+    ? "pt-[100px]"
+    : isNative
+      ? "pt-[120px]"
+      : "pt-[100px]";
+
   return (
     <>
-      <div className={cn(
-        "flex-1 bg-background",
-        isNative ? "pt-[120px]" : "pt-[100px]",
-        "pb-[120px]"
-      )}>
+      <div className={cn("flex-1 bg-background", topPadding, "pb-[120px]")}>
         {/* Search Bar */}
         <div className="sticky top-[75px] z-40 bg-background border-b px-4 py-4">
           <div className="flex items-center gap-3 mb-4">
@@ -356,40 +364,40 @@ export default function AddBookToList({ params }: PageProps) {
 
         {/* Fixed Bottom Action */}
         {selectedBooks.length > 0 && (
-          <div>
-            <div>
-                <div>
-                  <div>
-                    <p>
-                      {selectedBooks.length} livre(s) sélectionné(s)
-                    </p>
-                    <p>
-                      Prêt à ajouter à la liste
-                    </p>
-                  </div>
-                  <div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowSelectedModal(true)}
-                    >
-                      Voir
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={handleSubmit}
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting ? (
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      ) : (
-                        <Check className="h-4 w-4 mr-2" />
-                      )}
-                      Ajouter
-                    </Button>
-                  </div>
+          <div className="fixed bottom-[120px] left-0 right-0 z-50 px-4">
+            <div className="bg-card rounded-lg border shadow-lg p-4">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex-1">
+                  <p className="font-medium text-sm">
+                    {selectedBooks.length} livre(s) sélectionné(s)
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Prêt à ajouter à la liste
+                  </p>
                 </div>
-          </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowSelectedModal(true)}
+                  >
+                    Voir
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={handleSubmit}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ) : (
+                      <Check className="h-4 w-4 mr-2" />
+                    )}
+                    Ajouter
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>

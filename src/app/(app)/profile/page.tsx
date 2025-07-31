@@ -47,6 +47,7 @@ import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 import { AchievementsShowcase } from "@/components/ui/achievements-showcase";
 import { safeFormatDistanceToNow } from "@/lib/date";
+import { Capacitor } from "@capacitor/core";
 
 const PIE_COLORS = ["#ec4899", "#dc2626", "#22c55e", "#ffffff"];
 
@@ -115,6 +116,10 @@ export default function Profile() {
 
   const [activeTab, setActiveTab] = useState("Suivi");
   const [profileRetryCount, setProfileRetryCount] = useState(0);
+
+  // Détection responsive pour le padding-top
+  const isNativePlatform = Capacitor.isNativePlatform();
+  const topPadding = isNativePlatform ? "pt-[50px]" : "pt-[20px]";
 
   const defaultGenres = useMemo(
     () => user?.profile?.preferred_genres?.slice(0, 2) || [],
@@ -364,12 +369,12 @@ export default function Profile() {
   }, []);
 
   const renderEmptyState = useCallback(
-    (type: "posts" | "reviews" | "clubs" | "listes", action: () => void) => {
+          (type: "posts" | "reviews" | "clubs" | "listes", action: () => void) => {
       const configs = {
         posts: {
           icon: MessageSquare,
-          message: "Vous n'avez pas encore publié de posts",
-          buttonText: "Créer un post",
+          message: "Vous n'avez pas encore publié de publications",
+          buttonText: "Créer une publication",
         },
         reviews: {
           icon: Star,
@@ -501,7 +506,7 @@ export default function Profile() {
   if (loadingStates.profile) {
     return (
       <div className="min-h-[100dvh] bg-background">
-        <main className="container mx-auto pt-8 px-5 pb-[120px] max-w-md">
+        <main className={`container mx-auto ${topPadding} px-5 pb-[120px] max-w-md`}>
           {renderSkeleton("general")}
         </main>
       </div>
@@ -512,7 +517,7 @@ export default function Profile() {
 
   return (
     <div className="min-h-dvh bg-background">
-      <main className="container mx-auto pt-8 px-5 pb-[120px] max-w-md">
+      <main className={`container mx-auto ${topPadding} px-5 pb-[120px] max-w-md`}>
         {/* Header */}
         <div className="flex items-start space-x-4 mb-2 mt-20">
           <Avatar className="w-16 h-16 border-4 border-[#F3D7D7] bg-[#F3D7D7]">
@@ -639,7 +644,7 @@ export default function Profile() {
                   value={tab}
                   className="border-b-2 border-b-transparent px-0 pb-2 pt-0 text-[15px] text-gray-500 font-medium rounded-none bg-transparent h-auto data-[state=active]:border-b-[#416E54] data-[state=active]:text-[#416E54] data-[state=active]:shadow-none "
                 >
-                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  {tab === "posts" ? "Publications" : tab.charAt(0).toUpperCase() + tab.slice(1)}
                 </TabsTrigger>
               ))}
             </TabsList>
@@ -1172,11 +1177,11 @@ export default function Profile() {
                 )}
               </TabsContent>
 
-              <TabsContent value="posts" className="w-full">
-                {loadingStates.posts ? (
-                  renderSkeleton("post")
-                ) : tabData.userPosts.length === 0 ? (
-                  renderEmptyState("posts", () => router.push("/feed/create"))
+                          <TabsContent value="posts" className="w-full">
+              {loadingStates.posts ? (
+                renderSkeleton("post")
+              ) : tabData.userPosts.length === 0 ? (
+                renderEmptyState("posts", () => router.push("/feed/create"))
                 ) : (
                   <div className="space-y-4">
                     {tabData.userPosts.map((post) => renderPostCard(post))}

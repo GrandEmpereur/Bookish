@@ -89,7 +89,7 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
   },
   "/library/create": {
     variant: "back",
-    title: "Ajouter une liste",
+    title: "Créer une liste",
     showBack: true,
   },
   "/library/[id]/edit": {
@@ -120,7 +120,7 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
   // Profile
   "/profile": {
     variant: "back",
-    title: "Profile",
+    title: "Profil",
     showBack: true,
     rightIcons: [
       {
@@ -129,24 +129,24 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
       },
     ],
   },
-  "/profile/suivie/classements": {
+  "/profile/statistics/classements": {
     variant: "back",
     title: "Classements",
     showBack: true,
   },
-  "/profile/suivie/objectifs": {
+  "/profile/statistics/objectifs": {
     variant: "back",
     title: "Objectifs",
     showBack: true,
   },
   "/profile/following": {
     variant: "back",
-    title: "Following",
+    title: "Abonnements",
     showBack: true,
   },
   "/profile/followers": {
     variant: "back",
-    title: "Followers",
+    title: "Abonnés",
     showBack: true,
   },
   "/profile/requests": {
@@ -200,7 +200,7 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
   },
   "/profile/settings/profile": {
     variant: "back",
-    title: "Mon profile",
+    title: "Mon profil",
     showBack: true,
   },
   "/profile/settings/bookmarked": {
@@ -225,7 +225,7 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
   },
   "/profile/settings/policy": {
     variant: "back",
-    title: "Politique de confidentialité",
+    title: "Confidentialité",
     showBack: true,
   },
   "/profile/settings/delete": {
@@ -247,7 +247,7 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
   },
   "/clubs/create": {
     variant: "back",
-    title: "Création de club",
+    title: "Créer un club",
     showBack: true,
   },
 

@@ -26,6 +26,8 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog"; // Assurez-vous que ces composants sont disponibles
 import { useRouter, usePathname } from "next/navigation";
+import { PushDiagnostics } from "@/components/ui/push-diagnostics";
+import { Capacitor } from "@capacitor/core";
 
 const SettingItem = ({
   title,
@@ -55,6 +57,10 @@ const SettingsPage: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
 
+  // Détection responsive pour le padding-top
+  const isNativePlatform = Capacitor.isNativePlatform();
+  const topPadding = isNativePlatform ? "pt-[120px]" : "pt-[100px]";
+
   const handleLogout = async () => {
     try {
       await authService.logout();
@@ -79,7 +85,7 @@ const SettingsPage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col gap-10 px-5 pb-[120px] pt-25">
+    <div className={`flex flex-col gap-10 px-5 pb-[120px] ${topPadding}`}>
       <Card className="shadow-md rounded-xl py-0">
         <CardContent className="p-0 divide-y">
           <SettingItem
@@ -129,6 +135,10 @@ const SettingsPage: React.FC = () => {
           />
         </CardContent>
       </Card>
+
+      {/* Diagnostic Push Notifications */}
+
+      {/* <PushDiagnostics /> */}
 
       <Dialog open={isLogoutDialogOpen} onOpenChange={setIsLogoutDialogOpen}>
         <DialogTrigger asChild>

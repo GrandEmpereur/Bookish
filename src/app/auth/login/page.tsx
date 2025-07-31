@@ -68,7 +68,7 @@ export default function Login() {
       transition: {
         duration: 0.4,
         staggerChildren: 0.08,
-        ease: "easeOut",
+
       },
     },
     exit: {
@@ -77,7 +77,7 @@ export default function Login() {
       y: -50,
       transition: {
         duration: 0.8,
-        ease: [0.32, 0, 0.67, 0],
+
       },
     },
   };
@@ -89,7 +89,7 @@ export default function Login() {
       y: 0,
       transition: {
         duration: 0.4,
-        ease: "easeOut",
+
       },
     },
     exit: {
@@ -97,7 +97,7 @@ export default function Login() {
       y: -20,
       transition: {
         duration: 0.5,
-        ease: "easeOut",
+
       },
     },
   };
@@ -110,7 +110,7 @@ export default function Login() {
       transition: {
         duration: 0.4,
         delay: 0.1,
-        ease: "easeOut",
+
       },
     },
     exit: {
@@ -118,7 +118,7 @@ export default function Login() {
       scale: 0.95,
       transition: {
         duration: 0.6,
-        ease: "easeOut",
+
       },
     },
   };

@@ -87,10 +87,13 @@ import {
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Capacitor } from "@capacitor/core";
 
 export default function GamificationPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const [activeTab, setActiveTab] = useState("tableau-de-bord");
+  const [isNative, setIsNative] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   
   // Local storage keys for persistence
   const STORAGE_KEYS = {
@@ -1275,9 +1278,11 @@ export default function GamificationPage() {
     }
   }, [dashboard, fetchMissions]);
 
-
-
-
+  // Handle hydration and platform detection
+  useEffect(() => {
+    setIsMounted(true);
+    setIsNative(Capacitor.isNativePlatform());
+  }, []);
 
   // Render loading skeleton
   const renderSkeleton = () => (
@@ -2053,9 +2058,12 @@ export default function GamificationPage() {
     return contexts[Math.floor(Math.random() * contexts.length)];
   };
 
+  // Determine padding based on platform and hydration
+  const topPadding = !isMounted ? "pt-[120px]" : isNative ? "pt-[70px]" : "pt-[30px]";
+
   return (
     <div className="min-h-screen bg-background">
-      <main className="container mx-auto pt-8 px-5 pb-[120px] max-w-md">
+      <main className={cn("container mx-auto pt-8 px-5 pb-[120px] max-w-md", topPadding)}>
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full mt-16">
@@ -2063,7 +2071,7 @@ export default function GamificationPage() {
             "grid w-full text-xs",
             gameMode === 'zen' ? "grid-cols-7" : "grid-cols-9"
           )}>
-            <TabsTrigger value="dashboard">
+                          <TabsTrigger value="tableau-de-bord">
               <BarChart3 className="w-3 h-3" />
             </TabsTrigger>
             <TabsTrigger value="missions">
@@ -2096,7 +2104,7 @@ export default function GamificationPage() {
             )}
           </TabsList>
 
-                    <TabsContent value="dashboard" className="space-y-6">
+                    <TabsContent value="tableau-de-bord" className="space-y-6">
             {loadingStates.dashboard ? (
               <div className="space-y-6">
                 <Skeleton className="h-32 w-full rounded-2xl" />

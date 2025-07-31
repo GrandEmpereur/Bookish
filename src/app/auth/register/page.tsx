@@ -304,7 +304,7 @@ export default function Register() {
                       <FormControl>
                         <Input
                           type="email"
-                          placeholder="Email"
+                          placeholder="Adresse e-mail"
                           className="h-12 sm:h-14 bg-accent-100 border-0 text-base transition-all duration-200 focus:shadow-lg focus:shadow-primary/10"
                           disabled={isLoading || isSuccess}
                           {...field}

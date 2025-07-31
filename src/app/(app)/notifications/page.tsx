@@ -10,8 +10,9 @@ import { userService } from "@/services/user.service";
 import { Notification } from "@/types/notificationTypes";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Check, X } from "lucide-react";
-import { PushTestButton } from "@/components/ui/push-test-button";
+
 import { useNotificationsCount } from "@/hooks/use-notifications-count";
 
 
@@ -110,8 +111,6 @@ const NotificationsPage = () => {
     const processed = getProcessedNotifications();
     processed.add(notificationId);
     localStorage.setItem('processedNotifications', JSON.stringify([...processed]));
-    console.log('🚫 Notification ajoutée au localStorage:', notificationId);
-    console.log('🚫 localStorage actuel:', [...processed]);
   };
 
   const handleDeleteNotification = async (notificationId: string) => {
@@ -204,12 +203,8 @@ const NotificationsPage = () => {
           notif => !processedNotifications.has(notif.id)
         );
         
-        console.log('🔍 DEBUG FILTRAGE:');
-        console.log('- Notifications de l\'API:', notificationsList.map(n => n.id));
-        console.log('- localStorage processed:', [...processedNotifications]);
-        console.log('- Notifications finales:', filteredNotifications.map(n => n.id));
         
-
+        
         
         setNotifications(filteredNotifications);
         // Invalider le cache pour s'assurer que le badge est à jour
@@ -227,15 +222,46 @@ const NotificationsPage = () => {
     <div
       className={cn(
         "max-w-xl mx-auto pb-8",
-        isNative ? "pt-[120px]" : "pt-[80px]"
+        isNative ? "pt-[120px]" : "pt-[100px]"
       )}
     >
-      {/* Bouton de test push notifications */}
-      <div className="px-4 mb-4">
-        <PushTestButton />
-      </div>
+
       {loading ? (
-        <div>Chargement...</div>
+        <div className="flex flex-col gap-2 px-4">
+          {[...Array(5)].map((_, index) => (
+            <div
+              key={index}
+              className="relative rounded-xl px-4 py-3 bg-muted/20"
+            >
+              <div className="flex items-start gap-3 pr-8">
+                {/* Avatar skeleton */}
+                <Skeleton className="h-10 w-10 rounded-full flex-shrink-0" />
+                
+                <div className="flex-1 min-w-0 space-y-2">
+                  {/* Texte de notification skeleton */}
+                  <div className="space-y-1">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                  </div>
+                  
+                  {/* Date skeleton */}
+                  <Skeleton className="h-3 w-20" />
+                  
+                  {/* Boutons d'action skeleton (pour certaines notifications) */}
+                  {index % 3 === 0 && (
+                    <div className="flex gap-2 mt-3">
+                      <Skeleton className="h-8 w-20" />
+                      <Skeleton className="h-8 w-16" />
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              {/* Bouton de suppression skeleton */}
+              <Skeleton className="absolute top-2 right-2 w-6 h-6 rounded" />
+            </div>
+          ))}
+        </div>
       ) : notifications.length === 0 ? (
         <div className="text-center text-muted-foreground">Aucune notification</div>
       ) : (

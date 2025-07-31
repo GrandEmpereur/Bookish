@@ -47,6 +47,10 @@ export default function ClubDetails({ clubId }: ClubDetailsProps) {
   const router = useRouter();
   const { user } = useAuth();
 
+  // Détection responsive pour le padding-top
+  const isNativePlatform = Capacitor.isNativePlatform();
+  const topPadding = isNativePlatform ? "pt-[110px]" : "pt-[70px]";
+
   // Vérifier si l'utilisateur actuel est membre du club
   const isMemberOfClub = user?.user?.id
     ? memberIds.includes(user.user.id)
@@ -389,7 +393,7 @@ export default function ClubDetails({ clubId }: ClubDetailsProps) {
 
   if (loading) {
     return (
-      <div className="flex-1 flex items-center justify-center pt-20">
+      <div className={`flex-1 flex items-center justify-center ${topPadding} pb-[120px]`}>
         <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
       </div>
     );
@@ -400,7 +404,7 @@ export default function ClubDetails({ clubId }: ClubDetailsProps) {
   }
 
   return (
-    <div className="flex-1 pt-[74px]">
+    <div className={`flex-1 ${topPadding} pb-[120px]`}>
       {/* Cover Image avec boutons */}
       <div className="relative w-full h-[300px]">
         {club.club_picture ? (
@@ -418,7 +422,7 @@ export default function ClubDetails({ clubId }: ClubDetailsProps) {
           </div>
         )}
 
-                  <div className="absolute top-4 right-4 flex items-center gap-2">
+                  <div className="absolute top-6 right-5 flex items-center gap-2">
             {canModerate && (
               <>
                 <Button
@@ -557,7 +561,7 @@ export default function ClubDetails({ clubId }: ClubDetailsProps) {
               value="posts"
               onClick={() => !posts.length && fetchPosts()}
             >
-              Posts
+              Publications
             </TabsTrigger>
             <TabsTrigger
               value="chat"

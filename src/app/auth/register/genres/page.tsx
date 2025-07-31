@@ -113,7 +113,7 @@ export default function Genres() {
       transition: {
         duration: 0.4,
         staggerChildren: 0.08,
-        ease: "easeOut",
+
       },
     },
     exit: {
@@ -121,7 +121,7 @@ export default function Genres() {
       y: -20,
       transition: {
         duration: 0.3,
-        ease: "easeOut",
+
       },
     },
   };
@@ -133,7 +133,7 @@ export default function Genres() {
       y: 0,
       transition: {
         duration: 0.4,
-        ease: "easeOut",
+
       },
     },
   };
@@ -145,7 +145,7 @@ export default function Genres() {
       scale: 1,
       transition: {
         duration: 0.3,
-        ease: "easeOut",
+
       },
     },
   };

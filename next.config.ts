@@ -28,7 +28,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  allowedDevOrigins: ['local-origin.dev', '*.local-origin.dev', '192.168.1.86', '10.2.160.133', '192.168.1.169', '10.2.182.69'],
+  allowedDevOrigins: ['local-origin.dev', '*.local-origin.dev', '192.168.1.86', '10.2.160.133', '192.168.1.169', '10.2.182.69', '192.168.1.98'],
   // Configuration Turbopack pour éviter les conflits avec webpack
   turbopack: {
     // Résolution d'alias si nécessaire
