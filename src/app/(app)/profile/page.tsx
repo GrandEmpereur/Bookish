@@ -51,7 +51,6 @@ import {
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 import { AchievementsShowcase } from "@/components/ui/achievements-showcase";
-import { getAllBadgeDefinitions } from "@/utils/badgeSystem";
 import { safeFormatDistanceToNow } from "@/lib/date";
 import { AchievementsShowcase } from "@/components/ui/achievements-showcase";
 import { getAllBadgeDefinitions } from "@/utils/badgeSystem";
@@ -773,6 +772,9 @@ export default function Profile() {
 
         {/* Stats */}
         <div className="relative w-full max-w-md rounded-xl px-6 py-4 bg-[#2F4739] overflow-hidden">
+          <div className="absolute -top-10 -right-10 h-40 w-40 bg-white/5 rounded-full" />
+          <div className="absolute -bottom-10 -left-0 h-40 w-40 bg-white/10 rounded-full" />
+
           <div className="relative z-10 flex items-center justify-between">
             <button
               className="flex flex-col items-center hover:bg-white/10 rounded-lg p-2 transition-colors flex-1"
@@ -1811,6 +1813,18 @@ export default function Profile() {
                     bookLists={tabData.bookLists}
                     isLoadingLists={false}
                   />
+                )}
+              </TabsContent>
+
+              <TabsContent value="posts" className="w-full">
+                {loadingStates.posts ? (
+                  renderSkeleton("post")
+                ) : tabData.userPosts.length === 0 ? (
+                  renderEmptyState("posts", () => router.push("/feed/create"))
+                ) : (
+                  <div className="space-y-4">
+                    {tabData.userPosts.map((post) => renderPostCard(post))}
+                  </div>
                 )}
               </TabsContent>
 
