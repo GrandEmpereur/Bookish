@@ -208,93 +208,9 @@ export default function UserDetails() {
             />
             <AvatarFallback>{profile.first_name?.[0] || "U"}</AvatarFallback>
           </Avatar>
-          <div className="flex-1">
-            <h1 className="text-xl font-bold">{data.data.username}</h1>
-
-            <div className="mt-2 flex flex-wrap gap-2">
-              {profile.preferredGenres?.slice(0, 2).map((genre, i) => (
-                <span
-                  key={i}
-                  className="bg-[#F5F5F5] text-xs rounded-full px-3 py-1"
-                >
-                  {genre}
-                </span>
-              ))}
-              {profile.readingHabit && (
-                <div className="bg-purple-100 text-purple-700 rounded-full px-3 py-1 text-xs font-medium">
-                  {profile.readingHabit}
-                </div>
-              )}
-            </div>
-            <p className="text-sm text-muted-foreground">
-              {profile.bio || "Aucune bio disponible"}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3 pb-2">
-  <Button
-    onClick={sendFriendRequest}
-    variant="ghost"
-    className={`w-auto px-3 py-2 flex items-center justify-center space-x-2 ${
-      hasSentRequest ? "opacity-40 pointer-events-none" : "hover:text-[#2F4739] text-[#2F4739]"
-    }`}
-  >
-    {isSending ? (
-      <>
-        <Loader2 className="w-4 h-4 animate-spin" />
-        <span>Ami</span>
-      </>
-    ) : (
-      <>
-        <UserPlus className="w-5 h-5" />
-        <span>Demande d'ami</span>
-      </>
-    )}
-  </Button>
-
-  <Button
-    onClick={handleFollowToggle}
-    variant={isFollowing ? "outline" : "default"}
-    className="rounded-full px-4 py-2 text-sm flex items-center space-x-2"
-  >
-    {isFollowLoading ? (
-      <>
-        <Loader2 className="animate-spin h-4 w-4" />
-        <span>Chargement...</span>
-      </>
-    ) : isFollowing ? (
-      <>
-        <UserMinus className="h-4 w-4" />
-        <span>Se désabonner</span>
-      </>
-    ) : (
-      <>
-        <UserPlus className="h-4 w-4" />
-        <span>Suivre</span>
-      </>
-    )}
-  </Button>
-</div>
-
-        {/* Stats */}
-        <div className="relative w-full rounded-xl px-6 py-4 bg-[#2F4739] overflow-hidden">
-          <div className="relative z-10 flex justify-between items-center">
-            <div className="flex flex-col items-center flex-1">
-              <CircleDashed className="w-5 h-5 text-white/80" />
-              <span className="text-xs text-white/70">Suivis</span>
-              <span className="text-white font-bold">
-                {data.data.stats?.following_count || 0}
-              </span>
-            </div>
-            <div className="h-8 w-px bg-white/30" />
-            <div className="flex flex-col items-center flex-1">
-              <Globe className="w-5 h-5 text-white/80" />
-              <span className="text-xs text-white/70">Abonnés</span>
-              <span className="text-white font-bold">
-                {data.data.stats?.followers_count || 0}
-              </span>
-            </div>
+          <div className="flex flex-col">
+            <p className="text-sm font-medium">John Doe</p>
+            <p className="text-xs text-muted-foreground">@john.doe</p>
           </div>
         </div>
 
