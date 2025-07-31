@@ -1,18 +1,20 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { toast } from "sonner";
+import { X, Loader2, Camera } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Badge } from "@/components/ui/badge";
-import { X, Loader2 } from "lucide-react";
-import { useState } from "react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { UniversalImagePicker } from "@/components/ui/universal-image-picker";
+
 import { clubService } from "@/services/club.service";
-import type { CreateClubRequest, ClubType } from "@/types/clubTypes";
+import type { ClubType } from "@/types/clubTypes";
 
 const GENRES = [
   "fantasy",
@@ -31,101 +33,221 @@ const GENRES = [
 
 export default function CreateClub() {
   const router = useRouter();
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     type: "Public" as ClubType,
     genre: "",
   });
+
+  const [clubPicture, setClubPicture] = useState<File | null>(null);
+  const [clubPicturePreview, setClubPicturePreview] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  /* ----------------------------- Handlers ------------------------------ */
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleTypeChange = (value: string) => {
-    setFormData(prev => ({ ...prev, type: value as ClubType }));
+    setFormData((prev) => ({ ...prev, type: value as ClubType }));
   };
+
+  const handleImageSelected = (file: File) => {
+    setClubPicture(file);
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setClubPicturePreview(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeImage = () => {
+    setClubPicture(null);
+    setClubPicturePreview("");
+  };
+
+  /* ----------------------------- Submit ------------------------------- */
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
-    if (!formData.name.trim() || !formData.description.trim() || !formData.genre) {
-      toast.error("Veuillez remplir tous les champs obligatoires");
-      return;
-    }
+
+    // Front-end validation (mirrors backend Vine schema)
+    const name = formData.name.trim();
+    const description = formData.description.trim();
+
+    if (!name) return toast.error("Le nom du club est obligatoire");
+    if (name.length < 2 || name.length > 100)
+      return toast.error("Le nom du club doit contenir entre 2 et 100 caractères");
+
+    if (!description) return toast.error("La description est obligatoire");
+    if (description.length < 10 || description.length > 1000)
+      return toast.error("La description doit contenir entre 10 et 1000 caractères");
+
+    if (!["Public", "Private"].includes(formData.type))
+      return toast.error("Le type de club doit être 'Public' ou 'Private'");
 
     setIsSubmitting(true);
 
     try {
-      const clubData: CreateClubRequest = {
-        name: formData.name.trim(),
-        description: formData.description.trim(),
+      // 1. Build payload
+      const payload = {
+        name,
+        description,
         type: formData.type,
-        genre: formData.genre,
+        genre: formData.genre.trim() || "",
       };
 
-      const response = await clubService.createClub(clubData);
-      
-      if (response.data) {
-        toast.success("Club créé avec succès !");
-        setTimeout(() => {
-          router.push(`/clubs/${response.data.data.id}`);
-        }, 500);
+      // 2. Decide request type (JSON vs FormData)
+      if (!clubPicture) {
+        // --- Without image --------------------------------------------------
+        const response = await clubService.createClub(payload);
+        if (response.status === "success" && response.data?.id) {
+          toast.success("Club créé avec succès !");
+          return router.push(`/clubs/${response.data.id}`);
+        }
+      } else {
+        // --- With image -----------------------------------------------------
+        const form = new FormData();
+        form.append("name", payload.name);
+        form.append("description", payload.description);
+        form.append("type", payload.type);
+        form.append("genre", payload.genre);
+        form.append("clubPicture", clubPicture);
+
+        const response = await clubService.createClubWithMedia(form);
+        if (response.status === "success" && response.data?.id) {
+          toast.success("Club créé avec succès !");
+          return router.push(`/clubs/${response.data.id}`);
+        }
       }
+
+      toast.error("Une erreur inattendue est survenue.");
     } catch (error: any) {
-      console.error("Erreur création club:", error);
-      toast.error(error.message || "Une erreur est survenue lors de la création du club.");
+      const message =
+        error?.message?.includes("Validation failure")
+          ? "Erreur de validation des données. Vérifiez les champs."
+          : "Erreur serveur, veuillez réessayer.";
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  return (
-    <div className="flex-1 pt-25">
-      <div className="max-w-2xl mx-auto px-4 space-y-8">
-        <div>
-          <h1 className="text-2xl font-bold">Créer un club</h1>
-          <p className="text-muted-foreground">
-            Créez votre propre communauté de lecture
-          </p>
-        </div>
+  /* ------------------------------ UI ---------------------------------- */
 
+  return (
+    <div className="flex-1 px-5 pt-25 pb-[120px]">
+      <div className="max-w-2xl mx-auto space-y-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Nom du club */}
           <div className="space-y-2">
-            <Label htmlFor="name">Nom du club *</Label>
-            <Input 
-              id="name" 
+            <Label htmlFor="name">Nom du club * (2-100 caractères)</Label>
+            <Input
+              id="name"
               name="name"
               placeholder="Ex: Club des Fans de Fantasy"
               value={formData.name}
               onChange={handleInputChange}
+              minLength={2}
+              maxLength={100}
               required
             />
           </div>
 
           {/* Description */}
           <div className="space-y-2">
-            <Label htmlFor="description">Description *</Label>
+            <Label htmlFor="description">Description * (10-1000 caractères)</Label>
             <Textarea
               id="description"
               name="description"
-              placeholder="Décrivez votre club en quelques mots..."
+              placeholder="Décrivez votre club en quelques mots... (minimum 10 caractères)"
               className="min-h-[100px]"
               value={formData.description}
               onChange={handleInputChange}
+              minLength={10}
+              maxLength={1000}
               required
             />
+          </div>
+
+          {/* Image */}
+          <div className="space-y-2">
+            <Label>Image du club</Label>
+            <div className="space-y-4">
+              {clubPicturePreview ? (
+                <div className="relative">
+                  <div className="relative aspect-video w-full overflow-hidden rounded-lg border">
+                    <Image
+                      src={clubPicturePreview}
+                      alt="Aperçu de l'image du club"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    className="absolute top-2 right-2"
+                    onClick={removeImage}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <UniversalImagePicker
+                  onImageSelected={handleImageSelected}
+                  onError={(error) => toast.error(error)}
+                  disabled={isSubmitting}
+                  accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                  maxSizeBytes={5 * 1024 * 1024}
+                >
+                  <div
+                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors"
+                    style={{
+                      borderColor: "var(--border)",
+                      backgroundColor: "var(--muted)",
+                    }}
+                  >
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <Camera
+                        className="h-8 w-8"
+                        style={{ color: "var(--muted-foreground)" }}
+                      />
+                      <div className="text-center">
+                        <p
+                          className="text-sm font-medium"
+                          style={{ color: "var(--foreground)" }}
+                        >
+                          Ajouter une image de couverture
+                        </p>
+                        <p
+                          className="text-xs"
+                          style={{ color: "var(--muted-foreground)" }}
+                        >
+                          JPG, PNG, GIF ou WEBP (max&nbsp;5MB)
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </UniversalImagePicker>
+              )}
+            </div>
           </div>
 
           {/* Type de club */}
           <div className="space-y-2">
             <Label>Type de club *</Label>
-            <RadioGroup 
-              value={formData.type} 
-              onValueChange={handleTypeChange} 
+            <RadioGroup
+              value={formData.type}
+              onValueChange={handleTypeChange}
               className="flex gap-4"
             >
               <div className="flex items-center space-x-2">
@@ -137,26 +259,19 @@ export default function CreateClub() {
                 <Label htmlFor="private">Privé</Label>
               </div>
             </RadioGroup>
-            <p className="text-sm text-muted-foreground">
-              {formData.type === "Public" 
-                ? "Tout le monde peut rejoindre ce club" 
-                : "Les membres doivent demander à rejoindre ce club"
-              }
-            </p>
           </div>
 
           {/* Genre */}
           <div className="space-y-2">
-            <Label htmlFor="genre">Genre principal *</Label>
+            <Label htmlFor="genre">Genre principal</Label>
             <select
               id="genre"
               name="genre"
               className="w-full rounded-md border border-input bg-background px-3 py-2"
               value={formData.genre}
               onChange={handleInputChange}
-              required
             >
-              <option value="">Sélectionnez un genre</option>
+              <option value="">Sélectionnez un genre (optionnel)</option>
               {GENRES.map((genre) => (
                 <option key={genre} value={genre}>
                   {genre.charAt(0).toUpperCase() + genre.slice(1)}
@@ -165,17 +280,37 @@ export default function CreateClub() {
             </select>
           </div>
 
-          {/* Bouton de soumission */}
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? (
-              <div className="flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Création en cours...
-              </div>
-            ) : (
-              "Créer le club"
-            )}
-          </Button>
+          {/* Actions */}
+          <div className="flex gap-4 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1"
+              onClick={() => router.back()}
+              disabled={isSubmitting}
+            >
+              Annuler
+            </Button>
+
+            <Button
+              type="submit"
+              className="flex-1"
+              disabled={isSubmitting}
+              style={{
+                backgroundColor: "var(--primary)",
+                color: "var(--primary-foreground)",
+              }}
+            >
+              {isSubmitting ? (
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Création...
+                </div>
+              ) : (
+                "Créer le club"
+              )}
+            </Button>
+          </div>
         </form>
       </div>
     </div>

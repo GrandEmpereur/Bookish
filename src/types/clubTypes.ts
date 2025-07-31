@@ -54,27 +54,62 @@ export interface ClubPost {
   title: string;
   subject: string;
   content: string;
+  likes_count: string;
+  comments_count: string;
+  images: Array<{
+    id: string;
+    url: string;
+    thumbnail_url: string;
+    width: number;
+    height: number;
+    size: string;
+    mime_type: string;
+    original_name: string;
+  }>;
+  has_images: boolean;
+  images_count: number;
+  created_at: string;
+  updated_at: string;
+  user: {
+    id: string;
+    username: string;
+    profile_picture_path: string;
+  };
+  // Legacy fields for backward compatibility
   mediaUrl?: string;
-  clubId: string;
-  authorId: string;
-  isPinned: boolean;
-  createdAt: string;
-  updatedAt: string;
-  author: UserProfile;
+  clubId?: string;
+  authorId?: string;
+  isPinned?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  author?: UserProfile;
   likesCount?: number;
   commentsCount?: number;
 }
 
-// Type pour les messages du club
+// Type pour les messages du club - Structure API réelle
 export interface ClubMessage {
   id: string;
   content: string;
-  mediaUrl?: string;
-  clubId: string;
-  userId: string;
+  mediaUrl?: string | null;
+  isReported: boolean;
   createdAt: string;
-  updatedAt: string;
-  user: UserProfile;
+  isOwnMessage: boolean; // Fourni par l'API pour savoir si c'est mon message
+  user: {
+    id: string;
+    username: string;
+    profilePicture?: string;
+  };
+  // Propriétés pour compatibilité chat (legacy)
+  sender?: {
+    id: string;
+    username: string;
+    profilePicture?: string;
+  };
+  is_mine?: boolean;
+  clubId?: string;
+  userId?: string;
+  updatedAt?: string;
 }
 
 // Type pour les invitations
@@ -88,6 +123,10 @@ export interface ClubInvitation {
   createdBy: string;
   club?: Club;
   creator?: UserProfile;
+  // Propriétés calculées/optionnelles
+  isUsed?: boolean;
+  usedBy?: UserProfile;
+  usesCount?: number;
 }
 
 // Type pour les demandes d'adhésion
@@ -159,8 +198,8 @@ export interface CreateClubRequest {
   name: string;
   description: string;
   type: ClubType;
-  genre: string;
-  clubPicture?: string;
+  genre?: string; // Optionnel selon votre API
+  clubPicture?: string; // URL optionnelle de l'image
 }
 
 export interface UpdateClubRequest {
@@ -276,7 +315,19 @@ export interface GetClubsResponse {
 export type GetClubResponse = Club;
 
 export interface CreateClubResponse {
-  data: Club;
+  id: string;
+  name: string;
+  description: string;
+  type: ClubType;
+  genre: string | null;
+  club_picture: string | null;
+  member_count: number;
+  created_at: string;
+  updated_at: string;
+  owner: {
+    id: string;
+    username: string;
+  } | null;
 }
 
 export interface UpdateClubResponse {
@@ -318,8 +369,19 @@ export interface GetMessagesResponse {
   pagination: PaginationMeta;
 }
 
+// Réponse d'envoi de message - Structure API réelle
 export interface SendMessageResponse {
-  data: ClubMessage;
+  id: string;
+  content: string;
+  mediaUrl?: string | null;
+  isReported: boolean;
+  createdAt: string;
+  isOwnMessage: boolean;
+  user: {
+    id: string;
+    username: string;
+    profilePicture?: string;
+  };
 }
 
 // Gestion des invitations

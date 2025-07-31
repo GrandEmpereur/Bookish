@@ -10,8 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Loader2, ImagePlus } from "lucide-react";
-import { CameraSelector } from "@/components/ui/camera-selector";
 import { postService } from "@/services/post.service";
+import { UniversalImagePicker } from "@/components/ui/universal-image-picker";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -54,28 +54,7 @@ export default function CreatePost() {
     },
   });
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      handleImageSelected(file);
-    }
-  };
-
   const handleImageSelected = (file: File) => {
-    // Vérifier le type de fichier
-    if (
-      !file.type.match(/^(image\/(jpeg|png|gif|webp)|video\/(mp4|quicktime))$/)
-    ) {
-      toast.error("Type de fichier non supporté");
-      return;
-    }
-
-    // Vérifier la taille du fichier (10MB max)
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("La taille du fichier ne doit pas dépasser 10MB");
-      return;
-    }
-
     setSelectedImage(file);
     form.setValue("media", [file]);
 
@@ -190,18 +169,20 @@ export default function CreatePost() {
 
           <div className="space-y-2">
             <Label htmlFor="image">Image</Label>
-            <div className="flex items-center gap-4">
-              <CameraSelector
-                onImageSelected={handleImageSelected}
-                onError={(error) => toast.error(error)}
-                disabled={isLoading}
-              >
-                <Button type="button" variant="outline" disabled={isLoading}>
-                  <ImagePlus className="h-5 w-5 mr-2" />
-                  Ajouter une image
-                </Button>
-              </CameraSelector>
-            </div>
+            <UniversalImagePicker
+              onImageSelected={handleImageSelected}
+              onError={(error) => toast.error(error)}
+              disabled={isLoading}
+              accept="image/*,video/*"
+              maxSizeBytes={10 * 1024 * 1024} // 10MB
+            >
+              <div className="flex items-center justify-center w-full h-24 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 hover:border-gray-400 transition-colors">
+                <div className="flex items-center gap-2">
+                  <ImagePlus className="h-5 w-5 text-gray-400" />
+                  <span className="text-sm font-medium text-gray-900">Ajouter une image ou vidéo</span>
+                </div>
+              </div>
+            </UniversalImagePicker>
             {imagePreview && (
               <div className="relative aspect-video mt-4 rounded-lg overflow-hidden">
                 <Image

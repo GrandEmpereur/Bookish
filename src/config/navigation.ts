@@ -1,4 +1,4 @@
-import { Bell, Send, Search, Settings, Plus, MoreHorizontal } from "lucide-react";
+import { Bell, Send, Search, Settings } from "lucide-react";
 
 type ModalType = "drawer" | "dialog";
 
@@ -11,7 +11,7 @@ export type TopBarConfig = {
   showBackAbsolute?: boolean;
   showConversationUser?: boolean; // Pour afficher avatar + nom utilisateur
   rightIcons?: {
-    icon: typeof Bell | typeof Send | typeof Search | typeof Settings | typeof Plus | typeof MoreHorizontal;
+    icon: typeof Bell | typeof Send | typeof Search | typeof Settings;
     onClick?: () => void;
     href?: string;
     modalType?: ModalType;
@@ -149,6 +149,11 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
     title: "Followers",
     showBack: true,
   },
+  "/profile/requests": {
+    variant: "back",
+    title: "Mes demandes",
+    showBack: true,
+  },
   "/profile/gamification": {
     variant: "back",
     title: "Gamification",
@@ -229,133 +234,42 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
     showBack: true,
   },
 
-  // Clubs
+  // Clubs 
   "/clubs": {
     variant: "back",
     title: "Clubs",
     showBack: true,
-    rightIcons: [
-      {
-        icon: Search,
-        onClick: () => { },
-        modalType: "dialog",
-      },
-      {
-        icon: Plus,
-        href: "/clubs/create",
-      },
-    ],
   },
-
-  "/clubs/create": {
-    variant: "back",
-    title: "Créer un club",
-    showBack: true,
-  },
-
-  "/clubs/[clubId]": {
+  "/clubs/[id]": {
     variant: "back",
     title: "Club",
     showBack: true,
-    rightIcons: [
-      {
-        icon: MoreHorizontal,
-        onClick: () => { },
-        modalType: "drawer",
-      },
-    ],
   },
-
-  "/clubs/[clubId]/posts": {
+  "/clubs/create": {
     variant: "back",
-    title: "Posts",
-    showBack: true,
-    rightIcons: [
-      {
-        icon: Plus,
-        href: "/clubs/[clubId]/posts/create",
-      },
-    ],
-  },
-
-  "/clubs/[clubId]/posts/create": {
-    variant: "back",
-    title: "Nouveau post",
+    title: "Création de club",
     showBack: true,
   },
 
-  "/clubs/[clubId]/posts/[postId]": {
-    variant: "back",
-    title: "Post",
-    showBack: true,
-    rightIcons: [
-      {
-        icon: MoreHorizontal,
-        onClick: () => { },
-        modalType: "drawer",
-      },
-    ],
-  },
-
-  "/clubs/[clubId]/messages": {
-    variant: "back",
-    title: "Chat",
-    showBack: true,
-  },
-
-  "/clubs/[clubId]/members": {
+  "/clubs/[id]/members": {
     variant: "back",
     title: "Membres",
     showBack: true,
-    rightIcons: [
-      {
-        icon: Search,
-        onClick: () => { },
-        modalType: "dialog",
-      },
-    ],
   },
 
-  "/clubs/[clubId]/invitations": {
-    variant: "back",
-    title: "Invitations",
-    showBack: true,
-    rightIcons: [
-      {
-        icon: Plus,
-        onClick: () => { },
-        modalType: "dialog",
-      },
-    ],
-  },
-
-  "/clubs/[clubId]/settings": {
-    variant: "back",
-    title: "Paramètres du club",
-    showBack: true,
-  },
-
-  "/clubs/[clubId]/moderation": {
+  "/clubs/[id]/moderation": {
     variant: "back",
     title: "Modération",
     showBack: true,
   },
-
-  "/clubs/[clubId]/moderation/reports": {
+  "/clubs/[id]/join-request": {
     variant: "back",
-    title: "Signalements",
+    title: "Demande d'adhésion",
     showBack: true,
   },
-
-  "/clubs/[clubId]/moderation/banned": {
+  "/clubs/[id]/invitations": {
     variant: "back",
-    title: "Membres bannis",
-    showBack: true,
-  },
-
-  "/clubs/[clubId]/moderation/requests": {
-    variant: "back",
-    title: "Demandes d'adhésion",
+    title: "Invitations",
     showBack: true,
   },
 };
@@ -383,64 +297,7 @@ export function getTopBarConfig(path: string): TopBarConfig {
     return topBarConfigs["/feed/[id]"];
   }
 
-  // Pour les clubs
-  if (cleanPath === "/clubs") {
-    return topBarConfigs["/clubs"];
-  }
 
-  if (cleanPath === "/clubs/create") {
-    return topBarConfigs["/clubs/create"];
-  }
-
-  // Routes spécifiques de clubs
-  if (/^\/clubs\/[\w-]+\/posts\/create$/.test(cleanPath)) {
-    return topBarConfigs["/clubs/[clubId]/posts/create"];
-  }
-
-  if (/^\/clubs\/[\w-]+\/posts\/[\w-]+$/.test(cleanPath)) {
-    return topBarConfigs["/clubs/[clubId]/posts/[postId]"];
-  }
-
-  if (/^\/clubs\/[\w-]+\/posts$/.test(cleanPath)) {
-    return topBarConfigs["/clubs/[clubId]/posts"];
-  }
-
-  if (/^\/clubs\/[\w-]+\/messages$/.test(cleanPath)) {
-    return topBarConfigs["/clubs/[clubId]/messages"];
-  }
-
-  if (/^\/clubs\/[\w-]+\/members$/.test(cleanPath)) {
-    return topBarConfigs["/clubs/[clubId]/members"];
-  }
-
-  if (/^\/clubs\/[\w-]+\/invitations$/.test(cleanPath)) {
-    return topBarConfigs["/clubs/[clubId]/invitations"];
-  }
-
-  if (/^\/clubs\/[\w-]+\/settings$/.test(cleanPath)) {
-    return topBarConfigs["/clubs/[clubId]/settings"];
-  }
-
-  if (/^\/clubs\/[\w-]+\/moderation\/reports$/.test(cleanPath)) {
-    return topBarConfigs["/clubs/[clubId]/moderation/reports"];
-  }
-
-  if (/^\/clubs\/[\w-]+\/moderation\/banned$/.test(cleanPath)) {
-    return topBarConfigs["/clubs/[clubId]/moderation/banned"];
-  }
-
-  if (/^\/clubs\/[\w-]+\/moderation\/requests$/.test(cleanPath)) {
-    return topBarConfigs["/clubs/[clubId]/moderation/requests"];
-  }
-
-  if (/^\/clubs\/[\w-]+\/moderation$/.test(cleanPath)) {
-    return topBarConfigs["/clubs/[clubId]/moderation"];
-  }
-
-  // Pour les clubs avec UUID (route générale, doit être en dernier)
-  if (/^\/clubs\/[\w-]+$/.test(cleanPath)) {
-    return topBarConfigs["/clubs/[clubId]"];
-  }
 
   // Pour les book avec UUID
   if (/^\/books\/[\w-]+$/.test(cleanPath)) {
@@ -468,6 +325,45 @@ export function getTopBarConfig(path: string): TopBarConfig {
     cleanPath !== "/library/create"
   ) {
     return topBarConfigs["/library/[id]"];
+  }
+
+  // Clubs - Les routes plus spécifiques doivent être testées en premier
+  if (cleanPath === "/clubs") {
+    return topBarConfigs["/clubs"];
+  }
+
+  if (cleanPath === "/clubs/create") {
+    return topBarConfigs["/clubs/create"];
+  }
+
+  if (/^\/clubs\/[\w-]+\/join-request$/.test(cleanPath)) {
+    return topBarConfigs["/clubs/[id]/join-request"];
+  }
+
+  if (/^\/profile\/requests$/.test(cleanPath)) {
+    return topBarConfigs["/profile/requests"];
+  }
+
+  if (/^\/clubs\/[\w-]+\/invitations$/.test(cleanPath)) {
+    return topBarConfigs["/clubs/[id]/invitations"];
+  }
+
+  // Routes spécifiques de clubs avec UUID
+  if (/^\/clubs\/[\w-]+\/members$/.test(cleanPath)) {
+    return topBarConfigs["/clubs/[id]/members"];
+  }
+
+  if (/^\/clubs\/[\w-]+\/invitations$/.test(cleanPath)) {
+    return topBarConfigs["/clubs/[id]/invitations"];
+  }
+
+  if (/^\/clubs\/[\w-]+\/moderation$/.test(cleanPath)) {
+    return topBarConfigs["/clubs/[id]/moderation"];
+  }
+
+  // Club avec UUID (route générale, doit être en dernier)
+  if (/^\/clubs\/[\w-]+$/.test(cleanPath)) {
+    return topBarConfigs["/clubs/[id]"];
   }
 
   // Pour les autres routes

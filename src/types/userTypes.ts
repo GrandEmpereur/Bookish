@@ -10,7 +10,7 @@ export type RelationType = 'follow' | 'friend' | 'block';
 export type RelationStatus = 'accepted' | 'declined' | 'pending';
 
 
-// Types de base
+// Types de base - Structure réelle de l'objet user
 export interface UserProfile {
   id: string;
   username: string;
@@ -38,6 +38,12 @@ export interface UserProfile {
   stats: {
     followers_count: number;
     following_count: number;
+  };
+  // Structure imbriquée pour correspondre à la vraie structure
+  user?: {
+    id: string;
+    username: string;
+    email: string;
   };
 }
 export interface UserRelations {

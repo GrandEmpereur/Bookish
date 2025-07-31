@@ -112,6 +112,17 @@ export class ClubService {
   }
 
   /**
+   * 🏛️ Créer un club avec média (image de couverture)
+   */
+  async createClubWithMedia(
+    formData: FormData
+  ): Promise<ApiResponse<CreateClubResponse>> {
+    return this.makeRequest<ApiResponse<CreateClubResponse>>("POST", "/clubs", {
+      data: formData,
+    });
+  }
+
+  /**
    * ✏️ Modifier un club
    */
   async updateClub(
@@ -416,6 +427,20 @@ export class ClubService {
       "POST",
       `/clubs/${clubId}/invitations`,
       { data: data || {} }
+    );
+  }
+
+  /**
+   * 📩 Envoyer invitation personnalisée
+   */
+  async sendInvitation(
+    clubId: string,
+    data: { userIdentifier: string; expiresInDays?: number }
+  ): Promise<ApiResponse<CreateInvitationResponse>> {
+    return this.makeRequest<ApiResponse<CreateInvitationResponse>>(
+      "POST",
+      `/clubs/${clubId}/invitations/send`,
+      { data }
     );
   }
 

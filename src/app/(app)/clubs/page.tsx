@@ -3,14 +3,17 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { ClubCard } from "@/components/club/club-card";
+import { ClubCard, ClubCardSkeleton } from "@/components/club/club-card";
 import { clubService } from "@/services/club.service";
 import type { Club } from "@/types/clubTypes";
 import { Users, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { FloatingActionButton } from "@/components/ui/floating-action-button";
+import { useAuth } from "@/contexts/auth-context";
 
 export default function Clubs() {
   const router = useRouter();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<"all" | "my">("all");
   const [clubs, setClubs] = useState<Club[]>([]);
   const [loading, setLoading] = useState(true);
@@ -75,13 +78,34 @@ export default function Clubs() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex-1 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+  // Fonction pour filtrer les clubs de l'utilisateur
+  const getMyClubs = () => {
+    if (!user?.user?.id) return [];
+    
+    return clubs.filter((club) => {
+      // L'utilisateur est membre du club
+      const isMember = club.isMember === true;
+      
+      // L'utilisateur a un rôle dans le club
+      const hasRole = club.currentUserRole;
+      
+      // L'utilisateur est le propriétaire du club
+      const isOwner = club.owner?.id === user.user?.id;
+      
+      return isMember || hasRole || isOwner;
+    });
+  };
+
+  // Composant ClubGridSkeleton
+  const ClubGridSkeleton = () => (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <ClubCardSkeleton key={i} variant="grid" />
+        ))}
       </div>
-    );
-  }
+    </div>
+  );
 
   return (
     <div className="flex-1 px-5 pt-25">
@@ -108,17 +132,23 @@ export default function Clubs() {
 
           <div className="w-full mt-4">
             <TabsContent value="all" className="w-full">
-              <ClubGrid 
-                clubs={clubs} 
-                hasMore={hasMore}
-                onLoadMore={loadMoreClubs}
-                loading={loading}
-              />
+              {loading ? (
+                <ClubGridSkeleton />
+              ) : (
+                <ClubGrid 
+                  clubs={clubs} 
+                  hasMore={hasMore}
+                  onLoadMore={loadMoreClubs}
+                  loading={false}
+                />
+              )}
             </TabsContent>
             <TabsContent value="my" className="w-full">
-              {clubs.filter((c) => c.isMember === true || c.currentUserRole).length > 0 ? (
+              {loading ? (
+                <ClubGridSkeleton />
+              ) : getMyClubs().length > 0 ? (
                 <ClubGrid 
-                  clubs={clubs.filter((c) => c.isMember === true || c.currentUserRole)} 
+                  clubs={getMyClubs()} 
                   hasMore={false}
                   onLoadMore={() => {}}
                   loading={false}
@@ -135,6 +165,12 @@ export default function Clubs() {
           </div>
         </Tabs>
       </div>
+
+      {/* Bouton flottant pour créer un club */}
+      <FloatingActionButton
+        onClick={() => router.push("/clubs/create")}
+        className="bottom-[110px] w-14 h-14"
+      />
     </div>
   );
 }
