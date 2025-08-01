@@ -45,7 +45,9 @@ export function usePushNotifications({
           async (token) => {
             try {
               await notificationService.registerDeviceToken(token.value);
-            } catch (error) {}
+            } catch (error) {
+              console.error("❌ Erreur enregistrement token:", error);
+            }
           }
         );
 
@@ -55,7 +57,9 @@ export function usePushNotifications({
         // 4. Listener pour les erreurs d'enregistrement
         const errorListener = await PushNotifications.addListener(
           "registrationError",
-          (err) => {}
+          (err) => {
+            console.error("❌ Erreur enregistrement push:", err);
+          }
         );
 
         // 5. Listener pour les notifications reçues
@@ -86,6 +90,7 @@ export function usePushNotifications({
           setupRef.current = false;
         };
       } catch (error) {
+        console.error("❌ Erreur setup push notifications:", error);
         setupRef.current = false;
       }
     };
