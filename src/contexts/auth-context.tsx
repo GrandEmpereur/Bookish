@@ -113,9 +113,12 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
     sessionFetching ||
     (sessionActive && (profileLoading || profileFetching));
 
+  // Utiliser sessionActive et profileData pour déterminer si l'utilisateur est authentifié
+  const isAuthenticated = sessionActive && !!profileData?.data;
+  
   usePushNotifications({
-    isAuthenticated: !!user,
-    userId: user?.id,
+    isAuthenticated,
+    userId: profileData?.data?.user?.id,
   });
 
   useEffect(() => {
