@@ -47,6 +47,10 @@ export default function ClubDetails({ clubId }: ClubDetailsProps) {
   const router = useRouter();
   const { user } = useAuth();
 
+  // Détection responsive pour le padding-top
+  const isNativePlatform = Capacitor.isNativePlatform();
+  const topPadding = isNativePlatform ? "pt-[110px]" : "pt-[70px]";
+
   // Vérifier si l'utilisateur actuel est membre du club
   const isMemberOfClub = user?.user?.id
     ? memberIds.includes(user.user.id)
@@ -75,17 +79,17 @@ export default function ClubDetails({ clubId }: ClubDetailsProps) {
           <Skeleton className="h-4 w-32 mt-1" />
         </div>
       </div>
-      
+
       {/* Content */}
       <div className="space-y-2">
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-3/4" />
         <Skeleton className="h-4 w-1/2" />
       </div>
-      
+
       {/* Image */}
       <Skeleton className="h-48 w-full rounded-lg" />
-      
+
       {/* Actions */}
       <div className="flex items-center justify-between pt-2">
         <div className="flex items-center gap-4">
@@ -107,15 +111,15 @@ export default function ClubDetails({ clubId }: ClubDetailsProps) {
     >
       {/* Avatar pour les messages des autres */}
       {!isOwn && <Skeleton className="h-8 w-8 rounded-full mb-1" />}
-      
+
       {/* Message bubble */}
-      <div className={cn("flex items-center gap-1", isOwn ? "flex-row-reverse" : "flex-row")}>
-        <Skeleton 
-          className={cn(
-            "h-10 rounded-2xl",
-            isOwn ? "w-32" : "w-40"
-          )} 
-        />
+      <div
+        className={cn(
+          "flex items-center gap-1",
+          isOwn ? "flex-row-reverse" : "flex-row"
+        )}
+      >
+        <Skeleton className={cn("h-10 rounded-2xl", isOwn ? "w-32" : "w-40")} />
       </div>
     </div>
   );
@@ -389,7 +393,9 @@ export default function ClubDetails({ clubId }: ClubDetailsProps) {
 
   if (loading) {
     return (
-      <div className="flex-1 flex items-center justify-center pt-20">
+      <div
+        className={`flex-1 flex items-center justify-center ${topPadding} pb-[120px]`}
+      >
         <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
       </div>
     );
@@ -400,7 +406,7 @@ export default function ClubDetails({ clubId }: ClubDetailsProps) {
   }
 
   return (
-    <div className="flex-1 pt-[74px]">
+    <div className={`flex-1 ${topPadding} pb-[120px]`}>
       {/* Cover Image avec boutons */}
       <div className="relative w-full h-[300px]">
         {club.club_picture ? (
@@ -418,29 +424,29 @@ export default function ClubDetails({ clubId }: ClubDetailsProps) {
           </div>
         )}
 
-                  <div className="absolute top-4 right-4 flex items-center gap-2">
-            {canModerate && (
-              <>
-                <Button
-                  size="icon"
-                  variant="secondary"
-                  className="rounded-full"
-                  onClick={() => router.push(`/clubs/${clubId}/invitations`)}
-                  title="Invitations"
-                >
-                  <Mail className="h-4 w-4" />
-                </Button>
-                <Button
-                  size="icon"
-                  variant="secondary"
-                  className="rounded-full"
-                  onClick={() => router.push(`/clubs/${clubId}/moderation`)}
-                  title="Modération"
-                >
-                  <Shield className="h-4 w-4" />
-                </Button>
-              </>
-            )}
+        <div className="absolute top-6 right-5 flex items-center gap-2">
+          {canModerate && (
+            <>
+              <Button
+                size="icon"
+                variant="secondary"
+                className="rounded-full"
+                onClick={() => router.push(`/clubs/${clubId}/invitations`)}
+                title="Invitations"
+              >
+                <Mail className="h-4 w-4" />
+              </Button>
+              <Button
+                size="icon"
+                variant="secondary"
+                className="rounded-full"
+                onClick={() => router.push(`/clubs/${clubId}/moderation`)}
+                title="Modération"
+              >
+                <Shield className="h-4 w-4" />
+              </Button>
+            </>
+          )}
           <Button
             size="icon"
             variant="default"
@@ -557,7 +563,7 @@ export default function ClubDetails({ clubId }: ClubDetailsProps) {
               value="posts"
               onClick={() => !posts.length && fetchPosts()}
             >
-              Posts
+              Publications
             </TabsTrigger>
             <TabsTrigger
               value="chat"
@@ -586,83 +592,97 @@ export default function ClubDetails({ clubId }: ClubDetailsProps) {
                       if (a.isPinned && !b.isPinned) return -1;
                       if (!a.isPinned && b.isPinned) return 1;
                       // Ensuite par date (plus récent en premier)
-                      return new Date(b.created_at || b.createdAt || '').getTime() - 
-                             new Date(a.created_at || a.createdAt || '').getTime();
+                      return (
+                        new Date(b.created_at || b.createdAt || "").getTime() -
+                        new Date(a.created_at || a.createdAt || "").getTime()
+                      );
                     })
                     .map((post) => (
-                  <ClubPostCard
-                    key={post.id}
-                    post={post}
-                    canModerate={canModerate}
-                    onShare={(sharedPost) => {
-                      // Créer un objet post compatible avec ShareDialog
-                      const postForDialog = {
-                        id: sharedPost.id,
-                        title: sharedPost.title,
-                        content: sharedPost.content,
-                        user: sharedPost.user,
-                      };
+                      <ClubPostCard
+                        key={post.id}
+                        post={post}
+                        canModerate={canModerate}
+                        onShare={(sharedPost) => {
+                          // Créer un objet post compatible avec ShareDialog
+                          const postForDialog = {
+                            id: sharedPost.id,
+                            title: sharedPost.title,
+                            content: sharedPost.content,
+                            user: sharedPost.user,
+                          };
 
-                      const canUseNativeShare = Capacitor.isNativePlatform();
+                          const canUseNativeShare =
+                            Capacitor.isNativePlatform();
 
-                      if (canUseNativeShare) {
-                        Share.share({
-                          title: sharedPost.title,
-                          text: `Découvrez ce post de ${sharedPost.user?.username} sur Bookish`,
-                          url: `${window.location.origin}/feed/${sharedPost.id}`,
-                          dialogTitle: "Partager ce post",
-                        }).catch((error: any) => {
-                          if (error.message !== "Share canceled") {
+                          if (canUseNativeShare) {
+                            Share.share({
+                              title: sharedPost.title,
+                              text: `Découvrez ce post de ${sharedPost.user?.username} sur Bookish`,
+                              url: `${window.location.origin}/feed/${sharedPost.id}`,
+                              dialogTitle: "Partager ce post",
+                            }).catch((error: any) => {
+                              if (error.message !== "Share canceled") {
+                                setSelectedPost(postForDialog as any);
+                                setShareDialogOpen(true);
+                              }
+                            });
+                          } else {
                             setSelectedPost(postForDialog as any);
                             setShareDialogOpen(true);
                           }
-                        });
-                      } else {
-                        setSelectedPost(postForDialog as any);
-                        setShareDialogOpen(true);
-                      }
-                    }}
-                    onDelete={async (postId) => {
-                      try {
-                        await clubService.deletePost(clubId, postId);
-                        setPosts(prev => prev.filter(p => p.id !== postId));
-                        toast.success("Post supprimé avec succès");
-                      } catch (error: any) {
-                        toast.error(error.message || "Erreur lors de la suppression");
-                      }
-                    }}
-                    onPin={async (postId) => {
-                      try {
-                        const post = posts.find(p => p.id === postId);
-                        const isPinned = post?.isPinned;
-                        
-                        await clubService.togglePinPost(clubId, postId);
-                        toast.success(
-                          isPinned 
-                            ? "Post désépinglé avec succès" 
-                            : "Post épinglé avec succès"
-                        );
-                        // Recharger les posts pour voir le changement
-                        fetchPosts();
-                      } catch (error: any) {
-                        toast.error(error.message || "Erreur lors de l'épinglage");
-                      }
-                    }}
-                    onBanUser={async (userId, username) => {
-                      try {
-                        const reason = `Bannissement effectué depuis la modération des posts par ${user?.user?.username}`;
-                        await clubService.banUser(clubId, { userId, reason });
-                        toast.success(`${username} a été banni du club`);
-                        // Rafraîchir les membres pour retirer l'utilisateur banni
-                        await fetchMembers();
-                        // Recharger les posts au cas où
-                        fetchPosts();
-                      } catch (error: any) {
-                        toast.error(error.message || "Erreur lors du bannissement");
-                      }
-                    }}
-                  />
-                ))}
+                        }}
+                        onDelete={async (postId) => {
+                          try {
+                            await clubService.deletePost(clubId, postId);
+                            setPosts((prev) =>
+                              prev.filter((p) => p.id !== postId)
+                            );
+                            toast.success("Post supprimé avec succès");
+                          } catch (error: any) {
+                            toast.error(
+                              error.message || "Erreur lors de la suppression"
+                            );
+                          }
+                        }}
+                        onPin={async (postId) => {
+                          try {
+                            const post = posts.find((p) => p.id === postId);
+                            const isPinned = post?.isPinned;
+
+                            await clubService.togglePinPost(clubId, postId);
+                            toast.success(
+                              isPinned
+                                ? "Post désépinglé avec succès"
+                                : "Post épinglé avec succès"
+                            );
+                            // Recharger les posts pour voir le changement
+                            fetchPosts();
+                          } catch (error: any) {
+                            toast.error(
+                              error.message || "Erreur lors de l'épinglage"
+                            );
+                          }
+                        }}
+                        onBanUser={async (userId, username) => {
+                          try {
+                            const reason = `Bannissement effectué depuis la modération des posts par ${user?.user?.username}`;
+                            await clubService.banUser(clubId, {
+                              userId,
+                              reason,
+                            });
+                            toast.success(`${username} a été banni du club`);
+                            // Rafraîchir les membres pour retirer l'utilisateur banni
+                            await fetchMembers();
+                            // Recharger les posts au cas où
+                            fetchPosts();
+                          } catch (error: any) {
+                            toast.error(
+                              error.message || "Erreur lors du bannissement"
+                            );
+                          }
+                        }}
+                      />
+                    ))}
                 </div>
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
@@ -757,10 +777,12 @@ export default function ClubDetails({ clubId }: ClubDetailsProps) {
                             )}
 
                             {/* Container du message avec menu */}
-                            <div className={cn(
-                              "flex items-center gap-1",
-                              isMyMessage ? "flex-row-reverse" : "flex-row"
-                            )}>
+                            <div
+                              className={cn(
+                                "flex items-center gap-1",
+                                isMyMessage ? "flex-row-reverse" : "flex-row"
+                              )}
+                            >
                               {/* Bulle de message */}
                               <div
                                 className={cn(
@@ -772,45 +794,67 @@ export default function ClubDetails({ clubId }: ClubDetailsProps) {
                               >
                                 <p className="text-sm">{message.content}</p>
                               </div>
-                              
+
                               {/* Menu de modération pour les messages des autres uniquement */}
                               {!isMyMessage && (
                                 <MessageModerationMenu
                                   canModerate={canModerate}
                                   onDelete={async () => {
                                     try {
-                                      await clubService.deleteMessage(clubId, message.id);
-                                      setMessages(prev => prev.filter(m => m.id !== message.id));
+                                      await clubService.deleteMessage(
+                                        clubId,
+                                        message.id
+                                      );
+                                      setMessages((prev) =>
+                                        prev.filter((m) => m.id !== message.id)
+                                      );
                                       toast.success("Message supprimé");
                                     } catch (error: any) {
-                                      toast.error(error.message || "Erreur lors de la suppression");
+                                      toast.error(
+                                        error.message ||
+                                          "Erreur lors de la suppression"
+                                      );
                                     }
                                   }}
                                   onBanUser={async () => {
                                     try {
                                       const reason = `Bannissement effectué depuis la modération du chat par ${user?.user?.username}`;
-                                      await clubService.banUser(clubId, { 
-                                        userId: message.user?.id || '', 
-                                        reason 
+                                      await clubService.banUser(clubId, {
+                                        userId: message.user?.id || "",
+                                        reason,
                                       });
-                                      toast.success(`${message.user?.username} a été banni du club`);
+                                      toast.success(
+                                        `${message.user?.username} a été banni du club`
+                                      );
                                       // Rafraîchir les membres
                                       await fetchMembers();
                                       // Recharger les messages pour voir les changements
                                       fetchMessages();
                                     } catch (error: any) {
-                                      toast.error(error.message || "Erreur lors du bannissement");
+                                      toast.error(
+                                        error.message ||
+                                          "Erreur lors du bannissement"
+                                      );
                                     }
                                   }}
                                   onReport={async () => {
                                     try {
-                                      await clubService.reportMessage(clubId, message.id, {
-                                        reason: "inappropriate",
-                                        description: `Message signalé par ${user?.user?.username} depuis l'interface de modération`
-                                      });
-                                      toast.success("Message signalé aux modérateurs");
+                                      await clubService.reportMessage(
+                                        clubId,
+                                        message.id,
+                                        {
+                                          reason: "inappropriate",
+                                          description: `Message signalé par ${user?.user?.username} depuis l'interface de modération`,
+                                        }
+                                      );
+                                      toast.success(
+                                        "Message signalé aux modérateurs"
+                                      );
                                     } catch (error: any) {
-                                      toast.error(error.message || "Erreur lors du signalement");
+                                      toast.error(
+                                        error.message ||
+                                          "Erreur lors du signalement"
+                                      );
                                     }
                                   }}
                                 />

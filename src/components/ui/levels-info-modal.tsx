@@ -1,21 +1,27 @@
 "use client";
 
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { 
-  Info, 
-  BookOpen, 
-  Shield, 
-  Crown, 
-  Sparkles, 
+import {
+  Info,
+  BookOpen,
+  Shield,
+  Crown,
+  Sparkles,
   Zap,
   Star,
   Trophy,
   Gem,
-  Award
+  Award,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getLevelTitle, getLevelTier } from "@/utils/gamificationUtils";
@@ -25,34 +31,73 @@ interface LevelsInfoModalProps {
   className?: string;
 }
 
-export function LevelsInfoModal({ currentLevel, className }: LevelsInfoModalProps) {
+export function LevelsInfoModal({
+  currentLevel,
+  className,
+}: LevelsInfoModalProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const getTierIcon = (iconName: string) => {
     switch (iconName) {
-      case 'BookOpen': return BookOpen;
-      case 'Shield': return Shield;
-      case 'Crown': return Crown;
-      case 'Sparkles': return Sparkles;
-      case 'Zap': return Zap;
-      default: return BookOpen;
+      case "BookOpen":
+        return BookOpen;
+      case "Shield":
+        return Shield;
+      case "Crown":
+        return Crown;
+      case "Sparkles":
+        return Sparkles;
+      case "Zap":
+        return Zap;
+      default:
+        return BookOpen;
     }
   };
 
   const levelRanges = [
-    { range: "1-10", tier: "Apprenti", color: "#6B7280", icon: "BookOpen", description: "Premiers pas dans la lecture" },
-    { range: "11-25", tier: "Explorateur", color: "#059669", icon: "Shield", description: "Découverte des genres littéraires" },
-    { range: "26-50", tier: "Connaisseur", color: "#DC2626", icon: "Crown", description: "Maîtrise des techniques de lecture" },
-    { range: "51-100", tier: "Expert", color: "#7C3AED", icon: "Sparkles", description: "Excellence en analyse littéraire" },
-    { range: "101-200", tier: "Grand Sage", color: "#F59E0B", icon: "Zap", description: "Sagesse ultime du lecteur" }
+    {
+      range: "1-10",
+      tier: "Apprenti",
+      color: "#6B7280",
+      icon: "BookOpen",
+      description: "Premiers pas dans la lecture",
+    },
+    {
+      range: "11-25",
+      tier: "Explorateur",
+      color: "#059669",
+      icon: "Shield",
+      description: "Découverte des genres littéraires",
+    },
+    {
+      range: "26-50",
+      tier: "Connaisseur",
+      color: "#DC2626",
+      icon: "Crown",
+      description: "Maîtrise des techniques de lecture",
+    },
+    {
+      range: "51-100",
+      tier: "Expert",
+      color: "#7C3AED",
+      icon: "Sparkles",
+      description: "Excellence en analyse littéraire",
+    },
+    {
+      range: "101-200",
+      tier: "Grand Sage",
+      color: "#F59E0B",
+      icon: "Zap",
+      description: "Sagesse ultime du lecteur",
+    },
   ];
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           className={cn("h-8 w-8 p-0", className)}
         >
           <Info className="h-4 w-4" />
@@ -65,26 +110,27 @@ export function LevelsInfoModal({ currentLevel, className }: LevelsInfoModalProp
             Système de niveaux
           </DialogTitle>
         </DialogHeader>
-        
+
         <ScrollArea className="max-h-96">
           <div className="space-y-4 pr-4">
             {levelRanges.map((tier, index) => {
               const TierIcon = getTierIcon(tier.icon);
-              const isCurrentTier = currentLevel >= parseInt(tier.range.split('-')[0]) && 
-                                   currentLevel <= parseInt(tier.range.split('-')[1]);
-              
+              const isCurrentTier =
+                currentLevel >= parseInt(tier.range.split("-")[0]) &&
+                currentLevel <= parseInt(tier.range.split("-")[1]);
+
               return (
                 <div
                   key={index}
                   className={cn(
                     "p-4 rounded-lg border transition-all",
-                    isCurrentTier 
-                      ? "border-primary bg-primary/5 ring-2 ring-primary/20" 
+                    isCurrentTier
+                      ? "border-primary bg-primary/5 ring-2 ring-primary/20"
                       : "border-gray-200 dark:border-gray-700"
                   )}
                 >
                   <div className="flex items-center gap-3 mb-2">
-                    <div 
+                    <div
                       className="p-2 rounded-full text-white"
                       style={{ backgroundColor: tier.color }}
                     >
@@ -107,20 +153,30 @@ export function LevelsInfoModal({ currentLevel, className }: LevelsInfoModalProp
                   <p className="text-xs text-muted-foreground ml-11">
                     {tier.description}
                   </p>
-                  
+
                   {/* Example levels for this tier */}
                   <div className="mt-3 ml-11">
-                    <div className="text-xs text-muted-foreground mb-1">Exemples :</div>
+                    <div className="text-xs text-muted-foreground mb-1">
+                      Exemples :
+                    </div>
                     <div className="flex flex-wrap gap-1">
-                      {[0, 1, 2].map(offset => {
-                        const levelStart = parseInt(tier.range.split('-')[0]);
-                        const levelEnd = parseInt(tier.range.split('-')[1]);
-                        const exampleLevel = Math.min(levelStart + offset * Math.floor((levelEnd - levelStart) / 3), levelEnd);
-                        
+                      {[0, 1, 2].map((offset) => {
+                        const levelStart = parseInt(tier.range.split("-")[0]);
+                        const levelEnd = parseInt(tier.range.split("-")[1]);
+                        const exampleLevel = Math.min(
+                          levelStart +
+                            offset * Math.floor((levelEnd - levelStart) / 3),
+                          levelEnd
+                        );
+
                         return (
-                          <Badge 
-                            key={offset} 
-                            variant={exampleLevel === currentLevel ? "default" : "outline"}
+                          <Badge
+                            key={offset}
+                            variant={
+                              exampleLevel === currentLevel
+                                ? "default"
+                                : "outline"
+                            }
                             className="text-xs"
                           >
                             Niv. {exampleLevel}
@@ -132,7 +188,7 @@ export function LevelsInfoModal({ currentLevel, className }: LevelsInfoModalProp
                 </div>
               );
             })}
-            
+
             {/* Progression Tips */}
             <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
               <div className="flex items-center gap-2 mb-2">
@@ -153,4 +209,4 @@ export function LevelsInfoModal({ currentLevel, className }: LevelsInfoModalProp
       </DialogContent>
     </Dialog>
   );
-} 
+}

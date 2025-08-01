@@ -2,17 +2,22 @@
 
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { 
-  Trophy, 
-  Star, 
-  Sparkles, 
-  Award, 
-  Coins, 
-  BookOpen, 
+import {
+  Trophy,
+  Star,
+  Sparkles,
+  Award,
+  Coins,
+  BookOpen,
   Crown,
   Zap,
   Gift,
@@ -21,16 +26,19 @@ import {
   PenTool,
   Search,
   PartyPopper,
-  Check
+  Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getRandomNarrativeMessage } from "@/utils/gamificationUtils";
-import type { Mission, Badge as GamificationBadge } from "@/types/gamificationTypes";
+import type {
+  Mission,
+  Badge as GamificationBadge,
+} from "@/types/gamificationTypes";
 
 interface CelebrationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  type: 'mission' | 'level' | 'badge' | 'streak' | 'achievement';
+  type: "mission" | "level" | "badge" | "streak" | "achievement";
   data: {
     mission?: Mission;
     level?: number;
@@ -44,11 +52,11 @@ interface CelebrationModalProps {
   };
 }
 
-export function CelebrationModal({ 
-  isOpen, 
-  onClose, 
-  type, 
-  data 
+export function CelebrationModal({
+  isOpen,
+  onClose,
+  type,
+  data,
 }: CelebrationModalProps) {
   const [isAnimating, setIsAnimating] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
@@ -57,7 +65,7 @@ export function CelebrationModal({
     if (isOpen) {
       setIsAnimating(true);
       setShowConfetti(true);
-      
+
       const timer = setTimeout(() => {
         setShowConfetti(false);
       }, 3000);
@@ -68,49 +76,49 @@ export function CelebrationModal({
 
   const getCelebrationContent = () => {
     switch (type) {
-      case 'mission':
+      case "mission":
         return {
           icon: <Target className="w-20 h-20 text-blue-500" />,
           title: "Mission accomplie !",
           subtitle: data.mission?.title || "Félicitations !",
-          message: getRandomNarrativeMessage('missionComplete'),
-          color: "blue"
+          message: getRandomNarrativeMessage("missionComplete"),
+          color: "blue",
         };
-      
-      case 'level':
+
+      case "level":
         return {
           icon: <Trophy className="w-20 h-20 text-yellow-500" />,
           title: `Niveau ${data.level} atteint !`,
           subtitle: data.title || "Nouveau niveau débloqué",
-          message: getRandomNarrativeMessage('levelUp'),
-          color: "yellow"
+          message: getRandomNarrativeMessage("levelUp"),
+          color: "yellow",
         };
-      
-      case 'badge':
+
+      case "badge":
         return {
           icon: <Award className="w-20 h-20 text-purple-500" />,
           title: "Nouveau badge !",
           subtitle: data.badge?.name || "Badge débloqué",
-          message: getRandomNarrativeMessage('badgeEarned'),
-          color: "purple"
+          message: getRandomNarrativeMessage("badgeEarned"),
+          color: "purple",
         };
-      
-      case 'streak':
+
+      case "streak":
         return {
           icon: <Sparkles className="w-20 h-20 text-orange-500" />,
           title: "Série maintenue !",
           subtitle: `${data.streak} jours consécutifs`,
-          message: getRandomNarrativeMessage('streakMaintained'),
-          color: "orange"
+          message: getRandomNarrativeMessage("streakMaintained"),
+          color: "orange",
         };
-      
+
       default:
         return {
           icon: <Star className="w-20 h-20 text-green-500" />,
           title: "Succès !",
           subtitle: data.title || "Objectif atteint",
           message: "Vous avez accompli quelque chose d'extraordinaire !",
-          color: "green"
+          color: "green",
         };
     }
   };
@@ -119,18 +127,24 @@ export function CelebrationModal({
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'reading': return BookOpen;
-      case 'exploration': return Search;
-      case 'community': return Users;
-      case 'creation': return PenTool;
-      case 'engagement': return Target;
-      default: return BookOpen;
+      case "reading":
+        return BookOpen;
+      case "exploration":
+        return Search;
+      case "community":
+        return Users;
+      case "creation":
+        return PenTool;
+      case "engagement":
+        return Target;
+      default:
+        return BookOpen;
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent 
+      <DialogContent
         className="max-w-md max-h-[90vh] overflow-y-auto"
         style={{ zIndex: 9999 }}
       >
@@ -153,7 +167,7 @@ export function CelebrationModal({
                       left: `${Math.random() * 100}%`,
                       top: `${Math.random() * 100}%`,
                       animationDelay: `${Math.random() * 2}s`,
-                      animationDuration: `${1 + Math.random() * 2}s`
+                      animationDuration: `${1 + Math.random() * 2}s`,
                     }}
                   />
                 ))}
@@ -163,10 +177,9 @@ export function CelebrationModal({
 
           <div className="relative z-10 text-center pt-4 pb-2">
             <div className="flex justify-center mb-4">
-              <div className={cn(
-                "animate-bounce",
-                isAnimating && "animate-pulse"
-              )}>
+              <div
+                className={cn("animate-bounce", isAnimating && "animate-pulse")}
+              >
                 {content.icon}
               </div>
             </div>
@@ -195,20 +208,26 @@ export function CelebrationModal({
                   {data.bookcoins && (
                     <div className="flex items-center gap-2">
                       <Coins className="w-5 h-5 text-yellow-500" />
-                      <span className="font-medium">+{data.bookcoins} BookCoins</span>
+                      <span className="font-medium">
+                        +{data.bookcoins} BookCoins
+                      </span>
                     </div>
                   )}
                 </div>
               )}
 
               {/* Mission Details */}
-              {type === 'mission' && data.mission && (
+              {type === "mission" && data.mission && (
                 <Card>
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
                       {(() => {
-                        const CategoryIcon = getCategoryIcon(data.mission.category);
-                        return <CategoryIcon className="w-5 h-5 text-muted-foreground" />;
+                        const CategoryIcon = getCategoryIcon(
+                          data.mission.category
+                        );
+                        return (
+                          <CategoryIcon className="w-5 h-5 text-muted-foreground" />
+                        );
                       })()}
                       <div className="flex-1 text-left">
                         <p className="font-medium">{data.mission.title}</p>
@@ -243,7 +262,7 @@ export function CelebrationModal({
               )}
 
               {/* Badge Details */}
-              {type === 'badge' && data.badge && (
+              {type === "badge" && data.badge && (
                 <Card>
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
@@ -267,7 +286,7 @@ export function CelebrationModal({
 
             {/* Fixed bottom button with proper spacing */}
             <div className="sticky bottom-0 bg-background/95 backdrop-blur-sm border-t pt-3 pb-2 mt-4 -mx-6 px-6">
-              <Button 
+              <Button
                 onClick={onClose}
                 className="w-full relative z-20 shadow-lg"
                 size="lg"
@@ -281,4 +300,4 @@ export function CelebrationModal({
       </DialogContent>
     </Dialog>
   );
-} 
+}

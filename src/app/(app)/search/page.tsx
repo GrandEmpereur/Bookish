@@ -11,7 +11,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useInfiniteSearch } from "@/hooks/useAdvancedSearch";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { SearchCategory } from "@/types/searchTypes";
-import { recommendationService, RecommendedBook } from "@/services/recommendation.service";
+import {
+  recommendationService,
+  RecommendedBook,
+} from "@/services/recommendation.service";
 import { toast } from "sonner";
 import {
   BookOpen,
@@ -36,7 +39,7 @@ import Image from "next/image";
 
 const TRENDING_SEARCHES = [
   "Harry Potter",
-  "Dune", 
+  "Dune",
   "Stephen King",
   "Romance contemporaine",
   "Science-fiction",
@@ -52,7 +55,7 @@ const CATEGORY_INFO = {
     description: "Recherchez dans tout Bookish",
   },
   users: {
-    label: "Utilisateurs", 
+    label: "Utilisateurs",
     icon: Users,
     description: "Trouvez des lecteurs et auteurs",
   },
@@ -77,10 +80,11 @@ function SearchPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("query") || "";
-  const initialCategory = (searchParams.get("category") as SearchCategory) || "all";
-  
+  const initialCategory =
+    (searchParams.get("category") as SearchCategory) || "all";
+
   const isNative = Capacitor.isNativePlatform();
-  
+
   // States
   const [recommendations, setRecommendations] = useState<RecommendedBook[]>([]);
   const [loadingRecommendations, setLoadingRecommendations] = useState(false);
@@ -161,10 +165,15 @@ function SearchPageContent() {
     setQuery(searchTerm);
   };
 
-  const handleRecommendationFeedback = async (bookId: string, liked: boolean) => {
+  const handleRecommendationFeedback = async (
+    bookId: string,
+    liked: boolean
+  ) => {
     try {
       await recommendationService.sendFeedback({ bookId, liked });
-      toast.success(liked ? "Merci pour votre retour positif !" : "Merci pour votre retour");
+      toast.success(
+        liked ? "Merci pour votre retour positif !" : "Merci pour votre retour"
+      );
     } catch (error) {
       toast.error("Erreur lors de l'envoi du feedback");
     }
@@ -178,7 +187,7 @@ function SearchPageContent() {
   const translateRole = (role: string) => {
     const roleTranslations: { [key: string]: string } = {
       USER: "Utilisateur",
-      AUTHOR: "Auteur", 
+      AUTHOR: "Auteur",
       ADMIN: "Administrateur",
       MODERATOR: "Modérateur",
       PREMIUM: "Premium",
@@ -222,7 +231,9 @@ function SearchPageContent() {
                 )}
                 <div className="flex items-center gap-1">
                   <Star className="h-3 w-3 text-amber-500 fill-current" />
-                  <span className="text-xs font-medium">{(book.score * 100).toFixed(0)}%</span>
+                  <span className="text-xs font-medium">
+                    {(book.score * 100).toFixed(0)}%
+                  </span>
                 </div>
               </div>
               <div className="flex gap-1">
@@ -258,71 +269,71 @@ function SearchPageContent() {
 
   const renderEmptyState = () => (
     <div className="space-y-8">
-             {/* Recommendations Section */}
-       {recommendations.length > 0 && (
-         <div className="space-y-3">
-           <div className="flex items-center gap-2">
-             <Sparkles className="h-4 w-4 text-primary" />
-             <h2 className="text-lg font-semibold">Recommandé pour vous</h2>
-           </div>
-           <div className="grid gap-2">
-             {recommendations.slice(0, 4).map((book) => (
-               <div
-                 key={book.id}
-                 onClick={() => router.push(`/books/${book.id}`)}
-                 className="cursor-pointer touch-manipulation"
-               >
-                 <RecommendationCard book={book} />
-               </div>
-             ))}
-           </div>
-           {recommendations.length > 4 && (
-             <Button
-               variant="outline"
-               onClick={() => router.push("/recommendations")}
-               className="w-full h-11 touch-manipulation"
-             >
-               Voir plus de recommandations
-             </Button>
-           )}
-         </div>
-       )}
+      {/* Recommendations Section */}
+      {recommendations.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-primary" />
+            <h2 className="text-lg font-semibold">Recommandé pour vous</h2>
+          </div>
+          <div className="grid gap-2">
+            {recommendations.slice(0, 4).map((book) => (
+              <div
+                key={book.id}
+                onClick={() => router.push(`/books/${book.id}`)}
+                className="cursor-pointer touch-manipulation"
+              >
+                <RecommendationCard book={book} />
+              </div>
+            ))}
+          </div>
+          {recommendations.length > 4 && (
+            <Button
+              variant="outline"
+              onClick={() => router.push("/recommendations")}
+              className="w-full h-11 touch-manipulation"
+            >
+              Voir plus de recommandations
+            </Button>
+          )}
+        </div>
+      )}
 
-             {/* Welcome Section */}
-       <div className="text-center space-y-4 py-6">
-         <div className="relative inline-block">
-           <SearchIcon className="h-12 w-12 text-primary/20" />
-           <Sparkles className="absolute -top-1 -right-1 h-4 w-4 text-primary animate-pulse" />
-         </div>
-         <div className="space-y-2">
-           <h3 className="text-xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-             Découvrez Bookish
-           </h3>
-           <p className="text-muted-foreground text-sm px-4">
-             Recherchez des livres, des utilisateurs, des clubs et des listes
-           </p>
-         </div>
+      {/* Welcome Section */}
+      <div className="text-center space-y-4 py-6">
+        <div className="relative inline-block">
+          <SearchIcon className="h-12 w-12 text-primary/20" />
+          <Sparkles className="absolute -top-1 -right-1 h-4 w-4 text-primary animate-pulse" />
+        </div>
+        <div className="space-y-2">
+          <h3 className="text-xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+            Découvrez Bookish
+          </h3>
+          <p className="text-muted-foreground text-sm px-4">
+            Recherchez des livres, des utilisateurs, des clubs et des listes
+          </p>
+        </div>
 
-         <div className="space-y-3">
-           <div className="flex items-center gap-2 justify-center">
-             <TrendingUp className="h-4 w-4 text-primary" />
-             <h4 className="text-sm font-medium">Recherches populaires</h4>
-           </div>
-           <div className="flex flex-wrap gap-2 justify-center px-4">
-             {TRENDING_SEARCHES.map((search) => (
-               <Button
-                 key={search}
-                 variant="outline"
-                 size="sm"
-                 onClick={() => handleTrendingSearch(search)}
-                 className="text-xs h-8 px-3 touch-manipulation active:scale-95 transition-transform"
-               >
-                 {search}
-               </Button>
-             ))}
-           </div>
-         </div>
-       </div>
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 justify-center">
+            <TrendingUp className="h-4 w-4 text-primary" />
+            <h4 className="text-sm font-medium">Recherches populaires</h4>
+          </div>
+          <div className="flex flex-wrap gap-2 justify-center px-4">
+            {TRENDING_SEARCHES.map((search) => (
+              <Button
+                key={search}
+                variant="outline"
+                size="sm"
+                onClick={() => handleTrendingSearch(search)}
+                className="text-xs h-8 px-3 touch-manipulation active:scale-95 transition-transform"
+              >
+                {search}
+              </Button>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 
@@ -393,7 +404,10 @@ function SearchPageContent() {
                     <h3 className="font-medium line-clamp-2 leading-tight text-sm">
                       {item.title}
                     </h3>
-                    <Badge variant="outline" className="text-xs shrink-0 px-1.5 py-0.5">
+                    <Badge
+                      variant="outline"
+                      className="text-xs shrink-0 px-1.5 py-0.5"
+                    >
                       LIVRE
                     </Badge>
                   </div>
@@ -402,7 +416,10 @@ function SearchPageContent() {
                   </p>
                   <div className="flex items-center gap-2 mt-2 flex-wrap">
                     {item.genre && (
-                      <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
+                      <Badge
+                        variant="secondary"
+                        className="text-xs px-1.5 py-0.5"
+                      >
                         {item.genre}
                       </Badge>
                     )}
@@ -435,7 +452,10 @@ function SearchPageContent() {
                     <h3 className="font-medium line-clamp-2 text-sm leading-tight">
                       {item.name}
                     </h3>
-                    <Badge variant="outline" className="text-xs shrink-0 px-1.5 py-0.5">
+                    <Badge
+                      variant="outline"
+                      className="text-xs shrink-0 px-1.5 py-0.5"
+                    >
                       CLUB
                     </Badge>
                   </div>
@@ -449,7 +469,10 @@ function SearchPageContent() {
                     {item.genre && (
                       <>
                         <span>•</span>
-                        <Badge variant="outline" className="text-xs px-1.5 py-0.5">
+                        <Badge
+                          variant="outline"
+                          className="text-xs px-1.5 py-0.5"
+                        >
                           {item.genre}
                         </Badge>
                       </>
@@ -479,7 +502,10 @@ function SearchPageContent() {
                     <h3 className="font-medium line-clamp-2 text-sm leading-tight">
                       {item.name}
                     </h3>
-                    <Badge variant="outline" className="text-xs shrink-0 px-1.5 py-0.5">
+                    <Badge
+                      variant="outline"
+                      className="text-xs shrink-0 px-1.5 py-0.5"
+                    >
                       LISTE
                     </Badge>
                   </div>
@@ -491,11 +517,16 @@ function SearchPageContent() {
                   <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground flex-wrap">
                     <span>{item.bookCount || 0} livres</span>
                     <span>•</span>
-                    <span className="truncate">{item.user?.username || item.creator?.username}</span>
+                    <span className="truncate">
+                      {item.user?.username || item.creator?.username}
+                    </span>
                     {item.visibility && (
                       <>
                         <span>•</span>
-                        <Badge variant="outline" className="text-xs capitalize px-1.5 py-0.5">
+                        <Badge
+                          variant="outline"
+                          className="text-xs capitalize px-1.5 py-0.5"
+                        >
                           {item.visibility}
                         </Badge>
                       </>
@@ -521,7 +552,9 @@ function SearchPageContent() {
             <h3 className="text-base font-semibold">Aucun résultat trouvé</h3>
             <p className="text-muted-foreground text-sm">
               Aucun résultat pour "{query}" dans{" "}
-              {CATEGORY_INFO[currentCategory as keyof typeof CATEGORY_INFO]?.label.toLowerCase()}
+              {CATEGORY_INFO[
+                currentCategory as keyof typeof CATEGORY_INFO
+              ]?.label.toLowerCase()}
             </p>
           </div>
           <div className="flex flex-wrap gap-2 justify-center">
@@ -533,9 +566,9 @@ function SearchPageContent() {
             >
               Recherche globale
             </Button>
-            <Button 
-              onClick={clearSearch} 
-              variant="outline" 
+            <Button
+              onClick={clearSearch}
+              variant="outline"
               size="sm"
               className="h-9 px-3 touch-manipulation"
             >
@@ -567,9 +600,7 @@ function SearchPageContent() {
           </Button>
         </div>
 
-        <div className="grid gap-3">
-          {results.map(renderResultItem)}
-        </div>
+        <div className="grid gap-3">{results.map(renderResultItem)}</div>
 
         {/* Load more */}
         <div ref={loadMoreRef} className="flex justify-center py-4">
@@ -590,10 +621,12 @@ function SearchPageContent() {
   };
 
   return (
-    <div className={cn(
-      "min-h-screen bg-gradient-to-br from-background via-background to-background/80 pb-[120px]",
-      isNative ? "pt-[120px]" : "pt-[100px]"
-    )}>
+    <div
+      className={cn(
+        "min-h-screen bg-gradient-to-br from-background via-background to-background/80 pb-[120px]",
+        isNative ? "pt-[120px]" : "pt-[100px]"
+      )}
+    >
       <div className="px-3 max-w-2xl mx-auto">
         {/* Header avec SearchBar */}
         <div className="mb-4 w-full">
@@ -612,7 +645,10 @@ function SearchPageContent() {
         {initialLoading ? (
           <div className="space-y-3">
             {[...Array(4)].map((_, index) => (
-              <Card key={index} className="border-0 bg-gradient-to-br from-background to-background/50">
+              <Card
+                key={index}
+                className="border-0 bg-gradient-to-br from-background to-background/50"
+              >
                 <CardContent className="p-3 space-y-3">
                   <div className="flex gap-3">
                     <div className="h-10 w-10 rounded-full bg-muted animate-pulse" />
@@ -629,10 +665,12 @@ function SearchPageContent() {
           renderEmptyState()
         ) : error ? (
           <div className="text-center py-8 space-y-4 px-4">
-            <div className="text-destructive text-base font-semibold">Erreur de recherche</div>
+            <div className="text-destructive text-base font-semibold">
+              Erreur de recherche
+            </div>
             <p className="text-muted-foreground text-sm">{error}</p>
-            <Button 
-              onClick={refresh} 
+            <Button
+              onClick={refresh}
               variant="outline"
               className="h-10 px-4 touch-manipulation"
             >
@@ -642,7 +680,9 @@ function SearchPageContent() {
         ) : (
           <Tabs
             value={currentCategory}
-            onValueChange={(value) => handleCategoryChange(value as SearchCategory)}
+            onValueChange={(value) =>
+              handleCategoryChange(value as SearchCategory)
+            }
             className="w-full"
           >
             <TabsList className="grid w-full grid-cols-5 mb-4 h-auto bg-background/50 backdrop-blur-sm touch-manipulation">
@@ -698,22 +738,23 @@ function SearchPageContent() {
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-background pt-25 pb-[120px]">
-        <div className="container mx-auto px-4 max-w-4xl">
-          <div className="animate-pulse space-y-4">
-            <div className="h-10 bg-gray-200 rounded mx-auto max-w-lg"></div>
-            <div className="h-8 bg-gray-200 rounded w-1/3 mx-auto"></div>
-            <div className="space-y-2">
-              <div className="h-4 bg-gray-200 rounded"></div>
-              <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-background pt-25 pb-[120px]">
+          <div className="container mx-auto px-4 max-w-4xl">
+            <div className="animate-pulse space-y-4">
+              <div className="h-10 bg-gray-200 rounded mx-auto max-w-lg"></div>
+              <div className="h-8 bg-gray-200 rounded w-1/3 mx-auto"></div>
+              <div className="space-y-2">
+                <div className="h-4 bg-gray-200 rounded"></div>
+                <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <SearchPageContent />
     </Suspense>
   );
 }
-

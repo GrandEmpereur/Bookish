@@ -10,6 +10,7 @@ import { Users, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { FloatingActionButton } from "@/components/ui/floating-action-button";
 import { useAuth } from "@/contexts/auth-context";
+import { Capacitor } from "@capacitor/core";
 
 export default function Clubs() {
   const router = useRouter();
@@ -20,20 +21,27 @@ export default function Clubs() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
+  // Détection responsive pour le padding-top
+  const isNativePlatform = Capacitor.isNativePlatform();
+  const topPadding = isNativePlatform ? "pt-[120px]" : "pt-[100px]";
+
   useEffect(() => {
     const fetchClubs = async () => {
       try {
         setLoading(true);
         const response = await clubService.getClubs({ page: 1, perPage: 20 });
-        
+
         if (response.data) {
           // Structure réelle: { data: { clubs: Club[], pagination: {...} } }
           const clubsData = response.data.clubs || [];
           const paginationData = response.data.pagination;
-          
+
           setClubs(clubsData);
-          
-          if (paginationData && typeof paginationData.has_more !== 'undefined') {
+
+          if (
+            paginationData &&
+            typeof paginationData.has_more !== "undefined"
+          ) {
             setHasMore(paginationData.has_more);
           } else {
             setHasMore(false);
@@ -56,16 +64,19 @@ export default function Clubs() {
 
     try {
       const nextPage = page + 1;
-      const response = await clubService.getClubs({ page: nextPage, perPage: 20 });
-      
+      const response = await clubService.getClubs({
+        page: nextPage,
+        perPage: 20,
+      });
+
       if (response.data) {
         // Structure réelle: { data: { clubs: Club[], pagination: {...} } }
         const clubsData = response.data.clubs || [];
         const paginationData = response.data.pagination;
-        
-        setClubs(prev => [...prev, ...clubsData]);
-        
-        if (paginationData && typeof paginationData.has_more !== 'undefined') {
+
+        setClubs((prev) => [...prev, ...clubsData]);
+
+        if (paginationData && typeof paginationData.has_more !== "undefined") {
           setHasMore(paginationData.has_more);
           setPage(paginationData.current_page || nextPage);
         } else {
@@ -81,17 +92,17 @@ export default function Clubs() {
   // Fonction pour filtrer les clubs de l'utilisateur
   const getMyClubs = () => {
     if (!user?.user?.id) return [];
-    
+
     return clubs.filter((club) => {
       // L'utilisateur est membre du club
       const isMember = club.isMember === true;
-      
+
       // L'utilisateur a un rôle dans le club
       const hasRole = club.currentUserRole;
-      
+
       // L'utilisateur est le propriétaire du club
       const isOwner = club.owner?.id === user.user?.id;
-      
+
       return isMember || hasRole || isOwner;
     });
   };
@@ -108,7 +119,7 @@ export default function Clubs() {
   );
 
   return (
-    <div className="flex-1 px-5 pt-25">
+    <div className={`flex-1 px-5 ${topPadding} pb-[120px]`}>
       <div className="space-y-6">
         <Tabs
           value={activeTab}
@@ -135,8 +146,8 @@ export default function Clubs() {
               {loading ? (
                 <ClubGridSkeleton />
               ) : (
-                <ClubGrid 
-                  clubs={clubs} 
+                <ClubGrid
+                  clubs={clubs}
                   hasMore={hasMore}
                   onLoadMore={loadMoreClubs}
                   loading={false}
@@ -147,8 +158,8 @@ export default function Clubs() {
               {loading ? (
                 <ClubGridSkeleton />
               ) : getMyClubs().length > 0 ? (
-                <ClubGrid 
-                  clubs={getMyClubs()} 
+                <ClubGrid
+                  clubs={getMyClubs()}
                   hasMore={false}
                   onLoadMore={() => {}}
                   loading={false}
@@ -189,7 +200,7 @@ const ClubGrid = ({ clubs, hasMore, onLoadMore, loading }: ClubGridProps) => (
         <ClubCard key={club.id} club={club} variant="grid" />
       ))}
     </div>
-    
+
     {hasMore && (
       <div className="text-center py-4">
         <button

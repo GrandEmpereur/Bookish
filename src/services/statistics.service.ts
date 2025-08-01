@@ -15,8 +15,11 @@ class StatisticsService {
 
   // GET /users/reading-statistics/dashboard
   async getReadingStatistics(): Promise<ReadingStatisticsResponse> {
-    return this.makeRequest<ReadingStatisticsResponse>("GET", "/users/reading-statistics/dashboard");
+    return this.makeRequest<ReadingStatisticsResponse>(
+      "GET",
+      "/users/reading-statistics/dashboard"
+    );
   }
 }
 
-export const statisticsService = new StatisticsService(); 
+export const statisticsService = new StatisticsService();

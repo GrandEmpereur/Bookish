@@ -5,7 +5,11 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Capacitor } from "@capacitor/core";
 import { cn } from "@/lib/utils";
-import { recommendationService, RecommendedBook, RecommendationFeedback } from "@/services/recommendation.service";
+import {
+  recommendationService,
+  RecommendedBook,
+  RecommendationFeedback,
+} from "@/services/recommendation.service";
 import { toast } from "sonner";
 
 // Components
@@ -17,18 +21,18 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 
 // Icons
-import { 
-  Sparkles, 
-  ThumbsUp, 
-  ThumbsDown, 
-  Star, 
-  BookOpen, 
+import {
+  Sparkles,
+  ThumbsUp,
+  ThumbsDown,
+  Star,
+  BookOpen,
   RefreshCw,
   TrendingUp,
   Heart,
   Filter,
   ArrowLeft,
-  Loader2
+  Loader2,
 } from "lucide-react";
 
 const FILTER_OPTIONS = {
@@ -48,7 +52,9 @@ export default function RecommendationsPage() {
 
   // State
   const [recommendations, setRecommendations] = useState<RecommendedBook[]>([]);
-  const [filteredRecommendations, setFilteredRecommendations] = useState<RecommendedBook[]>([]);
+  const [filteredRecommendations, setFilteredRecommendations] = useState<
+    RecommendedBook[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [currentFilter, setCurrentFilter] = useState<FilterType>("all");
@@ -77,17 +83,21 @@ export default function RecommendationsPage() {
   }, []);
 
   // Filter recommendations
-  const filterRecommendations = useCallback((filter: FilterType) => {
-    if (filter === "all") {
-      setFilteredRecommendations(recommendations);
-    } else {
-      const filtered = recommendations.filter(book => 
-        book.genre?.toLowerCase().includes(filter.replace("_", "-")) ||
-        book.genre?.toLowerCase().includes(filter.replace("_", " "))
-      );
-      setFilteredRecommendations(filtered);
-    }
-  }, [recommendations]);
+  const filterRecommendations = useCallback(
+    (filter: FilterType) => {
+      if (filter === "all") {
+        setFilteredRecommendations(recommendations);
+      } else {
+        const filtered = recommendations.filter(
+          (book) =>
+            book.genre?.toLowerCase().includes(filter.replace("_", "-")) ||
+            book.genre?.toLowerCase().includes(filter.replace("_", " "))
+        );
+        setFilteredRecommendations(filtered);
+      }
+    },
+    [recommendations]
+  );
 
   // Handle filter change
   const handleFilterChange = (filter: FilterType) => {
@@ -96,27 +106,30 @@ export default function RecommendationsPage() {
   };
 
   // Handle feedback
-  const handleRecommendationFeedback = async (bookId: string, liked: boolean) => {
+  const handleRecommendationFeedback = async (
+    bookId: string,
+    liked: boolean
+  ) => {
     try {
       const feedback: RecommendationFeedback = {
         bookId,
         liked,
-        reason: liked ? "user_liked" : "user_disliked"
+        reason: liked ? "user_liked" : "user_disliked",
       };
 
       await recommendationService.sendFeedback(feedback);
 
       if (liked) {
-        setLikedBooks(prev => new Set(prev).add(bookId));
-        setDislikedBooks(prev => {
+        setLikedBooks((prev) => new Set(prev).add(bookId));
+        setDislikedBooks((prev) => {
           const newSet = new Set(prev);
           newSet.delete(bookId);
           return newSet;
         });
         toast.success("Livre ajouté à vos préférences !");
       } else {
-        setDislikedBooks(prev => new Set(prev).add(bookId));
-        setLikedBooks(prev => {
+        setDislikedBooks((prev) => new Set(prev).add(bookId));
+        setLikedBooks((prev) => {
           const newSet = new Set(prev);
           newSet.delete(bookId);
           return newSet;
@@ -145,7 +158,7 @@ export default function RecommendationsPage() {
     const isDisliked = dislikedBooks.has(book.id);
 
     return (
-      <Card 
+      <Card
         className="active:scale-95 transition-all duration-150 border-0 bg-gradient-to-br from-background to-background/50 touch-manipulation"
         onClick={() => router.push(`/books/${book.id}`)}
       >
@@ -173,10 +186,12 @@ export default function RecommendationsPage() {
                 </h3>
                 <div className="flex items-center gap-1 shrink-0">
                   <Star className="h-3 w-3 text-amber-500 fill-current" />
-                  <span className="text-xs font-medium">{(book.score * 100).toFixed(0)}%</span>
+                  <span className="text-xs font-medium">
+                    {(book.score * 100).toFixed(0)}%
+                  </span>
                 </div>
               </div>
-              
+
               <p className="text-xs text-muted-foreground mb-2 truncate">
                 {book.author}
               </p>
@@ -184,7 +199,10 @@ export default function RecommendationsPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {book.genre && (
-                    <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
+                    <Badge
+                      variant="secondary"
+                      className="text-xs px-1.5 py-0.5"
+                    >
                       {book.genre}
                     </Badge>
                   )}
@@ -194,7 +212,7 @@ export default function RecommendationsPage() {
                     </span>
                   )}
                 </div>
-                
+
                 <div className="flex gap-1">
                   <Button
                     variant={isLiked ? "default" : "ghost"}
@@ -234,18 +252,22 @@ export default function RecommendationsPage() {
   };
 
   return (
-    <div className={cn(
-      "min-h-screen bg-gradient-to-br from-background via-background to-background/80 pb-[120px]",
-      isNative ? "pt-[120px]" : "pt-[100px]"
-    )}>
+    <div
+      className={cn(
+        "min-h-screen bg-gradient-to-br from-background via-background to-background/80 pb-[120px]",
+        isNative ? "pt-[120px]" : "pt-[100px]"
+      )}
+    >
       <div className="px-3 max-w-2xl mx-auto">
         {/* Header */}
         <div className="mb-4 space-y-4">
           <div className="flex items-center gap-3">
             <Sparkles className="h-5 w-5 text-primary" />
-            <h1 className="text-xl font-bold">Recommandations personnalisées</h1>
+            <h1 className="text-xl font-bold">
+              Recommandations personnalisées
+            </h1>
           </div>
-          
+
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
               Découvrez des livres sélectionnés pour vous
@@ -290,7 +312,10 @@ export default function RecommendationsPage() {
         {loading ? (
           <div className="space-y-3">
             {[...Array(6)].map((_, index) => (
-              <Card key={index} className="border-0 bg-gradient-to-br from-background to-background/50">
+              <Card
+                key={index}
+                className="border-0 bg-gradient-to-br from-background to-background/50"
+              >
                 <CardContent className="p-3">
                   <div className="flex gap-3">
                     <div className="h-20 w-16 rounded-md bg-muted animate-pulse" />
@@ -310,10 +335,9 @@ export default function RecommendationsPage() {
             <div className="space-y-2">
               <h3 className="text-lg font-semibold">Aucune recommandation</h3>
               <p className="text-muted-foreground text-sm">
-                {currentFilter === "all" 
+                {currentFilter === "all"
                   ? "Nous n'avons pas encore de recommandations pour vous."
-                  : `Aucune recommandation trouvée pour ${FILTER_OPTIONS[currentFilter].label.toLowerCase()}.`
-                }
+                  : `Aucune recommandation trouvée pour ${FILTER_OPTIONS[currentFilter].label.toLowerCase()}.`}
               </p>
             </div>
             <div className="flex flex-col gap-2 items-center">
@@ -340,7 +364,9 @@ export default function RecommendationsPage() {
             {/* Stats */}
             <div className="flex items-center justify-between">
               <p className="text-sm text-muted-foreground">
-                {filteredRecommendations.length} livre{filteredRecommendations.length > 1 ? "s" : ""} recommandé{filteredRecommendations.length > 1 ? "s" : ""}
+                {filteredRecommendations.length} livre
+                {filteredRecommendations.length > 1 ? "s" : ""} recommandé
+                {filteredRecommendations.length > 1 ? "s" : ""}
               </p>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <ThumbsUp className="h-3 w-3 text-green-500" />
@@ -362,11 +388,14 @@ export default function RecommendationsPage() {
               <div className="mt-6 p-4 bg-muted/30 rounded-lg">
                 <div className="flex items-center gap-2 mb-2">
                   <Heart className="h-4 w-4 text-primary" />
-                  <h4 className="text-sm font-medium">Améliorez vos recommandations</h4>
+                  <h4 className="text-sm font-medium">
+                    Améliorez vos recommandations
+                  </h4>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Utilisez les boutons 👍 et 👎 pour nous aider à mieux comprendre vos goûts 
-                  et recevoir des recommandations plus précises.
+                  Utilisez les boutons 👍 et 👎 pour nous aider à mieux
+                  comprendre vos goûts et recevoir des recommandations plus
+                  précises.
                 </p>
               </div>
             )}
@@ -375,4 +404,4 @@ export default function RecommendationsPage() {
       </div>
     </div>
   );
-} 
+}

@@ -31,17 +31,26 @@ export const ClubCard = ({ club, variant = "grid" }: Props) => {
   // Fonction pour obtenir l'icône du genre
   const getGenreIcon = (genre: string | null) => {
     if (!genre) return BookOpen;
-    
+
     switch (genre.toLowerCase()) {
-      case 'fantasy': return BookOpen;
-      case 'mystery': return BookOpen;
-      case 'romance': return BookOpen;
-      case 'thriller': return BookOpen;
-      case 'historical': return BookOpen;
-      case 'contemporary': return BookOpen;
-      case 'literary': return BookOpen;
-      case 'manga': return BookOpen;
-      default: return BookOpen;
+      case "fantasy":
+        return BookOpen;
+      case "mystery":
+        return BookOpen;
+      case "romance":
+        return BookOpen;
+      case "thriller":
+        return BookOpen;
+      case "historical":
+        return BookOpen;
+      case "contemporary":
+        return BookOpen;
+      case "literary":
+        return BookOpen;
+      case "manga":
+        return BookOpen;
+      default:
+        return BookOpen;
     }
   };
 
@@ -79,26 +88,27 @@ export const ClubCard = ({ club, variant = "grid" }: Props) => {
         ) : (
           <ClubPlaceholder />
         )}
-        
+
         {/* Badge de visibilité en overlay */}
         <div className="absolute top-2 right-2">
-          <Badge 
+          <Badge
             className={cn(
               "text-xs shadow-sm backdrop-blur-sm border-0",
-              club.type === "Private" 
-                ? "text-white" 
-                : "text-white"
+              club.type === "Private" ? "text-white" : "text-white"
             )}
             style={{
-              backgroundColor: club.type === "Private" 
-                ? "var(--error)" 
-                : "var(--success)"
+              backgroundColor:
+                club.type === "Private" ? "var(--error)" : "var(--success)",
             }}
           >
             {club.type === "Private" ? (
-              <><Lock className="w-3 h-3 mr-1" /> Privé</>
+              <>
+                <Lock className="w-3 h-3 mr-1" /> Privé
+              </>
             ) : (
-              <><Globe className="w-3 h-3 mr-1" /> Public</>
+              <>
+                <Globe className="w-3 h-3 mr-1" /> Public
+              </>
             )}
           </Badge>
         </div>
@@ -131,12 +141,12 @@ export const ClubCard = ({ club, variant = "grid" }: Props) => {
           {/* Genre du club */}
           {club.genre && (
             <div className="flex items-center gap-1">
-              <Badge 
-                variant="outline" 
+              <Badge
+                variant="outline"
                 className="text-xs border-0"
                 style={{
                   backgroundColor: "var(--primary-100)",
-                  color: "var(--primary-700)"
+                  color: "var(--primary-700)",
                 }}
               >
                 <GenreIcon className="w-3 h-3 mr-1" />
@@ -151,14 +161,16 @@ export const ClubCard = ({ club, variant = "grid" }: Props) => {
 };
 
 // Composant skeleton pour les clubs
-export const ClubCardSkeleton = ({ variant = "grid" }: { variant?: "grid" | "list" }) => {
+export const ClubCardSkeleton = ({
+  variant = "grid",
+}: {
+  variant?: "grid" | "list";
+}) => {
   return (
     <div
       className={cn(
         "relative overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm",
-        variant === "grid" 
-          ? "aspect-[4/5] h-full" 
-          : "h-32 flex"
+        variant === "grid" ? "aspect-[4/5] h-full" : "h-32 flex"
       )}
     >
       {variant === "grid" ? (
@@ -177,7 +189,7 @@ export const ClubCardSkeleton = ({ variant = "grid" }: { variant?: "grid" | "lis
                 <Skeleton className="h-3 w-12" />
               </div>
             </div>
-            
+
             <div className="flex items-center justify-between">
               <Skeleton className="h-4 w-16" />
               <Skeleton className="h-5 w-12 rounded-full" />
@@ -190,7 +202,7 @@ export const ClubCardSkeleton = ({ variant = "grid" }: { variant?: "grid" | "lis
           <div className="w-24 h-full">
             <Skeleton className="w-full h-full" />
           </div>
-          
+
           {/* Content skeleton */}
           <div className="flex-1 p-3 space-y-2">
             <Skeleton className="h-5 w-3/4" />

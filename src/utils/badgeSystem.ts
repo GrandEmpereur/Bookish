@@ -1,7 +1,14 @@
-import { Badge, BadgeRequirement, BadgeReward } from "@/types/gamificationTypes";
+import {
+  Badge,
+  BadgeRequirement,
+  BadgeReward,
+} from "@/types/gamificationTypes";
 
 // Predefined badge definitions following the specification
-export const BADGE_DEFINITIONS: Record<string, Omit<Badge, 'id' | 'unlockedAt' | 'isUnlocked'>[]> = {
+export const BADGE_DEFINITIONS: Record<
+  string,
+  Omit<Badge, "id" | "unlockedAt" | "isUnlocked">[]
+> = {
   // Lecteur Marathonien Series - Reading consistency
   reading_marathon: [
     {
@@ -14,43 +21,45 @@ export const BADGE_DEFINITIONS: Record<string, Omit<Badge, 'id' | 'unlockedAt' |
       requirements: {
         type: "streak_days",
         target: 3,
-        description: "Maintenir une série de lecture de 3 jours"
+        description: "Maintenir une série de lecture de 3 jours",
       },
       reward: {
         bookcoins: 50,
         xp: 100,
-        title: "Marathonien Débutant"
+        title: "Marathonien Débutant",
       },
       rarity: "common",
       series: "Lecteur Marathonien",
       narrativeTitle: "Marcheur de Mots",
-      shareableMessage: "J'ai maintenu ma série de lecture 3 jours d'affilée sur Bookish ! 📚✨"
+      shareableMessage:
+        "J'ai maintenu ma série de lecture 3 jours d'affilée sur Bookish ! 📚✨",
     },
     {
-      name: "Lecteur Marathonien II", 
+      name: "Lecteur Marathonien II",
       description: "Lire 7 jours consécutifs",
       category: "streak",
-      level: "silver", 
+      level: "silver",
       tier: 2,
       iconUrl: "/icons/badges/marathon-silver.svg",
       requirements: {
         type: "streak_days",
         target: 7,
-        description: "Maintenir une série de lecture d'une semaine complète"
+        description: "Maintenir une série de lecture d'une semaine complète",
       },
       reward: {
         bookcoins: 100,
         xp: 200,
-        title: "Marathonien Confirmé"
+        title: "Marathonien Confirmé",
       },
       rarity: "uncommon",
       series: "Lecteur Marathonien",
       narrativeTitle: "Coureur de Chapitres",
-      shareableMessage: "Une semaine complète de lecture ! Mon marathon littéraire continue sur Bookish 🏃‍♂️📖"
+      shareableMessage:
+        "Une semaine complète de lecture ! Mon marathon littéraire continue sur Bookish 🏃‍♂️📖",
     },
     {
       name: "Lecteur Marathonien III",
-      description: "Lire 30 jours consécutifs", 
+      description: "Lire 30 jours consécutifs",
       category: "streak",
       level: "gold",
       tier: 3,
@@ -58,7 +67,7 @@ export const BADGE_DEFINITIONS: Record<string, Omit<Badge, 'id' | 'unlockedAt' |
       requirements: {
         type: "streak_days",
         target: 30,
-        description: "Maintenir une série de lecture d'un mois complet"
+        description: "Maintenir une série de lecture d'un mois complet",
       },
       reward: {
         bookcoins: 300,
@@ -66,14 +75,15 @@ export const BADGE_DEFINITIONS: Record<string, Omit<Badge, 'id' | 'unlockedAt' |
         title: "Marathonien Expert",
         cosmetic: {
           type: "profile_frame",
-          itemId: "frame_marathon_gold"
-        }
+          itemId: "frame_marathon_gold",
+        },
       },
       rarity: "rare",
       series: "Lecteur Marathonien",
       narrativeTitle: "Champion des Pages",
-      shareableMessage: "30 jours de lecture non-stop ! Je suis officiellement accro aux livres ! 🏆📚"
-    }
+      shareableMessage:
+        "30 jours de lecture non-stop ! Je suis officiellement accro aux livres ! 🏆📚",
+    },
   ],
 
   // Bibliophile Series - Book completion
@@ -88,57 +98,60 @@ export const BADGE_DEFINITIONS: Record<string, Omit<Badge, 'id' | 'unlockedAt' |
       requirements: {
         type: "books_read",
         target: 5,
-        description: "Lire et terminer 5 livres complets"
+        description: "Lire et terminer 5 livres complets",
       },
       reward: {
         bookcoins: 75,
-        xp: 150
+        xp: 150,
       },
       rarity: "common",
       series: "Bibliophile",
-      shareableMessage: "5 livres terminés ! Ma bibliothèque virtuelle commence à prendre forme 📚"
+      shareableMessage:
+        "5 livres terminés ! Ma bibliothèque virtuelle commence à prendre forme 📚",
     },
     {
       name: "Bibliophile Confirmé",
       description: "Terminer 25 livres",
-      category: "reading", 
+      category: "reading",
       level: "silver",
       tier: 2,
       iconUrl: "/icons/badges/bibliophile-silver.svg",
       requirements: {
         type: "books_read",
         target: 25,
-        description: "Lire et terminer 25 livres complets"
+        description: "Lire et terminer 25 livres complets",
       },
       reward: {
         bookcoins: 150,
         xp: 300,
-        title: "Lecteur Assidu"
+        title: "Lecteur Assidu",
       },
       rarity: "uncommon",
       series: "Bibliophile",
-      shareableMessage: "25 livres au compteur ! Je deviens un vrai bibliophile 📖✨"
+      shareableMessage:
+        "25 livres au compteur ! Je deviens un vrai bibliophile 📖✨",
     },
     {
       name: "Bibliophile Expert",
       description: "Terminer 50 livres",
       category: "reading",
-      level: "gold", 
+      level: "gold",
       tier: 3,
       iconUrl: "/icons/badges/bibliophile-gold.svg",
       requirements: {
         type: "books_read",
         target: 50,
-        description: "Lire et terminer 50 livres complets"
+        description: "Lire et terminer 50 livres complets",
       },
       reward: {
         bookcoins: 250,
         xp: 500,
-        title: "Maître Bibliophile"
+        title: "Maître Bibliophile",
       },
       rarity: "rare",
       series: "Bibliophile",
-      shareableMessage: "50 livres ! Mon cerveau est officiellement une bibliothèque ambulante 🧠📚"
+      shareableMessage:
+        "50 livres ! Mon cerveau est officiellement une bibliothèque ambulante 🧠📚",
     },
     {
       name: "Bibliophile Légendaire",
@@ -146,11 +159,11 @@ export const BADGE_DEFINITIONS: Record<string, Omit<Badge, 'id' | 'unlockedAt' |
       category: "reading",
       level: "platinum",
       tier: 4,
-      iconUrl: "/icons/badges/bibliophile-platinum.svg", 
+      iconUrl: "/icons/badges/bibliophile-platinum.svg",
       requirements: {
         type: "books_read",
         target: 100,
-        description: "Lire et terminer 100 livres complets"
+        description: "Lire et terminer 100 livres complets",
       },
       reward: {
         bookcoins: 500,
@@ -158,14 +171,15 @@ export const BADGE_DEFINITIONS: Record<string, Omit<Badge, 'id' | 'unlockedAt' |
         title: "Légende Vivante",
         cosmetic: {
           type: "avatar_accessory",
-          itemId: "accessory_golden_book"
-        }
+          itemId: "accessory_golden_book",
+        },
       },
       rarity: "legendary",
-      series: "Bibliophile", 
+      series: "Bibliophile",
       narrativeTitle: "Gardien des Mille Histoires",
-      shareableMessage: "100 LIVRES ! 🏆 Je suis officiellement une légende de la lecture sur Bookish !"
-    }
+      shareableMessage:
+        "100 LIVRES ! 🏆 Je suis officiellement une légende de la lecture sur Bookish !",
+    },
   ],
 
   // Critique d'Élite Series - Review writing
@@ -180,15 +194,16 @@ export const BADGE_DEFINITIONS: Record<string, Omit<Badge, 'id' | 'unlockedAt' |
       requirements: {
         type: "reviews_written",
         target: 5,
-        description: "Rédiger 5 critiques de livres"
+        description: "Rédiger 5 critiques de livres",
       },
       reward: {
         bookcoins: 60,
-        xp: 120
+        xp: 120,
       },
       rarity: "common",
       series: "Critique d'Élite",
-      shareableMessage: "Mes premiers pas dans la critique littéraire ! 5 avis partagés ✍️📖"
+      shareableMessage:
+        "Mes premiers pas dans la critique littéraire ! 5 avis partagés ✍️📖",
     },
     {
       name: "Critique Confirmé",
@@ -200,16 +215,17 @@ export const BADGE_DEFINITIONS: Record<string, Omit<Badge, 'id' | 'unlockedAt' |
       requirements: {
         type: "reviews_written",
         target: 15,
-        description: "Rédiger 15 critiques de livres"
+        description: "Rédiger 15 critiques de livres",
       },
       reward: {
         bookcoins: 120,
         xp: 250,
-        title: "Critique Éclairé"
+        title: "Critique Éclairé",
       },
       rarity: "uncommon",
       series: "Critique d'Élite",
-      shareableMessage: "15 critiques ! Ma plume s'affûte et mes analyses s'approfondissent 🖋️✨"
+      shareableMessage:
+        "15 critiques ! Ma plume s'affûte et mes analyses s'approfondissent 🖋️✨",
     },
     {
       name: "Critique d'Élite",
@@ -221,7 +237,7 @@ export const BADGE_DEFINITIONS: Record<string, Omit<Badge, 'id' | 'unlockedAt' |
       requirements: {
         type: "reviews_written",
         target: 50,
-        description: "Rédiger 50 critiques de livres"
+        description: "Rédiger 50 critiques de livres",
       },
       reward: {
         bookcoins: 300,
@@ -229,14 +245,15 @@ export const BADGE_DEFINITIONS: Record<string, Omit<Badge, 'id' | 'unlockedAt' |
         title: "Maître Critique",
         cosmetic: {
           type: "theme",
-          itemId: "theme_critic_elite"
-        }
+          itemId: "theme_critic_elite",
+        },
       },
       rarity: "rare",
       series: "Critique d'Élite",
       narrativeTitle: "Plume d'Or",
-      shareableMessage: "50 critiques ! Mes mots guident maintenant d'autres lecteurs 🏆📝"
-    }
+      shareableMessage:
+        "50 critiques ! Mes mots guident maintenant d'autres lecteurs 🏆📝",
+    },
   ],
 
   // Découvreur de Genres Series - Genre diversity
@@ -245,21 +262,22 @@ export const BADGE_DEFINITIONS: Record<string, Omit<Badge, 'id' | 'unlockedAt' |
       name: "Découvreur Curieux",
       description: "Lire dans 3 genres différents",
       category: "discovery",
-      level: "bronze", 
+      level: "bronze",
       tier: 1,
       iconUrl: "/icons/badges/explorer-bronze.svg",
       requirements: {
         type: "genres_explored",
         target: 3,
-        description: "Lire au moins un livre dans 3 genres différents"
+        description: "Lire au moins un livre dans 3 genres différents",
       },
       reward: {
         bookcoins: 80,
-        xp: 160
+        xp: 160,
       },
       rarity: "common",
       series: "Découvreur de Genres",
-      shareableMessage: "J'explore de nouveaux horizons littéraires ! 3 genres découverts 🌟📚"
+      shareableMessage:
+        "J'explore de nouveaux horizons littéraires ! 3 genres découverts 🌟📚",
     },
     {
       name: "Explorateur de Genres",
@@ -271,16 +289,17 @@ export const BADGE_DEFINITIONS: Record<string, Omit<Badge, 'id' | 'unlockedAt' |
       requirements: {
         type: "genres_explored",
         target: 7,
-        description: "Lire au moins un livre dans 7 genres différents"
+        description: "Lire au moins un livre dans 7 genres différents",
       },
       reward: {
         bookcoins: 160,
         xp: 320,
-        title: "Explorateur Littéraire"
+        title: "Explorateur Littéraire",
       },
       rarity: "uncommon",
       series: "Découvreur de Genres",
-      shareableMessage: "7 genres explorés ! Ma curiosité littéraire n'a plus de limites 🗺️📖"
+      shareableMessage:
+        "7 genres explorés ! Ma curiosité littéraire n'a plus de limites 🗺️📖",
     },
     {
       name: "Maître Découvreur",
@@ -292,7 +311,7 @@ export const BADGE_DEFINITIONS: Record<string, Omit<Badge, 'id' | 'unlockedAt' |
       requirements: {
         type: "genres_explored",
         target: 15,
-        description: "Lire au moins un livre dans 15 genres différents"
+        description: "Lire au moins un livre dans 15 genres différents",
       },
       reward: {
         bookcoins: 400,
@@ -300,14 +319,15 @@ export const BADGE_DEFINITIONS: Record<string, Omit<Badge, 'id' | 'unlockedAt' |
         title: "Navigateur des Mots",
         cosmetic: {
           type: "avatar_accessory",
-          itemId: "accessory_explorer_compass"
-        }
+          itemId: "accessory_explorer_compass",
+        },
       },
       rarity: "epic",
       series: "Découvreur de Genres",
       narrativeTitle: "Cartographe Littéraire",
-      shareableMessage: "15 genres maîtrisés ! Je suis un vrai caméléon de la lecture ! 🦎📚"
-    }
+      shareableMessage:
+        "15 genres maîtrisés ! Je suis un vrai caméléon de la lecture ! 🦎📚",
+    },
   ],
 
   // Community badges
@@ -322,14 +342,15 @@ export const BADGE_DEFINITIONS: Record<string, Omit<Badge, 'id' | 'unlockedAt' |
       requirements: {
         type: "community_engagement",
         target: 1,
-        description: "Rejoindre un club de lecture"
+        description: "Rejoindre un club de lecture",
       },
       reward: {
         bookcoins: 40,
-        xp: 80
+        xp: 80,
       },
       rarity: "common",
-      shareableMessage: "J'ai rejoint ma première communauté de lecteurs ! 👥📚"
+      shareableMessage:
+        "J'ai rejoint ma première communauté de lecteurs ! 👥📚",
     },
     {
       name: "Mentor Littéraire",
@@ -341,18 +362,19 @@ export const BADGE_DEFINITIONS: Record<string, Omit<Badge, 'id' | 'unlockedAt' |
       requirements: {
         type: "community_engagement",
         target: 10,
-        description: "Aider 10 nouveaux membres de la communauté"
+        description: "Aider 10 nouveaux membres de la communauté",
       },
       reward: {
         bookcoins: 200,
         xp: 400,
-        title: "Mentor Bienveillant"
+        title: "Mentor Bienveillant",
       },
       rarity: "rare",
       narrativeTitle: "Guide des Mots",
-      shareableMessage: "J'ai guidé 10 nouveaux lecteurs dans leur aventure ! Ensemble, nous sommes plus forts 🤝📖"
-    }
-  ]
+      shareableMessage:
+        "J'ai guidé 10 nouveaux lecteurs dans leur aventure ! Ensemble, nous sommes plus forts 🤝📖",
+    },
+  ],
 };
 
 // Utility functions for badge management
@@ -360,13 +382,13 @@ export function getAllBadgeDefinitions(): Badge[] {
   const allBadges: Badge[] = [];
   let badgeCounter = 1;
 
-  Object.values(BADGE_DEFINITIONS).forEach(badgeCategory => {
-    badgeCategory.forEach(badgeDef => {
+  Object.values(BADGE_DEFINITIONS).forEach((badgeCategory) => {
+    badgeCategory.forEach((badgeDef) => {
       allBadges.push({
         id: `badge_${badgeCounter++}`,
         ...badgeDef,
         unlockedAt: undefined,
-        isUnlocked: false
+        isUnlocked: false,
       });
     });
   });
@@ -374,22 +396,31 @@ export function getAllBadgeDefinitions(): Badge[] {
   return allBadges;
 }
 
-export function getBadgesByCategory(category: Badge['category']): Badge[] {
-  return getAllBadgeDefinitions().filter(badge => badge.category === category);
+export function getBadgesByCategory(category: Badge["category"]): Badge[] {
+  return getAllBadgeDefinitions().filter(
+    (badge) => badge.category === category
+  );
 }
 
 export function getBadgesBySeries(seriesName: string): Badge[] {
-  return getAllBadgeDefinitions().filter(badge => badge.series === seriesName);
+  return getAllBadgeDefinitions().filter(
+    (badge) => badge.series === seriesName
+  );
 }
 
 export function getNextBadgeInSeries(currentBadge: Badge): Badge | null {
   if (!currentBadge.series) return null;
-  
-  const seriesBadges = getBadgesBySeries(currentBadge.series)
-    .sort((a, b) => a.tier - b.tier);
-  
-  const currentIndex = seriesBadges.findIndex(badge => badge.tier === currentBadge.tier);
-  return currentIndex < seriesBadges.length - 1 ? seriesBadges[currentIndex + 1] : null;
+
+  const seriesBadges = getBadgesBySeries(currentBadge.series).sort(
+    (a, b) => a.tier - b.tier
+  );
+
+  const currentIndex = seriesBadges.findIndex(
+    (badge) => badge.tier === currentBadge.tier
+  );
+  return currentIndex < seriesBadges.length - 1
+    ? seriesBadges[currentIndex + 1]
+    : null;
 }
 
 export function checkBadgeEligibility(
@@ -405,17 +436,20 @@ export function checkBadgeEligibility(
   }
 ): boolean {
   switch (badgeRequirement.type) {
-    case 'books_read':
+    case "books_read":
       return userStats.booksRead >= badgeRequirement.target;
-    case 'streak_days':
-      return userStats.currentStreak >= badgeRequirement.target || userStats.longestStreak >= badgeRequirement.target;
-    case 'reviews_written':
+    case "streak_days":
+      return (
+        userStats.currentStreak >= badgeRequirement.target ||
+        userStats.longestStreak >= badgeRequirement.target
+      );
+    case "reviews_written":
       return userStats.reviewsWritten >= badgeRequirement.target;
-    case 'genres_explored':
+    case "genres_explored":
       return userStats.genresExplored >= badgeRequirement.target;
-    case 'reading_time':
+    case "reading_time":
       return userStats.readingTimeMinutes >= badgeRequirement.target;
-    case 'community_engagement':
+    case "community_engagement":
       return userStats.communityActions >= badgeRequirement.target;
     default:
       return false;
@@ -431,29 +465,41 @@ export function getEligibleBadges(userStats: {
   readingTimeMinutes: number;
   communityActions: number;
 }): Badge[] {
-  return getAllBadgeDefinitions().filter(badge => 
+  return getAllBadgeDefinitions().filter((badge) =>
     checkBadgeEligibility(badge.requirements, userStats)
   );
 }
 
-export function getBadgeColor(level: Badge['level']): string {
+export function getBadgeColor(level: Badge["level"]): string {
   switch (level) {
-    case 'bronze': return '#CD7F32';
-    case 'silver': return '#C0C0C0'; 
-    case 'gold': return '#FFD700';
-    case 'platinum': return '#E5E4E2';
-    case 'diamond': return '#B9F2FF';
-    default: return '#6B7280';
+    case "bronze":
+      return "#CD7F32";
+    case "silver":
+      return "#C0C0C0";
+    case "gold":
+      return "#FFD700";
+    case "platinum":
+      return "#E5E4E2";
+    case "diamond":
+      return "#B9F2FF";
+    default:
+      return "#6B7280";
   }
 }
 
-export function getBadgeRarityColor(rarity: Badge['rarity']): string {
+export function getBadgeRarityColor(rarity: Badge["rarity"]): string {
   switch (rarity) {
-    case 'common': return '#6B7280';
-    case 'uncommon': return '#10B981';
-    case 'rare': return '#3B82F6';
-    case 'epic': return '#8B5CF6';
-    case 'legendary': return '#F59E0B';
-    default: return '#6B7280';
+    case "common":
+      return "#6B7280";
+    case "uncommon":
+      return "#10B981";
+    case "rare":
+      return "#3B82F6";
+    case "epic":
+      return "#8B5CF6";
+    case "legendary":
+      return "#F59E0B";
+    default:
+      return "#6B7280";
   }
-} 
+}

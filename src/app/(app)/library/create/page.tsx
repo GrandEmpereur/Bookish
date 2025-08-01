@@ -76,7 +76,7 @@ export default function CreateBookList() {
     <div
       className={cn(
         "flex-1 px-5 pb-[120px]",
-        isNative ? "pt-[120px]" : "pt-[100px]"
+        isNative ? "pt-[130px]" : "pt-[100px]"
       )}
     >
       <Form {...form}>

@@ -5,37 +5,19 @@ import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { clubService } from "@/services/club.service";
 import { Club } from "@/types/clubTypes";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
-import { 
-  Button 
-} from "@/components/ui/button";
-import { 
-  Textarea 
-} from "@/components/ui/textarea";
-import { 
-  Label 
-} from "@/components/ui/label";
-import { 
-  Avatar, 
-  AvatarFallback, 
-  AvatarImage 
-} from "@/components/ui/avatar";
-import { 
-  Badge 
-} from "@/components/ui/badge";
-import { 
-  Loader2, 
-  ArrowLeft, 
-  Users,
-  MessageSquare,
-  Lock
-} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Loader2, ArrowLeft, Users, MessageSquare, Lock } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
 
@@ -74,7 +56,7 @@ const JoinRequestPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!message.trim()) {
       toast.error("Veuillez ajouter un message de présentation");
       return;
@@ -88,7 +70,7 @@ const JoinRequestPage = () => {
     setSubmitting(true);
     try {
       await clubService.createJoinRequest(clubId, {
-        message: message.trim()
+        message: message.trim(),
       });
 
       toast.success("Demande envoyée avec succès !");
@@ -131,9 +113,10 @@ const JoinRequestPage = () => {
               <Users className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
               <h2 className="text-lg font-semibold mb-2">Club public</h2>
               <p className="text-muted-foreground mb-4">
-                Ce club est public, vous pouvez le rejoindre directement sans demande.
+                Ce club est public, vous pouvez le rejoindre directement sans
+                demande.
               </p>
-              <Button 
+              <Button
                 onClick={() => router.push(`/clubs/${clubId}`)}
                 className="rounded-full"
               >
@@ -179,11 +162,11 @@ const JoinRequestPage = () => {
                     Privé
                   </Badge>
                 </div>
-                
+
                 <p className="text-muted-foreground text-sm mb-3">
                   {club.description}
                 </p>
-                
+
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <Users className="w-4 h-4" />
@@ -208,10 +191,11 @@ const JoinRequestPage = () => {
               Demande d'adhésion
             </CardTitle>
             <CardDescription>
-              Ce club est privé. Présentez-vous et expliquez pourquoi vous souhaitez rejoindre ce club.
+              Ce club est privé. Présentez-vous et expliquez pourquoi vous
+              souhaitez rejoindre ce club.
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
@@ -271,9 +255,16 @@ const JoinRequestPage = () => {
             <div className="text-sm text-muted-foreground">
               <p className="font-medium mb-2">📋 Processus de validation :</p>
               <ul className="space-y-1 ml-4">
-                <li>• Votre demande sera examinée par les modérateurs du club</li>
-                <li>• Vous recevrez une notification une fois la demande traitée</li>
-                <li>• En cas d'acceptation, vous pourrez accéder au contenu du club</li>
+                <li>
+                  • Votre demande sera examinée par les modérateurs du club
+                </li>
+                <li>
+                  • Vous recevrez une notification une fois la demande traitée
+                </li>
+                <li>
+                  • En cas d'acceptation, vous pourrez accéder au contenu du
+                  club
+                </li>
               </ul>
             </div>
           </CardContent>

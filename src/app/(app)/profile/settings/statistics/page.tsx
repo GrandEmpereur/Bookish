@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   ChevronLeft,
@@ -14,6 +14,8 @@ import {
   MessageCircle,
 } from "lucide-react";
 import Link from "next/link";
+import { Capacitor } from "@capacitor/core";
+import { cn } from "@/lib/utils";
 
 const friendsData = [
   {
@@ -38,18 +40,24 @@ const friendsData = [
 
 export default function Statistiques() {
   const router = useRouter();
+  const [isNative, setIsNative] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Handle hydration and platform detection
+  useEffect(() => {
+    setIsMounted(true);
+    setIsNative(Capacitor.isNativePlatform());
+  }, []);
+
+  // Determine padding based on platform and hydration
+  const topPadding = !isMounted
+    ? "pt-[100px]"
+    : isNative
+      ? "pt-[130px]"
+      : "pt-[100px]";
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 relative">
-      {/* Header */}
-      <header className="flex items-center p-4">
-        <button onClick={() => router.back()} className="p-2">
-          <ChevronLeft className="text-orange-500" />
-        </button>
-        <h1 className="flex-1 text-center font-semibold text-lg">Statistiques</h1>
-        <div className="w-8" /> {/* placeholder */}
-      </header>
-
+    <div className={cn("min-h-screen bg-gray-50 pb-20 relative", topPadding)}>
       <main className="px-4 space-y-6">
         {/* Battle Section */}
         <section>

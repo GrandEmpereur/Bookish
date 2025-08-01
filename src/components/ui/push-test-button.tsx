@@ -9,7 +9,7 @@ import { toast } from "sonner";
 
 export function PushTestButton() {
   const [isChecking, setIsChecking] = useState(false);
-  
+
   const checkPushStatus = async () => {
     setIsChecking(true);
     try {
@@ -20,11 +20,15 @@ export function PushTestButton() {
 
       // 1. Vérifier les permissions
       const permissions = await PushNotifications.checkPermissions();
-      
+
       // 2. Essayer d'enregistrer un token test
       try {
-        await notificationService.registerDeviceToken("test-token-debug-" + Date.now());
-        toast.success("✅ Connexion serveur OK - Route /push/register fonctionne");
+        await notificationService.registerDeviceToken(
+          "test-token-debug-" + Date.now()
+        );
+        toast.success(
+          "✅ Connexion serveur OK - Route /push/register fonctionne"
+        );
 
         // Envoi d'une notification de test
         await notificationService.sendTestPush("Test", "Test notification");
@@ -36,9 +40,8 @@ export function PushTestButton() {
 
       // 3. Informations de debug
       toast.info(`Permissions: ${permissions.receive}`, {
-        description: "Vérifiez la console pour plus de détails"
+        description: "Vérifiez la console pour plus de détails",
       });
-
     } catch (error) {
       console.error("❌ Erreur test push:", error);
       toast.error("Erreur lors du test des notifications");
@@ -52,7 +55,7 @@ export function PushTestButton() {
   }
 
   return (
-    <Button 
+    <Button
       onClick={checkPushStatus}
       disabled={isChecking}
       variant="outline"
@@ -61,4 +64,4 @@ export function PushTestButton() {
       {isChecking ? "Test en cours..." : "🔔 Test Push"}
     </Button>
   );
-} 
+}

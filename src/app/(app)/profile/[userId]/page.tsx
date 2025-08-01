@@ -5,6 +5,5 @@ export default async function Page({
 }: {
   params: Promise<{ userId: string }>;
 }) {
-
   return <UserDetails />;
 }

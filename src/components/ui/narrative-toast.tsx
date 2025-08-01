@@ -1,17 +1,14 @@
 "use client";
 
 import { getRandomNarrativeMessage } from "@/utils/gamificationUtils";
-import {
-  Crown,
-  Flame,
-  Scroll,
-  Sparkles,
-  Star,
-  Trophy
-} from "lucide-react";
+import { Crown, Flame, Scroll, Sparkles, Star, Trophy } from "lucide-react";
 import { toast } from "sonner";
 
-type ToastType = 'levelUp' | 'missionComplete' | 'badgeEarned' | 'streakMaintained';
+type ToastType =
+  | "levelUp"
+  | "missionComplete"
+  | "badgeEarned"
+  | "streakMaintained";
 
 interface NarrativeToastOptions {
   title?: string;
@@ -23,16 +20,22 @@ interface NarrativeToastOptions {
 export const narrativeToast = {
   levelUp: (level: number, title: string, options?: NarrativeToastOptions) => {
     toast.success(options?.title || `Niveau ${level} atteint !`, {
-      description: options?.description || getRandomNarrativeMessage('levelUp'),
+      description: options?.description || getRandomNarrativeMessage("levelUp"),
       icon: options?.icon || <Crown className="h-4 w-4 text-amber-500" />,
       duration: options?.duration || 6000,
       className: "border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50",
     });
   },
 
-  missionComplete: (missionName: string, xpGained: number, options?: NarrativeToastOptions) => {
+  missionComplete: (
+    missionName: string,
+    xpGained: number,
+    options?: NarrativeToastOptions
+  ) => {
     toast.success(options?.title || `Mission "${missionName}" accomplie !`, {
-      description: options?.description || `${getRandomNarrativeMessage('missionComplete')} (+${xpGained} XP)`,
+      description:
+        options?.description ||
+        `${getRandomNarrativeMessage("missionComplete")} (+${xpGained} XP)`,
       icon: options?.icon || <Scroll className="h-4 w-4 text-blue-500" />,
       duration: options?.duration || 4000,
       className: "border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50",
@@ -41,16 +44,19 @@ export const narrativeToast = {
 
   badgeEarned: (badgeName: string, options?: NarrativeToastOptions) => {
     toast.success(options?.title || `Nouvel artefact : ${badgeName}`, {
-      description: options?.description || getRandomNarrativeMessage('badgeEarned'),
+      description:
+        options?.description || getRandomNarrativeMessage("badgeEarned"),
       icon: options?.icon || <Trophy className="h-4 w-4 text-purple-500" />,
       duration: options?.duration || 5000,
-      className: "border-purple-200 bg-gradient-to-r from-purple-50 to-violet-50",
+      className:
+        "border-purple-200 bg-gradient-to-r from-purple-50 to-violet-50",
     });
   },
 
   streakMaintained: (days: number, options?: NarrativeToastOptions) => {
     toast.success(options?.title || `Série de ${days} jours maintenue !`, {
-      description: options?.description || getRandomNarrativeMessage('streakMaintained'),
+      description:
+        options?.description || getRandomNarrativeMessage("streakMaintained"),
       icon: options?.icon || <Flame className="h-4 w-4 text-orange-500" />,
       duration: options?.duration || 4000,
       className: "border-orange-200 bg-gradient-to-r from-orange-50 to-red-50",
@@ -62,7 +68,8 @@ export const narrativeToast = {
       description: message,
       icon: options?.icon || <Sparkles className="h-4 w-4 text-emerald-500" />,
       duration: options?.duration || 3000,
-      className: "border-emerald-200 bg-gradient-to-r from-emerald-50 to-teal-50",
+      className:
+        "border-emerald-200 bg-gradient-to-r from-emerald-50 to-teal-50",
     });
   },
 
@@ -75,40 +82,47 @@ export const narrativeToast = {
     });
   },
 
-  custom: (type: ToastType, customMessage: string, options?: NarrativeToastOptions) => {
+  custom: (
+    type: ToastType,
+    customMessage: string,
+    options?: NarrativeToastOptions
+  ) => {
     const configs = {
       levelUp: {
         icon: <Crown className="h-4 w-4 text-amber-500" />,
-        className: "border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50"
+        className:
+          "border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50",
       },
       missionComplete: {
         icon: <Scroll className="h-4 w-4 text-blue-500" />,
-        className: "border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50"
+        className: "border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50",
       },
       badgeEarned: {
         icon: <Trophy className="h-4 w-4 text-purple-500" />,
-        className: "border-purple-200 bg-gradient-to-r from-purple-50 to-violet-50"
+        className:
+          "border-purple-200 bg-gradient-to-r from-purple-50 to-violet-50",
       },
       streakMaintained: {
         icon: <Flame className="h-4 w-4 text-orange-500" />,
-        className: "border-orange-200 bg-gradient-to-r from-orange-50 to-red-50"
-      }
+        className:
+          "border-orange-200 bg-gradient-to-r from-orange-50 to-red-50",
+      },
     };
 
     const config = configs[type];
-    
+
     toast.success(customMessage, {
       description: getRandomNarrativeMessage(type),
       icon: options?.icon || config.icon,
       duration: options?.duration || 4000,
       className: config.className,
     });
-  }
+  },
 };
 
 // Helper function to show achievement celebration
 export const celebrateAchievement = (
-  type: 'level' | 'badge' | 'mission' | 'streak',
+  type: "level" | "badge" | "mission" | "streak",
   data: {
     name: string;
     level?: number;
@@ -117,24 +131,24 @@ export const celebrateAchievement = (
   }
 ) => {
   switch (type) {
-    case 'level':
+    case "level":
       narrativeToast.levelUp(data.level || 1, data.name);
       break;
-    case 'badge':
+    case "badge":
       narrativeToast.badgeEarned(data.name);
       break;
-    case 'mission':
+    case "mission":
       narrativeToast.missionComplete(data.name, data.xp || 0);
       break;
-    case 'streak':
+    case "streak":
       narrativeToast.streakMaintained(data.days || 1);
       break;
   }
 };
 
 // Helper for game mode switch notifications
-export const notifyGameModeSwitch = (mode: 'zen' | 'challenge') => {
-  if (mode === 'zen') {
+export const notifyGameModeSwitch = (mode: "zen" | "challenge") => {
+  if (mode === "zen") {
     narrativeToast.zen(
       "Profitez de la lecture dans la sérénité de la Grande Bibliothèque. 🧘📚"
     );
@@ -143,4 +157,4 @@ export const notifyGameModeSwitch = (mode: 'zen' | 'challenge') => {
       "Prêt à relever les défis et gravir les classements ? ⚔️🏆"
     );
   }
-}; 
+};

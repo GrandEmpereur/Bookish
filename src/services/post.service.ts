@@ -27,8 +27,8 @@ export type FeedItem = Post | AdItem;
 export interface PaginationParams {
   page?: number;
   limit?: number;
-  orderBy?: 'created_at' | 'updated_at' | 'likes_count' | 'comments_count';
-  orderDirection?: 'desc' | 'asc';
+  orderBy?: "created_at" | "updated_at" | "likes_count" | "comments_count";
+  orderDirection?: "desc" | "asc";
 }
 
 export interface PaginationInfo {
@@ -64,21 +64,22 @@ function adaptPostFromBackend(backendPost: any): Post {
     createdAt: backendPost.created_at,
     updatedAt: backendPost.updated_at,
     // Transformer les images en media
-    media: backendPost.images?.map((img: any) => ({
-      id: img.id,
-      userId: backendPost.user_id || "unknown",
-      postId: backendPost.id,
-      type: "image" as const,
-      url: img.url,
-      key: img.id, // fallback
-      size: 0, // pas dans la réponse backend
-      width: img.width,
-      height: img.height,
-      thumbnailUrl: img.thumbnail_url,
-      mimeType: "image/jpeg", // fallback
-      originalName: "", // pas dans la réponse backend
-      visibility: "public" as const,
-    })) || [],
+    media:
+      backendPost.images?.map((img: any) => ({
+        id: img.id,
+        userId: backendPost.user_id || "unknown",
+        postId: backendPost.id,
+        type: "image" as const,
+        url: img.url,
+        key: img.id, // fallback
+        size: 0, // pas dans la réponse backend
+        width: img.width,
+        height: img.height,
+        thumbnailUrl: img.thumbnail_url,
+        mimeType: "image/jpeg", // fallback
+        originalName: "", // pas dans la réponse backend
+        visibility: "public" as const,
+      })) || [],
     user: backendPost.user as any,
   };
 }
@@ -102,22 +103,27 @@ class PostService {
     return apiRequest<T>(method, endpoint, options);
   }
 
-  async getPosts(params: PaginationParams = {}): Promise<GetPostsPaginatedResponse> {
+  async getPosts(
+    params: PaginationParams = {}
+  ): Promise<GetPostsPaginatedResponse> {
     const {
       page = 1,
       limit = 20,
-      orderBy = 'created_at',
-      orderDirection = 'desc'
+      orderBy = "created_at",
+      orderDirection = "desc",
     } = params;
 
     const queryParams = new URLSearchParams({
       page: page.toString(),
       limit: limit.toString(),
       orderBy,
-      orderDirection
+      orderDirection,
     });
 
-    const response = await this.makeRequest<any>("GET", `/posts?${queryParams.toString()}`);
+    const response = await this.makeRequest<any>(
+      "GET",
+      `/posts?${queryParams.toString()}`
+    );
 
     // Adapter les posts du backend vers le format frontend
     const adaptedPosts: FeedItem[] = [];
@@ -145,21 +151,25 @@ class PostService {
           has_more: false,
           next_page: null,
           prev_page: null,
-        }
-      }
+        },
+      },
     };
   }
 
   // Méthode dépréciée - garder pour rétrocompatibilité
   async getPostsLegacy(): Promise<GetPostsResponse> {
-    console.warn('getPostsLegacy est déprécié, utilisez getPosts() avec pagination');
+    console.warn(
+      "getPostsLegacy est déprécié, utilisez getPosts() avec pagination"
+    );
     const response = await this.getPosts({ limit: 100 });
     // Filtre uniquement les vrais posts, ignore les ads
-    const onlyPosts = response.data.posts.filter((p): p is Post => (p as any).subject !== undefined);
+    const onlyPosts = response.data.posts.filter(
+      (p): p is Post => (p as any).subject !== undefined
+    );
     return {
       status: response.status,
       message: response.message,
-      data: onlyPosts
+      data: onlyPosts,
     };
   }
 
@@ -250,17 +260,27 @@ class PostService {
   /**
    * Signalement rapide pour mobile
    */
-  async quickReport(postId: string, data: QuickReportRequest): Promise<CreateReportResponse> {
-    return this.makeRequest<CreateReportResponse>("POST", `/posts/${postId}/quick-report`, {
-      data,
-    });
+  async quickReport(
+    postId: string,
+    data: QuickReportRequest
+  ): Promise<CreateReportResponse> {
+    return this.makeRequest<CreateReportResponse>(
+      "POST",
+      `/posts/${postId}/quick-report`,
+      {
+        data,
+      }
+    );
   }
 
   /**
    * Obtenir mes signalements
    */
   async getMyReports(): Promise<GetReportsResponse> {
-    return this.makeRequest<GetReportsResponse>("GET", "/posts/reports/my-reports");
+    return this.makeRequest<GetReportsResponse>(
+      "GET",
+      "/posts/reports/my-reports"
+    );
   }
 
   // ========== MÉTHODES POUR MODÉRATEURS/ADMINS ==========
@@ -274,21 +294,25 @@ class PostService {
     status?: ReportStatus;
     reportType?: ReportType;
     priority?: ReportPriority;
-    orderBy?: 'reported_at' | 'updated_at' | 'priority';
-    orderDirection?: 'desc' | 'asc';
+    orderBy?: "reported_at" | "updated_at" | "priority";
+    orderDirection?: "desc" | "asc";
   }): Promise<GetReportsResponse> {
     const queryParams = new URLSearchParams();
 
-    if (params?.page) queryParams.append('page', params.page.toString());
-    if (params?.limit) queryParams.append('limit', params.limit.toString());
-    if (params?.status) queryParams.append('status', params.status);
-    if (params?.reportType) queryParams.append('reportType', params.reportType);
-    if (params?.priority) queryParams.append('priority', params.priority);
-    if (params?.orderBy) queryParams.append('orderBy', params.orderBy);
-    if (params?.orderDirection) queryParams.append('orderDirection', params.orderDirection);
+    if (params?.page) queryParams.append("page", params.page.toString());
+    if (params?.limit) queryParams.append("limit", params.limit.toString());
+    if (params?.status) queryParams.append("status", params.status);
+    if (params?.reportType) queryParams.append("reportType", params.reportType);
+    if (params?.priority) queryParams.append("priority", params.priority);
+    if (params?.orderBy) queryParams.append("orderBy", params.orderBy);
+    if (params?.orderDirection)
+      queryParams.append("orderDirection", params.orderDirection);
 
     const query = queryParams.toString();
-    return this.makeRequest<GetReportsResponse>("GET", `/admin/reports${query ? '?' + query : ''}`);
+    return this.makeRequest<GetReportsResponse>(
+      "GET",
+      `/admin/reports${query ? "?" + query : ""}`
+    );
   }
 
   /**
@@ -310,41 +334,65 @@ class PostService {
    * Prendre en charge un signalement
    */
   async takeReportInReview(id: string): Promise<ApiResponse<null>> {
-    return this.makeRequest<ApiResponse<null>>("POST", `/admin/reports/${id}/take-review`);
+    return this.makeRequest<ApiResponse<null>>(
+      "POST",
+      `/admin/reports/${id}/take-review`
+    );
   }
 
   /**
    * Résoudre un signalement
    */
-  async resolveReport(id: string, data: {
-    actionTaken: string;
-    resolutionNotes?: string;
-  }): Promise<ApiResponse<null>> {
-    return this.makeRequest<ApiResponse<null>>("POST", `/admin/reports/${id}/resolve`, {
-      data,
-    });
+  async resolveReport(
+    id: string,
+    data: {
+      actionTaken: string;
+      resolutionNotes?: string;
+    }
+  ): Promise<ApiResponse<null>> {
+    return this.makeRequest<ApiResponse<null>>(
+      "POST",
+      `/admin/reports/${id}/resolve`,
+      {
+        data,
+      }
+    );
   }
 
   /**
    * Rejeter un signalement
    */
-  async dismissReport(id: string, data: {
-    reason: string;
-  }): Promise<ApiResponse<null>> {
-    return this.makeRequest<ApiResponse<null>>("POST", `/admin/reports/${id}/dismiss`, {
-      data,
-    });
+  async dismissReport(
+    id: string,
+    data: {
+      reason: string;
+    }
+  ): Promise<ApiResponse<null>> {
+    return this.makeRequest<ApiResponse<null>>(
+      "POST",
+      `/admin/reports/${id}/dismiss`,
+      {
+        data,
+      }
+    );
   }
 
   /**
    * Escalader un signalement
    */
-  async escalateReport(id: string, data: {
-    adminNotes: string;
-  }): Promise<ApiResponse<null>> {
-    return this.makeRequest<ApiResponse<null>>("POST", `/admin/reports/${id}/escalate`, {
-      data,
-    });
+  async escalateReport(
+    id: string,
+    data: {
+      adminNotes: string;
+    }
+  ): Promise<ApiResponse<null>> {
+    return this.makeRequest<ApiResponse<null>>(
+      "POST",
+      `/admin/reports/${id}/escalate`,
+      {
+        data,
+      }
+    );
   }
 
   /**
@@ -357,19 +405,19 @@ class PostService {
   // ========== MÉTHODE LEGACY (pour compatibilité) ==========
 
   /**
- * @deprecated Utilisez createReport() à la place
- */
+   * @deprecated Utilisez createReport() à la place
+   */
   async reportPost(id: string, reason: string): Promise<ApiResponse<null>> {
-    console.warn('reportPost() est déprécié, utilisez createReport()');
+    console.warn("reportPost() est déprécié, utilisez createReport()");
     const response = await this.createReport({
       postId: id,
-      reportType: 'other',
+      reportType: "other",
       description: reason,
     });
 
     // Adapter la réponse au format attendu
     return {
-      status: response.status === 'success' ? 'success' : 'error',
+      status: response.status === "success" ? "success" : "error",
       message: response.message,
       data: null,
     };

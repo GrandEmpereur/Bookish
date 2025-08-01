@@ -104,7 +104,6 @@ export default function Purpose() {
       transition: {
         duration: 0.4,
         staggerChildren: 0.1,
-        ease: "easeOut",
       },
     },
     exit: {
@@ -112,7 +111,6 @@ export default function Purpose() {
       y: -20,
       transition: {
         duration: 0.3,
-        ease: "easeOut",
       },
     },
   };
@@ -124,7 +122,6 @@ export default function Purpose() {
       y: 0,
       transition: {
         duration: 0.4,
-        ease: "easeOut",
       },
     },
   };
@@ -137,7 +134,6 @@ export default function Purpose() {
       scale: 1,
       transition: {
         duration: 0.4,
-        ease: "easeOut",
       },
     },
   };

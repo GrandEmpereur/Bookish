@@ -27,8 +27,8 @@ const API_ENDPOINTS = {
     bookLists: "/search/book-lists",
     category: "/search/category",
     professionals: "/search/professionals",
-    general: "/search/general"
-  }
+    general: "/search/general",
+  },
 };
 
 class SearchService {
@@ -49,7 +49,7 @@ class SearchService {
     Object.entries(options).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== "") {
         if (Array.isArray(value)) {
-          value.forEach(item => params.append(`${key}[]`, String(item)));
+          value.forEach((item) => params.append(`${key}[]`, String(item)));
         } else {
           params.append(key, String(value));
         }
@@ -83,7 +83,9 @@ class SearchService {
     return result;
   }
 
-  async searchBookLists(options: BookListSearchOptions): Promise<BookListSearchResponse> {
+  async searchBookLists(
+    options: BookListSearchOptions
+  ): Promise<BookListSearchResponse> {
     const params = this.buildSearchParams(options);
     const url = `${API_ENDPOINTS.search.bookLists}?${params.toString()}`;
 
@@ -91,7 +93,9 @@ class SearchService {
     return result;
   }
 
-  async searchByCategory(options: CategorySearchOptions): Promise<CategorySearchResponse> {
+  async searchByCategory(
+    options: CategorySearchOptions
+  ): Promise<CategorySearchResponse> {
     const params = this.buildSearchParams(options);
     const url = `${API_ENDPOINTS.search.category}?${params.toString()}`;
 
@@ -99,7 +103,9 @@ class SearchService {
     return result;
   }
 
-    async searchAuthors(options: AuthorSearchOptions): Promise<AuthorsSearchResponse> {
+  async searchAuthors(
+    options: AuthorSearchOptions
+  ): Promise<AuthorsSearchResponse> {
     const params = this.buildSearchParams(options);
     const url = `${API_ENDPOINTS.search.authors}?${params.toString()}`;
 

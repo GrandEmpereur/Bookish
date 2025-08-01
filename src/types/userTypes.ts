@@ -2,13 +2,25 @@ import { ApiResponse } from "./api";
 
 // Types énumérés
 
-export type UserRole = 'USER' | 'AUTHOR' | 'PUBLISHER' | 'PUBLISHERHOUSE' | 'MODERATOR' | 'ADMIN';
-export type ReadingHabit = 'library_rat' | 'occasional_reader' | 'beginner_reader';
-export type UsagePurpose = 'find_books' | 'find_community' | 'both' | 'créer_compte_professionel';
-export type ProfileVisibility = 'public' | 'private' | 'friends_only';
-export type RelationType = 'follow' | 'friend' | 'block';
-export type RelationStatus = 'accepted' | 'declined' | 'pending';
-
+export type UserRole =
+  | "USER"
+  | "AUTHOR"
+  | "PUBLISHER"
+  | "PUBLISHERHOUSE"
+  | "MODERATOR"
+  | "ADMIN";
+export type ReadingHabit =
+  | "library_rat"
+  | "occasional_reader"
+  | "beginner_reader";
+export type UsagePurpose =
+  | "find_books"
+  | "find_community"
+  | "both"
+  | "créer_compte_professionel";
+export type ProfileVisibility = "public" | "private" | "friends_only";
+export type RelationType = "follow" | "friend" | "block";
+export type RelationStatus = "accepted" | "declined" | "pending";
 
 // Types de base - Structure réelle de l'objet user
 export interface UserProfile {
@@ -102,7 +114,6 @@ export interface UserRelations {
   };
 }
 
-
 export interface FriendshipStatus {
   status: "none" | "blocked" | "pending" | "accepted" | "following";
   isBlocked: boolean;
@@ -195,7 +206,6 @@ export interface GetUserProfileResponse {
     book_lists_count: number;
   };
 }
-
 
 export interface GetUserRelationsResponse {
   status: "success";

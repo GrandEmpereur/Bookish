@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { 
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -29,8 +29,8 @@ export const MessageModerationMenu = ({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           size="icon"
           className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
           onClick={(e) => e.stopPropagation()}
@@ -39,7 +39,7 @@ export const MessageModerationMenu = ({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuItem 
+        <DropdownMenuItem
           onClick={(e) => {
             e.stopPropagation();
             onReport();
@@ -49,7 +49,7 @@ export const MessageModerationMenu = ({
           Signaler le message
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem 
+        <DropdownMenuItem
           onClick={(e) => {
             e.stopPropagation();
             onDelete();
@@ -59,7 +59,7 @@ export const MessageModerationMenu = ({
           <Trash2 className="h-4 w-4 mr-2" />
           Supprimer le message
         </DropdownMenuItem>
-        <DropdownMenuItem 
+        <DropdownMenuItem
           onClick={(e) => {
             e.stopPropagation();
             onBanUser();

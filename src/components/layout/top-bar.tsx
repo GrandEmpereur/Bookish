@@ -5,6 +5,8 @@ import { Bell, Send, ChevronLeft, Search } from "lucide-react";
 import { usePathname, useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { NotificationBadge } from "@/components/ui/notification-badge";
+import { NotificationBadgeIcon } from "@/components/ui/notification-badge-icon";
 import { cn } from "@/lib/utils";
 import { getTopBarConfig, TopBarConfig } from "@/config/navigation";
 import { SearchDrawer } from "@/components/library/search-drawer";
@@ -46,7 +48,9 @@ export function TopBar({ config, className, dynamicTitle }: TopBarProps) {
   });
 
   // Trouve la conversation courante
-  const currentConversation = conversations.find((conv: any) => conv.id === conversationId);
+  const currentConversation = conversations.find(
+    (conv: any) => conv.id === conversationId
+  );
 
   // On récupère la config de base
   const baseConfig = config || getTopBarConfig(pathname);
@@ -70,7 +74,10 @@ export function TopBar({ config, className, dynamicTitle }: TopBarProps) {
 
   const renderLeftSide = () => {
     // Variant conversation : Back button + Avatar + Nom
-    if (currentConfig.variant === "conversation" && currentConfig.showConversationUser) {
+    if (
+      currentConfig.variant === "conversation" &&
+      currentConfig.showConversationUser
+    ) {
       // Si on a pas encore chargé les conversations, afficher un placeholder
       if (!currentConversation && conversationId) {
         return (
@@ -93,20 +100,20 @@ export function TopBar({ config, className, dynamicTitle }: TopBarProps) {
       }
 
       if (currentConversation) {
-        const partner = currentConversation.is_group 
-          ? null 
-          : currentConversation.participants?.find((p: any) => p.id !== user?.id);
-        
-        
-        const displayName = currentConversation.is_group 
-          ? currentConversation.title 
+        const partner = currentConversation.is_group
+          ? null
+          : currentConversation.participants?.find(
+              (p: any) => p.id !== user?.id
+            );
+
+        const displayName = currentConversation.is_group
+          ? currentConversation.title
           : partner?.username;
 
-        const avatarText = currentConversation.is_group 
-          ? currentConversation.title?.charAt(0).toUpperCase() 
+        const avatarText = currentConversation.is_group
+          ? currentConversation.title?.charAt(0).toUpperCase()
           : partner?.username?.charAt(0).toUpperCase();
 
-        
         return (
           <div className="flex items-center gap-3">
             <Button
@@ -178,14 +185,27 @@ export function TopBar({ config, className, dynamicTitle }: TopBarProps) {
       <div className="flex items-center gap-4">
         {currentConfig.rightIcons.map((iconConfig, index) => {
           const Icon = iconConfig.icon;
+          const isNotificationIcon = Icon === Bell;
+
           return (
             <Button
               key={index}
               variant="ghost"
               onClick={() => handleIconClick(iconConfig)}
-              className="w-8 h-8 rounded-full bg-accent flex items-center justify-center hover:bg-accent/80 transition-colors"
+              className={cn(
+                "w-8 h-8 rounded-full bg-accent flex items-center justify-center hover:bg-accent/80 transition-colors",
+                isNotificationIcon && "relative"
+              )}
             >
-              <Icon size={20} />
+              {isNotificationIcon ? (
+                <>
+                  <Bell size={20} />
+                  {/* Badge positionné par rapport au bouton */}
+                  <NotificationBadgeIcon />
+                </>
+              ) : (
+                <Icon size={20} />
+              )}
             </Button>
           );
         })}
@@ -196,7 +216,7 @@ export function TopBar({ config, className, dynamicTitle }: TopBarProps) {
   const renderTitle = () => {
     // Pour le variant conversation, le titre est géré dans renderLeftSide
     if (currentConfig.variant === "conversation") return null;
-    
+
     if (!currentConfig.title) return null;
 
     return currentConfig.title;

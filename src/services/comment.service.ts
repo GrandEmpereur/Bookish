@@ -64,9 +64,7 @@ class CommentService {
   }
 
   // DELETE /comments/:id
-  async deleteComment(
-    commentId: string
-  ): Promise<{
+  async deleteComment(commentId: string): Promise<{
     status: string;
     message: string;
     data: { post: { id: string; commentsCount: number } };

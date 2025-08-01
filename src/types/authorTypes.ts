@@ -1,4 +1,4 @@
-import type { Book } from "@/types/bookTypes"; 
+import type { Book } from "@/types/bookTypes";
 
 export interface Author {
   id: string;
@@ -10,4 +10,3 @@ export interface Author {
   books: Book[];
   books_count: number;
 }
-

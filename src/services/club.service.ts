@@ -179,7 +179,10 @@ export class ClubService {
    * ➖ Quitter un club
    */
   async leaveClub(clubId: string): Promise<ApiResponse<null>> {
-    return this.makeRequest<ApiResponse<null>>("POST", `/clubs/${clubId}/leave`);
+    return this.makeRequest<ApiResponse<null>>(
+      "POST",
+      `/clubs/${clubId}/leave`
+    );
   }
 
   /**
@@ -207,11 +210,9 @@ export class ClubService {
     clubId: string,
     data: BanUserRequest
   ): Promise<ApiResponse<null>> {
-    return this.makeRequest<ApiResponse<null>>(
-      "POST",
-      `/clubs/${clubId}/ban`,
-      { data }
-    );
+    return this.makeRequest<ApiResponse<null>>("POST", `/clubs/${clubId}/ban`, {
+      data,
+    });
   }
 
   /**
@@ -227,7 +228,9 @@ export class ClubService {
   /**
    * 📋 Liste des utilisateurs bannis
    */
-  async getBannedUsers(clubId: string): Promise<ApiResponse<GetBannedUsersResponse>> {
+  async getBannedUsers(
+    clubId: string
+  ): Promise<ApiResponse<GetBannedUsersResponse>> {
     return this.makeRequest<ApiResponse<GetBannedUsersResponse>>(
       "GET",
       `/clubs/${clubId}/banned`
@@ -306,7 +309,10 @@ export class ClubService {
   /**
    * 📌 Épingler/Désépingler un post
    */
-  async togglePinPost(clubId: string, postId: string): Promise<ApiResponse<null>> {
+  async togglePinPost(
+    clubId: string,
+    postId: string
+  ): Promise<ApiResponse<null>> {
     return this.makeRequest<ApiResponse<null>>(
       "POST",
       `/clubs/${clubId}/posts/${postId}/pin`
@@ -352,7 +358,10 @@ export class ClubService {
   /**
    * 🗑️ Supprimer un message
    */
-  async deleteMessage(clubId: string, messageId: string): Promise<ApiResponse<null>> {
+  async deleteMessage(
+    clubId: string,
+    messageId: string
+  ): Promise<ApiResponse<null>> {
     return this.makeRequest<ApiResponse<null>>(
       "DELETE",
       `/clubs/${clubId}/messages/${messageId}`
@@ -447,7 +456,9 @@ export class ClubService {
   /**
    * 🔗 Rejoindre par code d'invitation
    */
-  async joinByInvitation(invitationCode: string): Promise<ApiResponse<JoinByInvitationResponse>> {
+  async joinByInvitation(
+    invitationCode: string
+  ): Promise<ApiResponse<JoinByInvitationResponse>> {
     return this.makeRequest<ApiResponse<JoinByInvitationResponse>>(
       "GET",
       `/clubs/join/${invitationCode}`
@@ -475,7 +486,10 @@ export class ClubService {
   /**
    * 🗑️ Supprimer une invitation
    */
-  async deleteInvitation(clubId: string, invitationId: string): Promise<ApiResponse<null>> {
+  async deleteInvitation(
+    clubId: string,
+    invitationId: string
+  ): Promise<ApiResponse<null>> {
     return this.makeRequest<ApiResponse<null>>(
       "DELETE",
       `/clubs/${clubId}/invitations/${invitationId}`
@@ -537,9 +551,10 @@ export class ClubService {
   /**
    * 👤 Mes demandes d'adhésion
    */
-  async getMyJoinRequests(
-    options?: { page?: number; perPage?: number }
-  ): Promise<ApiResponse<GetMyJoinRequestsResponse>> {
+  async getMyJoinRequests(options?: {
+    page?: number;
+    perPage?: number;
+  }): Promise<ApiResponse<GetMyJoinRequestsResponse>> {
     const params: Record<string, string | number> = {};
     if (options?.page) params.page = options.page;
     if (options?.perPage) params.perPage = options.perPage;
@@ -568,7 +583,9 @@ export class ClubService {
   /**
    * 📋 Liste des conversations
    */
-  async getConversations(clubId: string): Promise<ApiResponse<GetConversationsResponse>> {
+  async getConversations(
+    clubId: string
+  ): Promise<ApiResponse<GetConversationsResponse>> {
     return this.makeRequest<ApiResponse<GetConversationsResponse>>(
       "GET",
       `/clubs/${clubId}/conversations`

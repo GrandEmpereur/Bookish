@@ -179,7 +179,9 @@ export default function CreatePost() {
               <div className="flex items-center justify-center w-full h-24 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 hover:border-gray-400 transition-colors">
                 <div className="flex items-center gap-2">
                   <ImagePlus className="h-5 w-5 text-gray-400" />
-                  <span className="text-sm font-medium text-gray-900">Ajouter une image ou vidéo</span>
+                  <span className="text-sm font-medium text-gray-900">
+                    Ajouter une image ou vidéo
+                  </span>
                 </div>
               </div>
             </UniversalImagePicker>

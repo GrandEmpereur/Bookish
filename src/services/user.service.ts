@@ -1,5 +1,9 @@
 import { apiRequest } from "@/lib/api-client";
-import { AuthResponse, RegisterRequest, RegisterResponse } from "@/types/authTypes";
+import {
+  AuthResponse,
+  RegisterRequest,
+  RegisterResponse,
+} from "@/types/authTypes";
 import {
   GetAuthenticatedProfileResponse,
   GetUserProfileResponse,
@@ -7,8 +11,8 @@ import {
   UpdateProfileResponse,
   UpdateProfilePictureResponse,
   CheckFriendshipStatusResponse,
-  UpdateProfileRequest
-} from '@/types/userTypes';
+  UpdateProfileRequest,
+} from "@/types/userTypes";
 
 class UserService {
   /**
@@ -26,22 +30,36 @@ class UserService {
   async register(
     data: RegisterRequest
   ): Promise<AuthResponse<RegisterResponse>> {
-    return this.makeRequest<AuthResponse<RegisterResponse>>("POST", "/auth/register", { data });
+    return this.makeRequest<AuthResponse<RegisterResponse>>(
+      "POST",
+      "/auth/register",
+      { data }
+    );
   }
 
   // GET /users/me
   async getAuthenticatedProfile(): Promise<GetAuthenticatedProfileResponse> {
-    return this.makeRequest<GetAuthenticatedProfileResponse>("GET", "/users/me");
+    return this.makeRequest<GetAuthenticatedProfileResponse>(
+      "GET",
+      "/users/me"
+    );
   }
 
   // GET /users/relations
   async getRelations(): Promise<GetUserRelationsResponse> {
-    return this.makeRequest<GetUserRelationsResponse>("GET", "/users/relations");
+    return this.makeRequest<GetUserRelationsResponse>(
+      "GET",
+      "/users/relations"
+    );
   }
 
   // PATCH /users/profile
-  async updateProfile(data: Partial<UpdateProfileRequest>): Promise<UpdateProfileResponse> {
-    return this.makeRequest<UpdateProfileResponse>("PATCH", "/users/profile", { data });
+  async updateProfile(
+    data: Partial<UpdateProfileRequest>
+  ): Promise<UpdateProfileResponse> {
+    return this.makeRequest<UpdateProfileResponse>("PATCH", "/users/profile", {
+      data,
+    });
   }
 
   // POST /users/avatar
@@ -50,7 +68,11 @@ class UserService {
   ): Promise<UpdateProfilePictureResponse> {
     const formData = new FormData();
     formData.append("avatar", file);
-    return this.makeRequest<UpdateProfilePictureResponse>("POST", "/users/avatar", { data: formData });
+    return this.makeRequest<UpdateProfilePictureResponse>(
+      "POST",
+      "/users/avatar",
+      { data: formData }
+    );
   }
 
   // DELETE /users/account
@@ -64,8 +86,13 @@ class UserService {
   }
 
   // GET /users/:userId/friendship
-  async checkFriendshipStatus(userId: string): Promise<CheckFriendshipStatusResponse> {
-    return this.makeRequest<CheckFriendshipStatusResponse>("GET", `/users/${userId}/friendship`);
+  async checkFriendshipStatus(
+    userId: string
+  ): Promise<CheckFriendshipStatusResponse> {
+    return this.makeRequest<CheckFriendshipStatusResponse>(
+      "GET",
+      `/users/${userId}/friendship`
+    );
   }
 
   // POST /users/block/:userId
@@ -96,7 +123,11 @@ class UserService {
   // POST /users/friend-request/:userId/respond
   async respondToFriendRequest(userId: string, accept: boolean): Promise<void> {
     const acceptValue = accept ? "accept" : "decline";
-    await this.makeRequest<void>("POST", `/users/friend-request/${userId}/respond`, { data: { accept: acceptValue } });
+    await this.makeRequest<void>(
+      "POST",
+      `/users/friend-request/${userId}/respond`,
+      { data: { accept: acceptValue } }
+    );
   }
 
   // DELETE /users/friend/:userId

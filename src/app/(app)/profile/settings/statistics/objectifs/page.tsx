@@ -1,8 +1,10 @@
-"use client"
+"use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Trophy } from "lucide-react";
+import { Capacitor } from "@capacitor/core";
+import { cn } from "@/lib/utils";
 
 type Objective = {
   id: string;
@@ -13,15 +15,33 @@ type Objective = {
 
 export default function ObjectivesPage() {
   const router = useRouter();
+  const [isNative, setIsNative] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Handle hydration and platform detection
+  useEffect(() => {
+    setIsMounted(true);
+    setIsNative(Capacitor.isNativePlatform());
+  }, []);
 
   // state for each list
-  const [today,    setToday   ] = useState<Objective[]>([
-    { id: "a", title: "Commente une critique d’un ami.", points: 37, completed: false },
-    { id: "b", title: "Lire 20 minutes.",                  points: 20, completed: true  },
+  const [today, setToday] = useState<Objective[]>([
+    {
+      id: "a",
+      title: "Commente une critique d’un ami.",
+      points: 37,
+      completed: false,
+    },
+    { id: "b", title: "Lire 20 minutes.", points: 20, completed: true },
   ]);
   const [thisWeek, setThisWeek] = useState<Objective[]>([
-    { id: "c", title: "Parrainage.",                           points: 37, completed: false },
-    { id: "d", title: "Réagis aux publications des autres.",    points: 80, completed: false },
+    { id: "c", title: "Parrainage.", points: 37, completed: false },
+    {
+      id: "d",
+      title: "Réagis aux publications des autres.",
+      points: 80,
+      completed: false,
+    },
   ]);
   const [thisMonth, setThisMonth] = useState<Objective[]>([
     { id: "e", title: "Partager un article.", points: 50, completed: false },
@@ -34,9 +54,7 @@ export default function ObjectivesPage() {
     id: string
   ) => {
     setList(
-      list.map((o) =>
-        o.id === id ? { ...o, completed: !o.completed } : o
-      )
+      list.map((o) => (o.id === id ? { ...o, completed: !o.completed } : o))
     );
   };
 
@@ -93,9 +111,15 @@ export default function ObjectivesPage() {
     </div>
   );
 
-  return (
-    <div className="min-h-screen bg-gray-50 p-4 space-y-6 my-24">
+  // Determine padding based on platform and hydration
+  const topPadding = !isMounted
+    ? "pt-[100px]"
+    : isNative
+      ? "pt-[130px]"
+      : "pt-[100px]";
 
+  return (
+    <div className={cn("min-h-screen bg-gray-50 p-4 space-y-6", topPadding)}>
       {/* Banner with “Voir le classement” */}
       <div className="relative bg-yellow-50 rounded-lg px-4 py-3 overflow-hidden">
         <div className="absolute inset-0 bg-[url('/radiant-bg.svg')] bg-contain bg-no-repeat opacity-10" />

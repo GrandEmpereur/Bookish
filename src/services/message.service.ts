@@ -89,7 +89,9 @@ class MessageService {
   /**
    * Marque tous les messages d'une conversation comme lus
    */
-  async markConversationAsRead(conversationId: string): Promise<ApiResponse<null>> {
+  async markConversationAsRead(
+    conversationId: string
+  ): Promise<ApiResponse<null>> {
     return this.makeRequest<ApiResponse<null>>(
       "POST",
       `/conversations/${conversationId}/read`
@@ -106,7 +108,9 @@ class MessageService {
     limit?: number;
     conversation_with?: string;
   }): Promise<ApiResponse<GetMessagesResponse>> {
-    console.warn('getMessages() est déprécié, utilisez getConversationMessages()');
+    console.warn(
+      "getMessages() est déprécié, utilisez getConversationMessages()"
+    );
     if (options?.conversation_with) {
       return this.getConversationMessages(options.conversation_with, {
         page: options.page,
@@ -118,7 +122,10 @@ class MessageService {
     return {
       status: "success",
       message: "Messages récupérés",
-      data: { messages: [], pagination: { total: 0, per_page: 0, current_page: 1, last_page: 1 } }
+      data: {
+        messages: [],
+        pagination: { total: 0, per_page: 0, current_page: 1, last_page: 1 },
+      },
     } as any;
   }
 }

@@ -7,28 +7,36 @@ const nextConfig: NextConfig = {
     unoptimized: true,
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'vjdbycecqpoysonfppie.supabase.co',
-        pathname: '/**',
+        protocol: "https",
+        hostname: "vjdbycecqpoysonfppie.supabase.co",
+        pathname: "/**",
       },
       {
-        protocol: 'https',
-        hostname: 'loremflickr.com',
-        pathname: '/**',
+        protocol: "https",
+        hostname: "loremflickr.com",
+        pathname: "/**",
       },
       {
-        protocol: 'https',
-        hostname: 'picsum.photos',
-        pathname: '/**',
+        protocol: "https",
+        hostname: "picsum.photos",
+        pathname: "/**",
       },
       {
-        protocol: 'https',
-        hostname: 'placehold.co',
-        pathname: '/**',
+        protocol: "https",
+        hostname: "placehold.co",
+        pathname: "/**",
       },
     ],
   },
-  allowedDevOrigins: ['local-origin.dev', '*.local-origin.dev', '192.168.1.86', '10.2.160.133', '192.168.1.169', '10.2.182.69'],
+  allowedDevOrigins: [
+    "local-origin.dev",
+    "*.local-origin.dev",
+    "192.168.1.86",
+    "10.2.160.133",
+    "192.168.1.169",
+    "10.2.182.69",
+    "192.168.1.98",
+  ],
   // Configuration Turbopack pour éviter les conflits avec webpack
   turbopack: {
     // Résolution d'alias si nécessaire

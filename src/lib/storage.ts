@@ -286,7 +286,6 @@ export const storageDebug = {
       await storage.remove("test_string");
       await storage.remove("test_boolean");
       await storage.remove("test_object");
-
     } catch (error) {
       console.error("❌ Storage test failed:", error);
     }

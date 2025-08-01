@@ -339,9 +339,9 @@ const BookCard = ({ book }: { book: Book }) => {
     >
       <CardContent className="p-0">
         <div className="aspect-[3/4] relative overflow-hidden rounded-t-lg">
-                      {book.cover_image ? (
-              <Image
-                src={book.cover_image}
+          {book.cover_image ? (
+            <Image
+              src={book.cover_image}
               alt={book.title}
               fill
               className="object-cover"

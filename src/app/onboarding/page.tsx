@@ -99,7 +99,7 @@ export default function Onboarding() {
       opacity: 0,
       scale: 1.1,
       y: -50,
-      transition: { duration: 0.8, ease: [0.32, 0, 0.67, 0] },
+      transition: { duration: 0.8 },
     },
   };
 
@@ -109,7 +109,7 @@ export default function Onboarding() {
       scale: 1,
       opacity: 1,
       y: 0,
-      transition: { duration: 0.8, ease: [0.23, 1, 0.32, 1] },
+      transition: { duration: 0.8 },
     },
     exit: {
       scale: 1.1,
@@ -124,7 +124,7 @@ export default function Onboarding() {
     animate: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.6, delay: 0.1, ease: [0.23, 1, 0.32, 1] },
+      transition: { duration: 0.6, delay: 0.1 },
     },
     exit: {
       opacity: 0,
@@ -139,7 +139,7 @@ export default function Onboarding() {
       opacity: 1,
       y: 0,
       scale: 1,
-      transition: { duration: 0.5, delay: 0.6, ease: [0.23, 1, 0.32, 1] },
+      transition: { duration: 0.5, delay: 0.6 },
     },
     whileHover: {
       scale: 1.02,

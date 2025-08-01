@@ -1,12 +1,21 @@
 "use client";
 
 import { ClubPost } from "@/types/clubTypes";
-import { Heart, MessageCircle, Share2, MoreVertical, Pin, PinOff, Trash2, UserMinus } from "lucide-react";
+import {
+  Heart,
+  MessageCircle,
+  Share2,
+  MoreVertical,
+  Pin,
+  PinOff,
+  Trash2,
+  UserMinus,
+} from "lucide-react";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { safeFormatDistanceToNow } from "@/lib/date";
 import { Button } from "@/components/ui/button";
-import { 
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -28,14 +37,14 @@ interface ClubPostCardProps {
   onBanUser?: (userId: string, username: string) => void;
 }
 
-export const ClubPostCard = ({ 
-  post, 
-  onShare, 
-  onClick, 
-  canModerate, 
-  onDelete, 
-  onPin, 
-  onBanUser 
+export const ClubPostCard = ({
+  post,
+  onShare,
+  onClick,
+  canModerate,
+  onDelete,
+  onPin,
+  onBanUser,
 }: ClubPostCardProps) => {
   const profileImage = post.user?.profile_picture_path;
 
@@ -45,7 +54,7 @@ export const ClubPostCard = ({
       id: post.id,
       title: post.title,
       content: post.content,
-      user: post.user
+      user: post.user,
     };
 
     // Appeler onShare avec le dialog
@@ -57,9 +66,7 @@ export const ClubPostCard = ({
       onClick={onClick}
       className={cn(
         "rounded-lg p-4 md:p-6 shadow-xs space-y-4 relative",
-        post.isPinned 
-          ? "bg-warning-100 border-2 border-warning-300" 
-          : "bg-card"
+        post.isPinned ? "bg-warning-100 border-2 border-warning-300" : "bg-card"
       )}
     >
       {/* Header */}
@@ -69,7 +76,9 @@ export const ClubPostCard = ({
             <AvatarImage src={profileImage} alt={post.user?.username} />
           )}
           <AvatarFallback>
-            {post.user?.username ? post.user.username.charAt(0).toUpperCase() : "U"}
+            {post.user?.username
+              ? post.user.username.charAt(0).toUpperCase()
+              : "U"}
           </AvatarFallback>
         </Avatar>
         <div className="flex-1">
@@ -85,8 +94,8 @@ export const ClubPostCard = ({
               {canModerate && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button 
-                      variant="ghost" 
+                    <Button
+                      variant="ghost"
                       size="icon"
                       className="h-8 w-8"
                       onClick={(e) => e.stopPropagation()}
@@ -95,7 +104,7 @@ export const ClubPostCard = ({
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                       onClick={(e) => {
                         e.stopPropagation();
                         onPin?.(post.id);
@@ -114,7 +123,7 @@ export const ClubPostCard = ({
                       )}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                       onClick={(e) => {
                         e.stopPropagation();
                         onDelete?.(post.id);
@@ -124,10 +133,13 @@ export const ClubPostCard = ({
                       <Trash2 className="h-4 w-4 mr-2" />
                       Supprimer le post
                     </DropdownMenuItem>
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                       onClick={(e) => {
                         e.stopPropagation();
-                        onBanUser?.(post.user?.id || '', post.user?.username || 'Utilisateur');
+                        onBanUser?.(
+                          post.user?.id || "",
+                          post.user?.username || "Utilisateur"
+                        );
                       }}
                       className="text-destructive focus:text-destructive"
                     >
@@ -151,7 +163,7 @@ export const ClubPostCard = ({
               </div>
             )}
           </div>
-          
+
           {/* Badge épinglé en position absolue */}
           {post.isPinned && (
             <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-1 bg-warning-300 text-warning-800 rounded-full text-xs font-bold shadow-md">

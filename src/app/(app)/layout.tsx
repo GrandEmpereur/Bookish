@@ -19,8 +19,8 @@ export default function FeedLayout({
   ];
 
   // Vérifier si on doit cacher le bottom bar
-  const shouldHideBottomBar = hideBottomBarRoutes.some(route => 
-    pathname.startsWith(route) && pathname !== "/messages"
+  const shouldHideBottomBar = hideBottomBarRoutes.some(
+    (route) => pathname.startsWith(route) && pathname !== "/messages"
   );
 
   return (

@@ -1,66 +1,103 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Capacitor } from "@capacitor/core";
 import { PushNotifications } from "@capacitor/push-notifications";
 import { notificationService } from "@/services/notification.service";
 
-export function usePushNotifications() {
-    useEffect(() => {
-        // Ne fonctionne que sur les plateformes natives
-        if (!Capacitor.isNativePlatform()) {
-            return;
+interface UsePushNotificationsProps {
+  isAuthenticated?: boolean;
+  userId?: string;
+}
+
+export function usePushNotifications({
+  isAuthenticated = false,
+  userId,
+}: UsePushNotificationsProps = {}) {
+  const setupRef = useRef(false);
+  const lastUserIdRef = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    // Ne fonctionne que sur les plateformes natives et si l'utilisateur est connecté
+    if (!Capacitor.isNativePlatform() || !isAuthenticated || !userId) {
+      return;
+    }
+
+    // Éviter les re-setups pour le même utilisateur
+    if (setupRef.current && lastUserIdRef.current === userId) {
+      return;
+    }
+
+    const setupPushNotifications = async () => {
+      try {
+        // 1. Vérifier les permissions
+        let permStatus = await PushNotifications.checkPermissions();
+
+        if (permStatus.receive === "prompt") {
+          permStatus = await PushNotifications.requestPermissions();
         }
 
-        const setupPushNotifications = async () => {
+        if (permStatus.receive !== "granted") {
+          return;
+        }
+
+        // 2. Setup listener AVANT l'enregistrement
+        const registrationListener = await PushNotifications.addListener(
+          "registration",
+          async (token) => {
             try {
-                // 1. Vérifier les permissions
-                let permStatus = await PushNotifications.checkPermissions();
+              await notificationService.registerDeviceToken(token.value);
+            } catch (error) {}
+          }
+        );
 
-                if (permStatus.receive === 'prompt') {
-                    permStatus = await PushNotifications.requestPermissions();
-                }
+        // 3. Enregistrer l'appareil APRÈS avoir setup le listener
+        await PushNotifications.register();
 
-                if (permStatus.receive !== 'granted') {
-                    return;
-                }
+        // 4. Listener pour les erreurs d'enregistrement
+        const errorListener = await PushNotifications.addListener(
+          "registrationError",
+          (err) => {}
+        );
 
-                // 2. Enregistrer l'appareil
-                await PushNotifications.register();
+        // 5. Listener pour les notifications reçues
+        const receivedListener = await PushNotifications.addListener(
+          "pushNotificationReceived",
+          (notification) => {
+            // Ici on peut gérer la notification reçue quand l'app est ouverte
+          }
+        );
 
-                // 3. Listener pour récupérer le token
-                const registrationListener = await PushNotifications.addListener('registration', async (token) => {
-                    try {
-                        await notificationService.registerDeviceToken(token.value);
-                    } catch (error) {
-                    }
-                });
+        // 6. Listener pour les actions sur notifications
+        const actionListener = await PushNotifications.addListener(
+          "pushNotificationActionPerformed",
+          (action) => {
+            // Ici on peut naviguer vers une page spécifique
+          }
+        );
 
-                // 4. Listener pour les erreurs d'enregistrement
-                const errorListener = await PushNotifications.addListener('registrationError', (err) => {
-                });
+        setupRef.current = true;
+        lastUserIdRef.current = userId;
 
-                // 5. Listener pour les notifications reçues
-                const receivedListener = await PushNotifications.addListener('pushNotificationReceived', (notification) => {
-                    // Ici on peut gérer la notification reçue quand l'app est ouverte
-                });
-
-                // 6. Listener pour les actions sur notifications
-                const actionListener = await PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
-                    // Ici on peut naviguer vers une page spécifique
-                });
-
-                // Cleanup function
-                return () => {
-                    registrationListener.remove();
-                    errorListener.remove();
-                    receivedListener.remove();
-                    actionListener.remove();
-                };
-
-            } catch (error) {
-                console.error("Erreur setup notifications push:", error);
-            }
+        // Cleanup function
+        return () => {
+          registrationListener.remove();
+          errorListener.remove();
+          receivedListener.remove();
+          actionListener.remove();
+          setupRef.current = false;
         };
+      } catch (error) {
+        setupRef.current = false;
+      }
+    };
 
-        setupPushNotifications();
-    }, []);
-} 
+    setupPushNotifications();
+  }, [isAuthenticated, userId]);
+
+  // Reset quand l'utilisateur se déconnecte
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setupRef.current = false;
+      lastUserIdRef.current = undefined;
+    }
+  }, [isAuthenticated]);
+}
