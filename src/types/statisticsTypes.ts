@@ -85,7 +85,6 @@ export interface ReadingStatistics {
 }
 
 export interface ReadingStatisticsResponse {
-  status: 'success';
+  status: "success";
   data: ReadingStatistics;
-} 
-
+}

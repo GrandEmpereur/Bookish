@@ -53,7 +53,9 @@ export default function CreateClub() {
   /* ----------------------------- Handlers ------------------------------ */
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -89,11 +91,15 @@ export default function CreateClub() {
 
     if (!name) return toast.error("Le nom du club est obligatoire");
     if (name.length < 2 || name.length > 100)
-      return toast.error("Le nom du club doit contenir entre 2 et 100 caractères");
+      return toast.error(
+        "Le nom du club doit contenir entre 2 et 100 caractères"
+      );
 
     if (!description) return toast.error("La description est obligatoire");
     if (description.length < 10 || description.length > 1000)
-      return toast.error("La description doit contenir entre 10 et 1000 caractères");
+      return toast.error(
+        "La description doit contenir entre 10 et 1000 caractères"
+      );
 
     if (!["Public", "Private"].includes(formData.type))
       return toast.error("Le type de club doit être 'Public' ou 'Private'");
@@ -135,10 +141,9 @@ export default function CreateClub() {
 
       toast.error("Une erreur inattendue est survenue.");
     } catch (error: any) {
-      const message =
-        error?.message?.includes("Validation failure")
-          ? "Erreur de validation des données. Vérifiez les champs."
-          : "Erreur serveur, veuillez réessayer.";
+      const message = error?.message?.includes("Validation failure")
+        ? "Erreur de validation des données. Vérifiez les champs."
+        : "Erreur serveur, veuillez réessayer.";
       toast.error(message);
     } finally {
       setIsSubmitting(false);
@@ -168,7 +173,9 @@ export default function CreateClub() {
 
           {/* Description */}
           <div className="space-y-2">
-            <Label htmlFor="description">Description * (10-1000 caractères)</Label>
+            <Label htmlFor="description">
+              Description * (10-1000 caractères)
+            </Label>
             <Textarea
               id="description"
               name="description"

@@ -14,16 +14,16 @@ export function useNotificationsCount() {
       try {
         // Récupérer toutes les notifications
         const response = await notificationService.getNotifications();
-        
+
         // Vérifier que la réponse existe
         if (!response || !response.data) {
           return 0;
         }
-        
+
         // Compter TOUTES les notifications affichées dans la page
         const notifications = response.data.notifications || [];
         const totalCount = notifications.length;
-        
+
         return totalCount;
       } catch (error) {
         console.error("Error fetching notifications count:", error);

@@ -78,7 +78,9 @@ class BookService {
     if (options?.sort) params.sort = options.sort;
     if (options?.order) params.order = options.order;
 
-    return this.makeRequest<ApiResponse<GetBooksResponse>>("GET", "/books", { params });
+    return this.makeRequest<ApiResponse<GetBooksResponse>>("GET", "/books", {
+      params,
+    });
   }
 
   async getBook(id: string): Promise<ApiResponse<Book>> {

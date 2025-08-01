@@ -70,7 +70,7 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
     rightIcons: [
       {
         icon: Search,
-        onClick: () => { },
+        onClick: () => {},
         modalType: "dialog",
       },
     ],
@@ -82,7 +82,7 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
     rightIcons: [
       {
         icon: Search,
-        onClick: () => { },
+        onClick: () => {},
         modalType: "dialog",
       },
     ],
@@ -234,7 +234,7 @@ export const topBarConfigs: Record<string, TopBarConfig> = {
     showBack: true,
   },
 
-  // Clubs 
+  // Clubs
   "/clubs": {
     variant: "back",
     title: "Clubs",
@@ -296,8 +296,6 @@ export function getTopBarConfig(path: string): TopBarConfig {
   if (/^\/feed\/[\w-]+$/.test(cleanPath) && cleanPath !== "/feed/create") {
     return topBarConfigs["/feed/[id]"];
   }
-
-
 
   // Pour les book avec UUID
   if (/^\/books\/[\w-]+$/.test(cleanPath)) {

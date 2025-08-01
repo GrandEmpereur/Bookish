@@ -45,7 +45,7 @@ export interface CreateBookRequest {
   availability?: BookAvailability;
 }
 
-export interface UpdateBookRequest extends Partial<CreateBookRequest> { }
+export interface UpdateBookRequest extends Partial<CreateBookRequest> {}
 
 // Types pour les réponses
 export interface GetBookResponse {

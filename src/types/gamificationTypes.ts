@@ -10,7 +10,7 @@ export interface GamificationDashboard {
   recentAchievements: Achievement[];
   // Enhanced fields from documentation
   currency: CurrencyBalance;
-  gameMode: 'zen' | 'challenge';
+  gameMode: "zen" | "challenge";
   currentWeeklyChallenge?: WeeklyChallenge;
   currentMonthlyChallenge?: MonthlyChallenge;
   weeklyProgress: {
@@ -53,7 +53,7 @@ export interface GameMode {
 }
 
 export interface EventData {
-  eventType: 'session_reading' | 'book_completed';
+  eventType: "session_reading" | "book_completed";
   sessionDuration?: number; // for session reading
   bookId?: string; // for book completion
   rating?: number;
@@ -63,9 +63,9 @@ export interface Mission {
   id: string;
   title: string;
   description: string;
-  type: 'daily' | 'weekly' | 'monthly' | 'special';
-  category: 'reading' | 'exploration' | 'community' | 'creation' | 'engagement';
-  difficulty: 'easy' | 'medium' | 'hard' | 'expert';
+  type: "daily" | "weekly" | "monthly" | "special";
+  category: "reading" | "exploration" | "community" | "creation" | "engagement";
+  difficulty: "easy" | "medium" | "hard" | "expert";
   progress: number;
   target: number;
   reward: Reward;
@@ -84,25 +84,40 @@ export interface Badge {
   id: string;
   name: string;
   description: string;
-  category: 'reading' | 'social' | 'achievement' | 'streak' | 'discovery' | 'community' | 'critic' | 'marathon';
-  level: 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond';
+  category:
+    | "reading"
+    | "social"
+    | "achievement"
+    | "streak"
+    | "discovery"
+    | "community"
+    | "critic"
+    | "marathon";
+  level: "bronze" | "silver" | "gold" | "platinum" | "diamond";
   tier: number; // 1, 2, 3, etc. for multiple levels within same achievement
   iconUrl: string;
   unlockedAt?: string;
   isUnlocked: boolean;
   requirements: BadgeRequirement;
   reward?: BadgeReward;
-  rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
+  rarity: "common" | "uncommon" | "rare" | "epic" | "legendary";
   series?: string; // For grouped badges like "Lecteur Marathonien I, II, III"
   narrativeTitle?: string; // Special title unlocked with badge
   shareableMessage?: string; // Message for social sharing
 }
 
 export interface BadgeRequirement {
-  type: 'books_read' | 'streak_days' | 'reviews_written' | 'genres_explored' | 'reading_time' | 'community_engagement' | 'custom';
+  type:
+    | "books_read"
+    | "streak_days"
+    | "reviews_written"
+    | "genres_explored"
+    | "reading_time"
+    | "community_engagement"
+    | "custom";
   target: number;
   description: string;
-  timeframe?: 'daily' | 'weekly' | 'monthly' | 'yearly' | 'lifetime';
+  timeframe?: "daily" | "weekly" | "monthly" | "yearly" | "lifetime";
   specificConditions?: string[]; // e.g., ["fantasy", "sci-fi"] for genre badges
 }
 
@@ -111,7 +126,7 @@ export interface BadgeReward {
   xp: number;
   title?: string; // Special title like "Bibliophile", "Critic Elite"
   cosmetic?: {
-    type: 'avatar_accessory' | 'profile_frame' | 'theme';
+    type: "avatar_accessory" | "profile_frame" | "theme";
     itemId: string;
   };
 }
@@ -126,7 +141,7 @@ export interface Achievement {
 }
 
 export interface Leaderboard {
-  type: 'global' | 'friends';
+  type: "global" | "friends";
   entries: LeaderboardEntry[];
 }
 
@@ -169,7 +184,14 @@ export interface ShopItem {
   name: string;
   description: string;
   price: number;
-  category: 'themes' | 'badges' | 'avatars' | 'boosts' | 'utility' | 'cosmetic' | 'boost';
+  category:
+    | "themes"
+    | "badges"
+    | "avatars"
+    | "boosts"
+    | "utility"
+    | "cosmetic"
+    | "boost";
   iconUrl: string;
   isPurchased: boolean;
   isAvailable: boolean;
@@ -181,7 +203,14 @@ export interface Shop {
 }
 
 export interface Reward {
-  type: 'experience' | 'points' | 'badge' | 'item' | 'bookcoins' | 'streak_freeze' | 'xp_boost';
+  type:
+    | "experience"
+    | "points"
+    | "badge"
+    | "item"
+    | "bookcoins"
+    | "streak_freeze"
+    | "xp_boost";
   amount?: number;
   badgeId?: string;
   itemId?: string;
@@ -200,7 +229,7 @@ export interface WeeklyChallenge {
   id: string;
   title: string;
   description: string;
-  type: 'individual' | 'community' | 'club';
+  type: "individual" | "community" | "club";
   startDate: string;
   endDate: string;
   isActive: boolean;
@@ -230,7 +259,7 @@ export interface MonthlyChallenge {
 // Anti-cheat verification system
 export interface VerificationChallenge {
   id: string;
-  type: 'quiz' | 'summary' | 'qr_code' | 'photo_proof';
+  type: "quiz" | "summary" | "qr_code" | "photo_proof";
   question?: string;
   options?: string[];
   correctAnswer?: string;
@@ -242,17 +271,17 @@ export interface VerificationChallenge {
 
 // API Response Types
 export interface GamificationDashboardResponse {
-  status: 'success';
+  status: "success";
   data: GamificationDashboard;
 }
 
 export interface GameModeResponse {
-  status: 'success';
+  status: "success";
   data: GameMode;
 }
 
 export interface MissionsResponse {
-  status: 'success';
+  status: "success";
   data: {
     available: Mission[];
     active: Mission[];
@@ -261,7 +290,7 @@ export interface MissionsResponse {
 }
 
 export interface BadgesResponse {
-  status: 'success';
+  status: "success";
   data: {
     badges: Badge[];
     counts: {
@@ -275,22 +304,22 @@ export interface BadgesResponse {
 }
 
 export interface LeaderboardResponse {
-  status: 'success';
+  status: "success";
   data: LeaderboardAPIResponse;
 }
 
 export interface StreakResponse {
-  status: 'success';
+  status: "success";
   data: Streak;
 }
 
 export interface ShopResponse {
-  status: 'success';
+  status: "success";
   data: Shop;
 }
 
 export interface BasicGamificationResponse {
-  status: 'success';
+  status: "success";
   message: string;
 }
 
@@ -322,7 +351,7 @@ export interface HappyHour {
   startTime: string;
   endTime: string;
   isActive: boolean;
-  category: 'reading' | 'social' | 'missions' | 'all';
+  category: "reading" | "social" | "missions" | "all";
   participantCount: number;
   maxParticipants?: number;
 }
@@ -353,7 +382,7 @@ export interface SpecialEvent {
   id: string;
   title: string;
   description: string;
-  type: 'seasonal' | 'anniversary' | 'community' | 'challenge';
+  type: "seasonal" | "anniversary" | "community" | "challenge";
   startDate: string;
   endDate: string;
   isActive: boolean;
@@ -378,7 +407,7 @@ export interface Multiplier {
   name: string;
   description: string;
   multiplier: number;
-  category: 'experience' | 'points' | 'streak' | 'all';
+  category: "experience" | "points" | "streak" | "all";
   startTime: string;
   endTime: string;
   isActive: boolean;
@@ -389,34 +418,34 @@ export interface UpcomingEvent {
   id: string;
   title: string;
   description: string;
-  type: 'happy_hour' | 'flash_contest' | 'special_event';
+  type: "happy_hour" | "flash_contest" | "special_event";
   scheduledFor: string;
   estimatedDuration: number; // in minutes
 }
 
 // API Response Types for Events
 export interface EventsOverviewResponse {
-  status: 'success';
+  status: "success";
   data: EventsOverviewAPIResponse;
 }
 
 export interface HappyHoursResponse {
-  status: 'success';
+  status: "success";
   data: HappyHour[];
 }
 
 export interface FlashContestsResponse {
-  status: 'success';
+  status: "success";
   data: FlashContest[];
 }
 
 export interface SpecialEventsResponse {
-  status: 'success';
+  status: "success";
   data: SpecialEvent[];
 }
 
 export interface MultipliersResponse {
-  status: 'success';
+  status: "success";
   data: Multiplier[];
 }
 
@@ -426,7 +455,7 @@ export interface CreateHappyHourRequest {
   description: string;
   multiplier: number;
   duration: number; // in minutes
-  category: 'reading' | 'social' | 'missions' | 'all';
+  category: "reading" | "social" | "missions" | "all";
   maxParticipants?: number;
 }
 
@@ -445,8 +474,15 @@ export interface InventoryItem {
   id: string;
   name: string;
   description: string;
-  type: 'avatar' | 'frame' | 'badge' | 'theme' | 'accessory' | 'boost' | 'consumable';
-  rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
+  type:
+    | "avatar"
+    | "frame"
+    | "badge"
+    | "theme"
+    | "accessory"
+    | "boost"
+    | "consumable";
+  rarity: "common" | "uncommon" | "rare" | "epic" | "legendary";
   iconUrl: string;
   quantity: number;
   acquiredAt: string;
@@ -491,10 +527,17 @@ export interface InventoryShopItem {
   id: string;
   name: string;
   description: string;
-  type: 'avatar' | 'frame' | 'badge' | 'theme' | 'accessory' | 'boost' | 'consumable';
-  rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
+  type:
+    | "avatar"
+    | "frame"
+    | "badge"
+    | "theme"
+    | "accessory"
+    | "boost"
+    | "consumable";
+  rarity: "common" | "uncommon" | "rare" | "epic" | "legendary";
   price: number;
-  currency: 'points' | 'coins' | 'gems';
+  currency: "points" | "coins" | "gems";
   iconUrl: string;
   previewUrl?: string;
   isAvailable: boolean;
@@ -521,9 +564,9 @@ export interface MysteryBox {
   id: string;
   name: string;
   description: string;
-  type: 'common' | 'rare' | 'epic' | 'legendary';
+  type: "common" | "rare" | "epic" | "legendary";
   price: number;
-  currency: 'points' | 'coins' | 'gems';
+  currency: "points" | "coins" | "gems";
   iconUrl: string;
   possibleRewards: MysteryBoxReward[];
   guarantee?: string;
@@ -541,34 +584,34 @@ export interface MysteryBoxOpenResult {
   reward: InventoryItem;
   isNew: boolean;
   duplicateCompensation?: {
-    type: 'currency' | 'points';
+    type: "currency" | "points";
     amount: number;
   };
 }
 
 // API Response Types for Inventory
 export interface InventoryResponse {
-  status: 'success';
+  status: "success";
   data: Inventory;
 }
 
 export interface EquippedItemsResponse {
-  status: 'success';
+  status: "success";
   data: EquippedItems;
 }
 
 export interface InventoryStatsResponse {
-  status: 'success';
+  status: "success";
   data: InventoryStats;
 }
 
 export interface InventoryShopResponse {
-  status: 'success';
+  status: "success";
   data: InventoryShop;
 }
 
 export interface MysteryBoxOpenResponse {
-  status: 'success';
+  status: "success";
   data: MysteryBoxOpenResult;
 }
 
@@ -582,10 +625,16 @@ export interface Challenge {
   id: string;
   title: string;
   description: string;
-  type: 'personal' | 'public' | 'community';
-  status: 'active' | 'completed' | 'failed' | 'pending' | 'declined';
-  difficulty: 'easy' | 'medium' | 'hard' | 'expert';
-  category: 'reading' | 'social' | 'discovery' | 'speed' | 'consistency' | 'custom';
+  type: "personal" | "public" | "community";
+  status: "active" | "completed" | "failed" | "pending" | "declined";
+  difficulty: "easy" | "medium" | "hard" | "expert";
+  category:
+    | "reading"
+    | "social"
+    | "discovery"
+    | "speed"
+    | "consistency"
+    | "custom";
   createdBy: string;
   createdByUsername?: string;
   createdAt: string;
@@ -606,7 +655,14 @@ export interface ChallengeObjective {
   id: string;
   title: string;
   description: string;
-  type: 'books_read' | 'pages_read' | 'time_spent' | 'streak_days' | 'genres_explored' | 'reviews_written' | 'custom';
+  type:
+    | "books_read"
+    | "pages_read"
+    | "time_spent"
+    | "streak_days"
+    | "genres_explored"
+    | "reviews_written"
+    | "custom";
   target: number;
   current: number;
   unit: string;
@@ -616,7 +672,7 @@ export interface ChallengeObjective {
 
 export interface ChallengeReward {
   id: string;
-  type: 'experience' | 'points' | 'badge' | 'item' | 'title' | 'currency';
+  type: "experience" | "points" | "badge" | "item" | "title" | "currency";
   amount?: number;
   itemId?: string;
   badgeId?: string;
@@ -636,7 +692,7 @@ export interface ChallengeProgress {
 }
 
 export interface ChallengeRequirement {
-  type: 'level' | 'books_read' | 'streak' | 'badge' | 'custom';
+  type: "level" | "books_read" | "streak" | "badge" | "custom";
   value: number;
   description: string;
   isMet: boolean;
@@ -682,17 +738,26 @@ export interface PersonalChallengeStats {
 export interface CreateChallengeRequest {
   title: string;
   description: string;
-  type: 'personal' | 'public' | 'community';
-  difficulty: 'easy' | 'medium' | 'hard' | 'expert';
-  category: 'reading' | 'social' | 'discovery' | 'speed' | 'consistency' | 'custom';
+  type: "personal" | "public" | "community";
+  difficulty: "easy" | "medium" | "hard" | "expert";
+  category:
+    | "reading"
+    | "social"
+    | "discovery"
+    | "speed"
+    | "consistency"
+    | "custom";
   startDate: string;
   endDate: string;
   maxParticipants?: number;
   isPublic: boolean;
   tags: string[];
-  objectives: Omit<ChallengeObjective, 'id' | 'current' | 'isCompleted' | 'completedAt'>[];
-  rewards: Omit<ChallengeReward, 'id'>[];
-  requirements?: Omit<ChallengeRequirement, 'isMet'>[];
+  objectives: Omit<
+    ChallengeObjective,
+    "id" | "current" | "isCompleted" | "completedAt"
+  >[];
+  rewards: Omit<ChallengeReward, "id">[];
+  requirements?: Omit<ChallengeRequirement, "isMet">[];
 }
 
 export interface UpdateProgressRequest {
@@ -703,7 +768,7 @@ export interface UpdateProgressRequest {
 
 // API Response Types for Challenges
 export interface ChallengesResponse {
-  status: 'success';
+  status: "success";
   data: {
     challenges: Challenge[];
     totalCount: number;
@@ -717,21 +782,21 @@ export interface ChallengesResponse {
 }
 
 export interface ChallengeResponse {
-  status: 'success';
+  status: "success";
   data: Challenge;
 }
 
 export interface PersonalChallengeStatsResponse {
-  status: 'success';
+  status: "success";
   data: PersonalChallengeStats;
 }
 
 export interface PopularChallengesResponse {
-  status: 'success';
+  status: "success";
   data: {
     challenges: Challenge[];
     trending: Challenge[];
     mostParticipated: Challenge[];
     recentlyCompleted: Challenge[];
   };
-} 
+}

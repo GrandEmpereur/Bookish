@@ -68,7 +68,6 @@ export default function Login() {
       transition: {
         duration: 0.4,
         staggerChildren: 0.08,
-
       },
     },
     exit: {
@@ -77,7 +76,6 @@ export default function Login() {
       y: -50,
       transition: {
         duration: 0.8,
-
       },
     },
   };
@@ -89,7 +87,6 @@ export default function Login() {
       y: 0,
       transition: {
         duration: 0.4,
-
       },
     },
     exit: {
@@ -97,7 +94,6 @@ export default function Login() {
       y: -20,
       transition: {
         duration: 0.5,
-
       },
     },
   };
@@ -110,7 +106,6 @@ export default function Login() {
       transition: {
         duration: 0.4,
         delay: 0.1,
-
       },
     },
     exit: {
@@ -118,7 +113,6 @@ export default function Login() {
       scale: 0.95,
       transition: {
         duration: 0.6,
-
       },
     },
   };

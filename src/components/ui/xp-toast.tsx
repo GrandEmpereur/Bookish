@@ -12,12 +12,12 @@ interface XPToastProps {
   className?: string;
 }
 
-export function XPToast({ 
-  amount, 
-  reason, 
-  isVisible, 
-  onComplete, 
-  className 
+export function XPToast({
+  amount,
+  reason,
+  isVisible,
+  onComplete,
+  className,
 }: XPToastProps) {
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -36,7 +36,7 @@ export function XPToast({
   if (!isVisible) return null;
 
   return (
-    <div 
+    <div
       className={cn(
         "fixed top-[100px] right-4 z-50 flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg shadow-lg",
         "transform transition-all duration-300",
@@ -49,9 +49,7 @@ export function XPToast({
         <Plus className="w-3 h-3" />
         <span className="font-bold">{amount} XP</span>
       </div>
-      {reason && (
-        <span className="text-sm opacity-90">• {reason}</span>
-      )}
+      {reason && <span className="text-sm opacity-90">• {reason}</span>}
     </div>
   );
-} 
+}

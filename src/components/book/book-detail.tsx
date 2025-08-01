@@ -199,7 +199,7 @@ export default function BookDetail({ id }: BookProps) {
       {/* Image + bouton ajout */}
       <div className="w-[130px] h-[180px] relative mx-auto px-5 ">
         <Image
-                          src={book.cover_image || "/placeholder.png"}
+          src={book.cover_image || "/placeholder.png"}
           alt={book.title}
           fill
           className="object-cover [box-shadow:var(--shadow-strong)]"

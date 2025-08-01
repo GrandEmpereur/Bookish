@@ -5,32 +5,24 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { clubService } from "@/services/club.service";
 import { JoinRequest } from "@/types/clubTypes";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
-import { 
-  Button 
-} from "@/components/ui/button";
-import { 
-  Badge 
-} from "@/components/ui/badge";
-import { 
-  Avatar, 
-  AvatarFallback, 
-  AvatarImage 
-} from "@/components/ui/avatar";
-import { 
-  Loader2, 
-  MessageSquare, 
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Loader2,
+  MessageSquare,
   Clock,
   CheckCircle,
   XCircle,
   Users,
-  Calendar
+  Calendar,
 } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
@@ -47,9 +39,9 @@ const MyRequestsPage = () => {
       try {
         setLoading(true);
         // Note: Cette méthode doit être ajoutée au service si elle n'existe pas
-        const response = await clubService.getMyJoinRequests({ 
-          page: 1, 
-          perPage: 50 
+        const response = await clubService.getMyJoinRequests({
+          page: 1,
+          perPage: 50,
         });
         if (response.data) {
           setRequests(response.data.data || []);
@@ -93,7 +85,9 @@ const MyRequestsPage = () => {
     }
   };
 
-  const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
+  const getStatusVariant = (
+    status: string
+  ): "default" | "secondary" | "destructive" | "outline" => {
     switch (status) {
       case "pending":
         return "outline";
@@ -136,7 +130,7 @@ const MyRequestsPage = () => {
               <p className="text-muted-foreground mb-6">
                 Vous n'avez fait aucune demande d'adhésion à des clubs privés.
               </p>
-              <Button 
+              <Button
                 onClick={() => router.push("/clubs")}
                 className="rounded-full"
               >
@@ -178,8 +172,8 @@ const MyRequestsPage = () => {
                             {request.club.description}
                           </p>
                         </div>
-                        
-                        <Badge 
+
+                        <Badge
                           variant={getStatusVariant(request.status)}
                           className="gap-1 ml-4"
                         >
@@ -190,39 +184,51 @@ const MyRequestsPage = () => {
 
                       {/* Message de la demande */}
                       <div className="bg-muted p-3 rounded-lg mb-3">
-                        <p className="text-sm font-medium mb-1">Votre message :</p>
+                        <p className="text-sm font-medium mb-1">
+                          Votre message :
+                        </p>
                         <p className="text-sm text-muted-foreground">
                           "{request.message}"
                         </p>
                       </div>
 
                       {/* Message de review si rejeté ou approuvé */}
-                      {request.reviewMessage && request.status !== "pending" && (
-                        <div className={`p-3 rounded-lg mb-3 ${
-                          request.status === "approved" 
-                            ? "bg-success-100 border border-success-200" 
-                            : "bg-error-100 border border-error-200"
-                        }`}>
-                          <p className="text-sm font-medium mb-1">
-                            Réponse des modérateurs :
-                          </p>
-                          <p className="text-sm">
-                            "{request.reviewMessage}"
-                          </p>
-                        </div>
-                      )}
+                      {request.reviewMessage &&
+                        request.status !== "pending" && (
+                          <div
+                            className={`p-3 rounded-lg mb-3 ${
+                              request.status === "approved"
+                                ? "bg-success-100 border border-success-200"
+                                : "bg-error-100 border border-error-200"
+                            }`}
+                          >
+                            <p className="text-sm font-medium mb-1">
+                              Réponse des modérateurs :
+                            </p>
+                            <p className="text-sm">"{request.reviewMessage}"</p>
+                          </div>
+                        )}
 
                       {/* Informations sur les dates */}
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <div className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
-                          Demandé le {new Date(request.createdAt).toLocaleDateString('fr-FR')}
+                          Demandé le{" "}
+                          {new Date(request.createdAt).toLocaleDateString(
+                            "fr-FR"
+                          )}
                         </div>
-                        
+
                         {request.reviewedAt && (
                           <div className="flex items-center gap-1">
                             <Calendar className="w-3 h-3" />
-                            {request.status === "approved" ? "Approuvé" : "Rejeté"} le {new Date(request.reviewedAt).toLocaleDateString('fr-FR')}
+                            {request.status === "approved"
+                              ? "Approuvé"
+                              : "Rejeté"}{" "}
+                            le{" "}
+                            {new Date(request.reviewedAt).toLocaleDateString(
+                              "fr-FR"
+                            )}
                           </div>
                         )}
                       </div>
@@ -232,15 +238,19 @@ const MyRequestsPage = () => {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => router.push(`/clubs/${request.club.id}`)}
+                          onClick={() =>
+                            router.push(`/clubs/${request.club.id}`)
+                          }
                         >
                           Voir le club
                         </Button>
-                        
+
                         {request.status === "approved" && (
                           <Button
                             size="sm"
-                            onClick={() => router.push(`/clubs/${request.club.id}`)}
+                            onClick={() =>
+                              router.push(`/clubs/${request.club.id}`)
+                            }
                             className="rounded-full"
                             style={{
                               backgroundColor: "var(--success-200)",
@@ -250,12 +260,16 @@ const MyRequestsPage = () => {
                             Accéder au club
                           </Button>
                         )}
-                        
+
                         {request.status === "rejected" && (
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => router.push(`/clubs/${request.club.id}/join-request`)}
+                            onClick={() =>
+                              router.push(
+                                `/clubs/${request.club.id}/join-request`
+                              )
+                            }
                           >
                             Faire une nouvelle demande
                           </Button>

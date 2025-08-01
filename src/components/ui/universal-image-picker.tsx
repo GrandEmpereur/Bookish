@@ -35,30 +35,34 @@ export function UniversalImagePicker({
 }: UniversalImagePickerProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   const isNative = Capacitor.isNativePlatform();
-  
+
   // Hook pour les fonctionnalités natives (caméra)
-  const { isLoading, isCameraAvailable, takePhoto, pickFromGallery } = useCamera({
-    onPhotoTaken: async (photo) => {
-      if (photo?.dataUrl) {
-        try {
-          const file = await dataUrlToFile(photo.dataUrl, `photo-${Date.now()}.jpg`);
-          if (file) {
-            onImageSelected(file);
-            setIsDialogOpen(false);
+  const { isLoading, isCameraAvailable, takePhoto, pickFromGallery } =
+    useCamera({
+      onPhotoTaken: async (photo) => {
+        if (photo?.dataUrl) {
+          try {
+            const file = await dataUrlToFile(
+              photo.dataUrl,
+              `photo-${Date.now()}.jpg`
+            );
+            if (file) {
+              onImageSelected(file);
+              setIsDialogOpen(false);
+            }
+          } catch (error) {
+            console.error("Erreur conversion photo:", error);
+            onError?.("Erreur lors du traitement de la photo");
           }
-        } catch (error) {
-          console.error("Erreur conversion photo:", error);
-          onError?.("Erreur lors du traitement de la photo");
         }
-      }
-    },
-    onError: (error) => {
-      onError?.(error);
-      setIsDialogOpen(false);
-    },
-  });
+      },
+      onError: (error) => {
+        onError?.(error);
+        setIsDialogOpen(false);
+      },
+    });
 
   // Fonction utilitaire pour convertir dataUrl en File
   const dataUrlToFile = async (
@@ -81,10 +85,10 @@ export function UniversalImagePicker({
   // Validation des fichiers
   const validateFile = (file: File): boolean => {
     // Vérifier le type
-    const acceptedTypes = accept.split(',').map(type => type.trim());
-    const isValidType = acceptedTypes.some(type => {
-      if (type === "image/*") return file.type.startsWith('image/');
-      if (type === "video/*") return file.type.startsWith('video/');
+    const acceptedTypes = accept.split(",").map((type) => type.trim());
+    const isValidType = acceptedTypes.some((type) => {
+      if (type === "image/*") return file.type.startsWith("image/");
+      if (type === "video/*") return file.type.startsWith("video/");
       return file.type === type;
     });
 
@@ -145,7 +149,7 @@ export function UniversalImagePicker({
         type="file"
         accept={accept}
         onChange={handleFileChange}
-        style={{ display: 'none' }}
+        style={{ display: "none" }}
       />
 
       {/* Bouton trigger */}

@@ -10,9 +10,12 @@ interface NotificationBadgeProps {
   className?: string;
 }
 
-export function NotificationBadge({ size = 20, className }: NotificationBadgeProps) {
+export function NotificationBadge({
+  size = 20,
+  className,
+}: NotificationBadgeProps) {
   const { count, isLoading, error } = useNotificationsCount();
-  
+
   return (
     <div className={cn("relative inline-block", className)}>
       <Bell size={size} />

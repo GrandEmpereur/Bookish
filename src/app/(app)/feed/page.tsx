@@ -156,7 +156,12 @@ export default function Feed() {
         );
 
         // Mise à jour optimiste du compteur
-        const currentPost = posts.find((p): p is Post => (p as any).subject && (p as Post).id === postId && (p as Post).id === postId);
+        const currentPost = posts.find(
+          (p): p is Post =>
+            (p as any).subject &&
+            (p as Post).id === postId &&
+            (p as Post).id === postId
+        );
         if (currentPost) {
           const newLikesCount = isCurrentlyActive
             ? Math.max(0, currentPost.likesCount - 1) // Unlike
@@ -256,14 +261,16 @@ export default function Feed() {
     setSelectedPost(post);
     setReportDialogOpen(true);
   };
-  
+
   // Skeleton de chargement initial
   if (initialLoading) {
     return (
-      <div className={cn(
-        "flex-1 px-4 md:px-8 lg:px-0 pb-[120px]",
-        isNative ? "pt-[130px]" : "pt-[100px]"
-      )}>
+      <div
+        className={cn(
+          "flex-1 px-4 md:px-8 lg:px-0 pb-[120px]",
+          isNative ? "pt-[130px]" : "pt-[100px]"
+        )}
+      >
         <div className="max-w-2xl mx-auto space-y-6">
           {[...Array(3)].map((_, index) => (
             <div
@@ -329,165 +336,167 @@ export default function Feed() {
             ) : posts && posts.length > 0 ? (
               <>
                 {posts.map((item) => {
-                    if ((item as any).type === "ad") {
-                      const adItem = item as AdItem;
-                      return <AdCard key={`ad-${adItem.ad.id}`} ad={adItem.ad} />;
-                    }
+                  if ((item as any).type === "ad") {
+                    const adItem = item as AdItem;
+                    return <AdCard key={`ad-${adItem.ad.id}`} ad={adItem.ad} />;
+                  }
 
-                    const post = item as Post;
-                    const profileImage =
-                      (post.user as any)?.profile_picture_path ||
-                      (post.user as any)?.profile_picture_url ||
-                      post.user?.profile?.profile_picture_url;
+                  const post = item as Post;
+                  const profileImage =
+                    (post.user as any)?.profile_picture_path ||
+                    (post.user as any)?.profile_picture_url ||
+                    post.user?.profile?.profile_picture_url;
 
-                    return (
-                      <article
-                        key={post.id}
-                        className="bg-card rounded-lg p-4 md:p-6 shadow-xs space-y-4"
-                      >
-                        {/* En-tête du post */}
-                        <div className="flex gap-3">
-                          <Avatar className="h-10 w-10 md:h-12 md:w-12">
-                            {profileImage && (
-                              <AvatarImage
-                                src={profileImage}
-                                alt={post.user.username}
-                              />
+                  return (
+                    <article
+                      key={post.id}
+                      className="bg-card rounded-lg p-4 md:p-6 shadow-xs space-y-4"
+                    >
+                      {/* En-tête du post */}
+                      <div className="flex gap-3">
+                        <Avatar className="h-10 w-10 md:h-12 md:w-12">
+                          {profileImage && (
+                            <AvatarImage
+                              src={profileImage}
+                              alt={post.user.username}
+                            />
+                          )}
+                          <AvatarFallback>
+                            {post.user?.username
+                              ? post.user.username.charAt(0).toUpperCase()
+                              : "U"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <span className="font-medium text-base md:text-lg">
+                              {post.user?.username || "Utilisateur"}
+                            </span>
+                            <span className="text-sm text-muted-foreground">
+                              {safeFormatDistanceToNow(post.createdAt)}
+                            </span>
+                          </div>
+                          <h2 className="text-sm md:text-base text-muted-foreground mt-0.5">
+                            {post.title}
+                          </h2>
+                        </div>
+                      </div>
+
+                      {/* Contenu du post */}
+                      <div className="text-sm md:text-base">{post.content}</div>
+
+                      {/* Media du post */}
+                      {post.media && post.media.length > 0 && (
+                        <div className="flex flex-col">
+                          <div className="relative aspect-4/3 md:aspect-video rounded-lg overflow-hidden">
+                            <Image
+                              src={post.media[0].url}
+                              alt={post.title}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Actions du post */}
+                      <div className="flex items-center justify-between pt-2">
+                        {/* Actions principales */}
+                        <div className="flex items-center gap-3">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className={cn(
+                              "text-muted-foreground hover:text-primary flex items-center gap-1.5 group md:text-base",
+                              likedPosts.has(post.id) && "text-like"
                             )}
-                            <AvatarFallback>
-                              {post.user?.username
-                                ? post.user.username.charAt(0).toUpperCase()
-                                : "U"}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between">
-                              <span className="font-medium text-base md:text-lg">
-                                {post.user?.username || "Utilisateur"}
-                              </span>
-                              <span className="text-sm text-muted-foreground">
-                                {safeFormatDistanceToNow(post.createdAt)}
-                              </span>
-                            </div>
-                            <h2 className="text-sm md:text-base text-muted-foreground mt-0.5">
-                              {post.title}
-                            </h2>
-                          </div>
+                            onClick={() => handleLike(post.id)}
+                          >
+                            <Heart
+                              className={cn(
+                                "h-5 w-5 md:h-6 md:w-6 transition-all duration-300",
+                                likedPosts.has(post.id)
+                                  ? "fill-current"
+                                  : "fill-none"
+                              )}
+                              strokeWidth={2}
+                            />
+                            <span className="text-sm md:text-base transition-all duration-300">
+                              {post.likesCount}
+                            </span>
+                          </Button>
+
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-muted-foreground hover:text-primary flex items-center gap-1.5"
+                            onClick={() => handleComment(post.id)}
+                          >
+                            <MessageCircle className="h-5 w-5" />
+                            <span className="text-sm">
+                              {post.commentsCount}
+                            </span>
+                          </Button>
+
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className={cn(
+                              "text-muted-foreground hover:text-primary flex items-center gap-1.5 group md:text-base",
+                              bookmarkedPosts.has(post.id) && "text-primary"
+                            )}
+                            onClick={() => handleBookmark(post.id)}
+                          >
+                            <Bookmark
+                              className={cn(
+                                "h-5 w-5 md:h-6 md:w-6 transition-all duration-300",
+                                bookmarkedPosts.has(post.id)
+                                  ? "scale-110 fill-current"
+                                  : "scale-100 fill-none"
+                              )}
+                              strokeWidth={2}
+                            />
+                          </Button>
                         </div>
 
-                        {/* Contenu du post */}
-                        <div className="text-sm md:text-base">{post.content}</div>
+                        {/* Actions secondaires */}
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-muted-foreground hover:text-primary"
+                            onClick={() => handleShare(post)}
+                          >
+                            <Share2 className="h-5 w-5" />
+                          </Button>
 
-                        {/* Media du post */}
-                        {post.media && post.media.length > 0 && (
-                          <div className="flex flex-col">
-                            <div className="relative aspect-4/3 md:aspect-video rounded-lg overflow-hidden">
-                              <Image
-                                src={post.media[0].url}
-                                alt={post.title}
-                                fill
-                                className="object-cover"
-                              />
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Actions du post */}
-                        <div className="flex items-center justify-between pt-2">
-                          {/* Actions principales */}
-                          <div className="flex items-center gap-3">
-                            <Button
+                          {/* Mobile: Signalement rapide */}
+                          <div className="md:hidden">
+                            <QuickReportButton
+                              postId={post.id}
+                              postUserId={post.userId}
                               variant="ghost"
                               size="sm"
-                              className={cn(
-                                "text-muted-foreground hover:text-primary flex items-center gap-1.5 group md:text-base",
-                                likedPosts.has(post.id) && "text-like"
-                              )}
-                              onClick={() => handleLike(post.id)}
-                            >
-                              <Heart
-                                className={cn(
-                                  "h-5 w-5 md:h-6 md:w-6 transition-all duration-300",
-                                  likedPosts.has(post.id)
-                                    ? "fill-current"
-                                    : "fill-none"
-                                )}
-                                strokeWidth={2}
-                              />
-                              <span className="text-sm md:text-base transition-all duration-300">
-                                {post.likesCount}
-                              </span>
-                            </Button>
-
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-muted-foreground hover:text-primary flex items-center gap-1.5"
-                              onClick={() => handleComment(post.id)}
-                            >
-                              <MessageCircle className="h-5 w-5" />
-                              <span className="text-sm">{post.commentsCount}</span>
-                            </Button>
-
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className={cn(
-                                "text-muted-foreground hover:text-primary flex items-center gap-1.5 group md:text-base",
-                                bookmarkedPosts.has(post.id) && "text-primary"
-                              )}
-                              onClick={() => handleBookmark(post.id)}
-                            >
-                              <Bookmark
-                                className={cn(
-                                  "h-5 w-5 md:h-6 md:w-6 transition-all duration-300",
-                                  bookmarkedPosts.has(post.id)
-                                    ? "scale-110 fill-current"
-                                    : "scale-100 fill-none"
-                                )}
-                                strokeWidth={2}
-                              />
-                            </Button>
+                              className="text-muted-foreground hover:text-destructive"
+                            />
                           </div>
 
-                          {/* Actions secondaires */}
-                          <div className="flex items-center gap-2">
+                          {/* Desktop: Dialog complet - uniquement si ce n'est pas son propre post */}
+                          {user && user.id !== post.userId && (
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="text-muted-foreground hover:text-primary"
-                              onClick={() => handleShare(post)}
+                              className="hidden md:flex text-muted-foreground hover:text-destructive"
+                              onClick={() => handleReport(post)}
                             >
-                              <Share2 className="h-5 w-5" />
+                              <Flag className="h-4 w-4" />
                             </Button>
-
-                            {/* Mobile: Signalement rapide */}
-                            <div className="md:hidden">
-                              <QuickReportButton
-                                postId={post.id}
-                                postUserId={post.userId}
-                                variant="ghost"
-                                size="sm"
-                                className="text-muted-foreground hover:text-destructive"
-                              />
-                            </div>
-
-                            {/* Desktop: Dialog complet - uniquement si ce n'est pas son propre post */}
-                            {user && user.id !== post.userId && (
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="hidden md:flex text-muted-foreground hover:text-destructive"
-                                  onClick={() => handleReport(post)}
-                                >
-                                  <Flag className="h-4 w-4" />
-                                </Button>
-                              )}
-                          </div>
+                          )}
                         </div>
-                      </article>
-                    );
-                  })}
+                      </div>
+                    </article>
+                  );
+                })}
 
                 {/* Élément observé pour le scroll infini */}
                 <div ref={loadMoreRef} className="flex justify-center py-4">

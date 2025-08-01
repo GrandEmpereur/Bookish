@@ -27,12 +27,12 @@ const getRelativeTime = (date: string | Date) => {
   if (diffInDays < 7) return `il y a ${diffInDays}j`;
   if (diffInWeeks < 4) return `il y a ${diffInWeeks}sem`;
   if (diffInMonths < 12) return `il y a ${diffInMonths}mois`;
-  
+
   // Si plus d'un an, afficher la date
-  return messageDate.toLocaleDateString('fr-FR', { 
-    day: '2-digit', 
-    month: '2-digit', 
-    year: '2-digit' 
+  return messageDate.toLocaleDateString("fr-FR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "2-digit",
   });
 };
 
@@ -48,7 +48,7 @@ export default function MessagesPage() {
     isLoading: loading,
     error,
     refetch,
-    isFetching
+    isFetching,
   } = useQuery({
     queryKey: ["conversations"],
     queryFn: async () => {
@@ -76,7 +76,12 @@ export default function MessagesPage() {
 
   if (error) {
     return (
-      <div className={cn("flex-1 pb-[120px]", isNative ? "pt-[130px]" : "pt-[100px]")}>
+      <div
+        className={cn(
+          "flex-1 pb-[120px]",
+          isNative ? "pt-[130px]" : "pt-[100px]"
+        )}
+      >
         <div className="max-w-xl mx-auto px-4">
           {/* Header avec bouton refresh */}
           <div className="flex items-center justify-between mb-6">
@@ -88,12 +93,16 @@ export default function MessagesPage() {
               disabled={isFetching}
               className="h-10 w-10"
             >
-              <RefreshCw className={cn("h-4 w-4", isFetching && "animate-spin")} />
+              <RefreshCw
+                className={cn("h-4 w-4", isFetching && "animate-spin")}
+              />
             </Button>
           </div>
-          
+
           <div className="text-center space-y-4">
-            <div className="text-red-500">Erreur lors du chargement des conversations</div>
+            <div className="text-red-500">
+              Erreur lors du chargement des conversations
+            </div>
             <Button onClick={handleRefresh} disabled={isFetching}>
               {isFetching ? "Chargement..." : "Réessayer"}
             </Button>
@@ -104,7 +113,12 @@ export default function MessagesPage() {
   }
 
   return (
-    <div className={cn("flex-1 pb-[120px]", isNative ? "pt-[130px]" : "pt-[100px]")}>
+    <div
+      className={cn(
+        "flex-1 pb-[120px]",
+        isNative ? "pt-[130px]" : "pt-[100px]"
+      )}
+    >
       <div className="max-w-xl mx-auto px-4">
         {/* Header avec bouton refresh */}
         <div className="flex items-center justify-between mb-6">
@@ -116,7 +130,9 @@ export default function MessagesPage() {
             disabled={isFetching}
             className="h-10 w-10"
           >
-            <RefreshCw className={cn("h-4 w-4", isFetching && "animate-spin")} />
+            <RefreshCw
+              className={cn("h-4 w-4", isFetching && "animate-spin")}
+            />
           </Button>
         </div>
 
@@ -124,16 +140,17 @@ export default function MessagesPage() {
           <div className="text-center">Chargement des conversations...</div>
         ) : conversations.length > 0 ? (
           <div className="space-y-4">
-            
             {conversations.map((conv: any) => {
               // Pour conversation 1-to-1, trouve le partenaire
-              const partner = conv.is_group 
-                ? null 
+              const partner = conv.is_group
+                ? null
                 : conv.participants.find((p: any) => p.id !== currentUserId);
-              
-              const displayName = conv.is_group ? conv.title : partner?.username;
-              const avatarText = conv.is_group 
-                ? conv.title?.charAt(0).toUpperCase() 
+
+              const displayName = conv.is_group
+                ? conv.title
+                : partner?.username;
+              const avatarText = conv.is_group
+                ? conv.title?.charAt(0).toUpperCase()
                 : partner?.username?.charAt(0).toUpperCase();
 
               return (
@@ -146,13 +163,13 @@ export default function MessagesPage() {
                   <Avatar className="h-12 w-12">
                     <AvatarFallback>{avatarText || "?"}</AvatarFallback>
                   </Avatar>
-                  
+
                   {/* Contenu central en colonne */}
                   <div className="flex-1 flex flex-col">
                     <span className="font-medium text-lg">
                       {displayName || "Conversation sans nom"}
                     </span>
-                    
+
                     {conv.last_message ? (
                       <div className="text-sm text-muted-foreground truncate">
                         {conv.last_message.content}
@@ -163,7 +180,7 @@ export default function MessagesPage() {
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Date à droite */}
                   <div className="text-xs text-muted-foreground text-right">
                     {getRelativeTime(conv.updated_at)}

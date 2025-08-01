@@ -96,7 +96,6 @@ export default function Habits() {
       transition: {
         duration: 0.4,
         staggerChildren: 0.1,
-
       },
     },
     exit: {
@@ -104,7 +103,6 @@ export default function Habits() {
       y: -20,
       transition: {
         duration: 0.3,
-
       },
     },
   };
@@ -116,7 +114,6 @@ export default function Habits() {
       y: 0,
       transition: {
         duration: 0.4,
-
       },
     },
   };
@@ -129,7 +126,6 @@ export default function Habits() {
       scale: 1,
       transition: {
         duration: 0.4,
-
       },
     },
   };

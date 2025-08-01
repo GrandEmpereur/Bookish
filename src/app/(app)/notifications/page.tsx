@@ -15,16 +15,25 @@ import { Check, X } from "lucide-react";
 
 import { useNotificationsCount } from "@/hooks/use-notifications-count";
 
-
-
 function getNotificationText(notification: Notification) {
-  const senderName = notification.data?.senderName || notification.data?.requesterUsername || notification.user?.username || "Utilisateur";
-  const senderId = notification.data?.senderId || notification.data?.requesterId || notification.user?.id || notification.user_id;
-  
+  const senderName =
+    notification.data?.senderName ||
+    notification.data?.requesterUsername ||
+    notification.user?.username ||
+    "Utilisateur";
+  const senderId =
+    notification.data?.senderId ||
+    notification.data?.requesterId ||
+    notification.user?.id ||
+    notification.user_id;
+
   const ClickableName = ({ children }: { children: React.ReactNode }) => {
     if (senderId) {
       return (
-        <Link href={`/profile/${senderId}`} className="font-bold text-primary hover:underline cursor-pointer">
+        <Link
+          href={`/profile/${senderId}`}
+          className="font-bold text-primary hover:underline cursor-pointer"
+        >
           {children}
         </Link>
       );
@@ -35,51 +44,69 @@ function getNotificationText(notification: Notification) {
   switch (notification.type) {
     case "new_message":
       return (
-        <span><ClickableName>{senderName}</ClickableName> vous a envoyé un nouveau message.</span>
+        <span>
+          <ClickableName>{senderName}</ClickableName> vous a envoyé un nouveau
+          message.
+        </span>
       );
     case "friend_request":
       return (
-        <span><ClickableName>{senderName}</ClickableName> vous a envoyé une demande d'ami.</span>
+        <span>
+          <ClickableName>{senderName}</ClickableName> vous a envoyé une demande
+          d'ami.
+        </span>
       );
     case "friend_request_accepted":
       return (
-        <span><ClickableName>{senderName}</ClickableName> a accepté votre demande d'ami.</span>
+        <span>
+          <ClickableName>{senderName}</ClickableName> a accepté votre demande
+          d'ami.
+        </span>
       );
     case "follow":
       return (
-        <span><ClickableName>{senderName}</ClickableName> a commencé à vous suivre.</span>
+        <span>
+          <ClickableName>{senderName}</ClickableName> a commencé à vous suivre.
+        </span>
       );
     case "like":
       return (
-        <span><ClickableName>{senderName}</ClickableName> a liké votre post.</span>
+        <span>
+          <ClickableName>{senderName}</ClickableName> a liké votre post.
+        </span>
       );
     case "comment":
       return (
-        <span><ClickableName>{senderName}</ClickableName> a commenté votre post.</span>
+        <span>
+          <ClickableName>{senderName}</ClickableName> a commenté votre post.
+        </span>
       );
     case "comment_reply":
       return (
-        <span><ClickableName>{senderName}</ClickableName> a répondu à votre commentaire.</span>
+        <span>
+          <ClickableName>{senderName}</ClickableName> a répondu à votre
+          commentaire.
+        </span>
       );
     case "club_invitation":
       return (
-        <span><ClickableName>{senderName}</ClickableName> vous a invité dans un club.</span>
+        <span>
+          <ClickableName>{senderName}</ClickableName> vous a invité dans un
+          club.
+        </span>
       );
     case "club_event":
-      return (
-        <span>Un nouvel événement de club a été créé.</span>
-      );
+      return <span>Un nouvel événement de club a été créé.</span>;
     case "club_message":
-      return (
-        <span>Un nouveau message a été posté dans votre club.</span>
-      );
+      return <span>Un nouveau message a été posté dans votre club.</span>;
     case "system_update":
-      return (
-        <span>Une mise à jour du système est disponible.</span>
-      );
+      return <span>Une mise à jour du système est disponible.</span>;
     default:
       return (
-        <span><ClickableName>{senderName}</ClickableName> a une nouvelle notification.</span>
+        <span>
+          <ClickableName>{senderName}</ClickableName> a une nouvelle
+          notification.
+        </span>
       );
   }
 }
@@ -97,38 +124,43 @@ function formatDate(dateString: string) {
 const NotificationsPage = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
-  const [processingRequests, setProcessingRequests] = useState<Set<string>>(new Set());
+  const [processingRequests, setProcessingRequests] = useState<Set<string>>(
+    new Set()
+  );
   const { invalidateCount } = useNotificationsCount();
 
   // Utiliser localStorage pour persister les notifications traitées
   const getProcessedNotifications = (): Set<string> => {
-    if (typeof window === 'undefined') return new Set();
-    const stored = localStorage.getItem('processedNotifications');
+    if (typeof window === "undefined") return new Set();
+    const stored = localStorage.getItem("processedNotifications");
     return stored ? new Set(JSON.parse(stored)) : new Set();
   };
 
   const addProcessedNotification = (notificationId: string) => {
     const processed = getProcessedNotifications();
     processed.add(notificationId);
-    localStorage.setItem('processedNotifications', JSON.stringify([...processed]));
+    localStorage.setItem(
+      "processedNotifications",
+      JSON.stringify([...processed])
+    );
   };
 
   const handleDeleteNotification = async (notificationId: string) => {
     try {
-      setProcessingRequests(prev => new Set(prev).add(notificationId));
+      setProcessingRequests((prev) => new Set(prev).add(notificationId));
       await notificationService.deleteNotification(notificationId);
-      
+
       // Mettre à jour l'état local pour retirer la notification
-      setNotifications(prev => 
-        prev.filter(notif => notif.id !== notificationId)
+      setNotifications((prev) =>
+        prev.filter((notif) => notif.id !== notificationId)
       );
-      
+
       // Invalider le cache du count pour mettre à jour le badge
       invalidateCount();
     } catch (error) {
-      console.error('Erreur lors de la suppression de la notification:', error);
+      console.error("Erreur lors de la suppression de la notification:", error);
     } finally {
-      setProcessingRequests(prev => {
+      setProcessingRequests((prev) => {
         const newSet = new Set(prev);
         newSet.delete(notificationId);
         return newSet;
@@ -136,55 +168,60 @@ const NotificationsPage = () => {
     }
   };
 
-  const handleFriendRequestResponse = async (notificationId: string, senderId: string, acceptRequest: boolean) => {
-    
-    if (!senderId || senderId === 'undefined') {
-      console.error('Impossible de traiter la demande d\'ami: senderId invalide');
+  const handleFriendRequestResponse = async (
+    notificationId: string,
+    senderId: string,
+    acceptRequest: boolean
+  ) => {
+    if (!senderId || senderId === "undefined") {
+      console.error(
+        "Impossible de traiter la demande d'ami: senderId invalide"
+      );
       return;
     }
-    
+
     try {
-      setProcessingRequests(prev => new Set(prev).add(notificationId));
-      
+      setProcessingRequests((prev) => new Set(prev).add(notificationId));
+
       // Répondre à la demande d'ami
       await userService.respondToFriendRequest(senderId, acceptRequest);
-      
+
       // Supprimer la notification côté serveur aussi
       await notificationService.deleteNotification(notificationId);
-      
+
       // Marquer la notification comme traitée pour éviter qu'elle réapparaisse
       addProcessedNotification(notificationId);
-      
+
       // Mettre à jour l'état local pour retirer la notification
-      setNotifications(prev => 
-        prev.filter(notif => notif.id !== notificationId)
+      setNotifications((prev) =>
+        prev.filter((notif) => notif.id !== notificationId)
       );
-      
+
       // Invalider le cache du count pour mettre à jour le badge
       invalidateCount();
     } catch (error: any) {
       // Vérifier si c'est une erreur "demande déjà traitée"
-      const isRequestAlreadyProcessed = 
-        error?.message?.includes('404') || 
+      const isRequestAlreadyProcessed =
+        error?.message?.includes("404") ||
         error?.status === 404 ||
-        error?.message?.includes('NO_PENDING_FRIEND_REQUEST') ||
-        error?.response?.data?.code === 'NO_PENDING_FRIEND_REQUEST';
-        
+        error?.message?.includes("NO_PENDING_FRIEND_REQUEST") ||
+        error?.response?.data?.code === "NO_PENDING_FRIEND_REQUEST";
+
       if (isRequestAlreadyProcessed) {
         // Marquer comme traitée pour éviter la réapparition
         addProcessedNotification(notificationId);
-        
+
         // Supprimer silencieusement la notification obsolète
-        setNotifications(prev => 
-          prev.filter(notif => notif.id !== notificationId)
+        setNotifications((prev) =>
+          prev.filter((notif) => notif.id !== notificationId)
         );
         invalidateCount();
       } else {
         // Pour les vraies erreurs, les afficher
-        console.error('Erreur lors de la réponse à la demande d\'ami:', error);
+        console.error("Erreur lors de la réponse à la demande d'ami:", error);
       }
     } finally {
-      setProcessingRequests(prev => {
+      setProcessingRequests((prev) => {
         const newSet = new Set(prev);
         newSet.delete(notificationId);
         return newSet;
@@ -193,19 +230,17 @@ const NotificationsPage = () => {
   };
 
   useEffect(() => {
-    notificationService.getNotifications()
+    notificationService
+      .getNotifications()
       .then((res) => {
         const notificationsList = res.data.notifications || [];
         const processedNotifications = getProcessedNotifications();
-        
+
         // Filtrer les notifications déjà traitées côté client
         const filteredNotifications = notificationsList.filter(
-          notif => !processedNotifications.has(notif.id)
+          (notif) => !processedNotifications.has(notif.id)
         );
-        
-        
-        
-        
+
         setNotifications(filteredNotifications);
         // Invalider le cache pour s'assurer que le badge est à jour
         invalidateCount();
@@ -225,7 +260,6 @@ const NotificationsPage = () => {
         isNative ? "pt-[120px]" : "pt-[100px]"
       )}
     >
-
       {loading ? (
         <div className="flex flex-col gap-2 px-4">
           {[...Array(5)].map((_, index) => (
@@ -236,17 +270,17 @@ const NotificationsPage = () => {
               <div className="flex items-start gap-3 pr-8">
                 {/* Avatar skeleton */}
                 <Skeleton className="h-10 w-10 rounded-full flex-shrink-0" />
-                
+
                 <div className="flex-1 min-w-0 space-y-2">
                   {/* Texte de notification skeleton */}
                   <div className="space-y-1">
                     <Skeleton className="h-4 w-3/4" />
                     <Skeleton className="h-4 w-1/2" />
                   </div>
-                  
+
                   {/* Date skeleton */}
                   <Skeleton className="h-3 w-20" />
-                  
+
                   {/* Boutons d'action skeleton (pour certaines notifications) */}
                   {index % 3 === 0 && (
                     <div className="flex gap-2 mt-3">
@@ -256,14 +290,16 @@ const NotificationsPage = () => {
                   )}
                 </div>
               </div>
-              
+
               {/* Bouton de suppression skeleton */}
               <Skeleton className="absolute top-2 right-2 w-6 h-6 rounded" />
             </div>
           ))}
         </div>
       ) : notifications.length === 0 ? (
-        <div className="text-center text-muted-foreground">Aucune notification</div>
+        <div className="text-center text-muted-foreground">
+          Aucune notification
+        </div>
       ) : (
         <div className="flex flex-col gap-2 px-4">
           {notifications.map((notif) => (
@@ -285,14 +321,17 @@ const NotificationsPage = () => {
               <div className="flex items-start gap-3 pr-8">
                 <Avatar className="flex-shrink-0">
                   {notif.user?.profile?.profile_picture_url ? (
-                    <AvatarImage src={notif.user.profile.profile_picture_url} alt="avatar" />
+                    <AvatarImage
+                      src={notif.user.profile.profile_picture_url}
+                      alt="avatar"
+                    />
                   ) : (
                     <AvatarFallback>
                       {notif.user?.username || "?"}
                     </AvatarFallback>
                   )}
                 </Avatar>
-                
+
                 <div className="flex-1 min-w-0">
                   <div className="text-base text-muted-foreground mb-1">
                     {getNotificationText(notif)}
@@ -300,13 +339,17 @@ const NotificationsPage = () => {
                   <div className="text-xs text-muted-foreground mb-2">
                     {formatDate(notif.created_at)}
                   </div>
-                  
+
                   {notif.type === "friend_request" && (
                     <div className="flex gap-2 mt-3">
                       <Button
                         size="sm"
                         onClick={() => {
-                          const userId = notif.data?.senderId || notif.data?.requesterId || notif.user?.id || notif.user_id;
+                          const userId =
+                            notif.data?.senderId ||
+                            notif.data?.requesterId ||
+                            notif.user?.id ||
+                            notif.user_id;
                           handleFriendRequestResponse(notif.id, userId, true);
                         }}
                         disabled={processingRequests.has(notif.id)}
@@ -319,7 +362,11 @@ const NotificationsPage = () => {
                         size="sm"
                         variant="outline"
                         onClick={() => {
-                          const userId = notif.data?.senderId || notif.data?.requesterId || notif.user?.id || notif.user_id;
+                          const userId =
+                            notif.data?.senderId ||
+                            notif.data?.requesterId ||
+                            notif.user?.id ||
+                            notif.user_id;
                           handleFriendRequestResponse(notif.id, userId, false);
                         }}
                         disabled={processingRequests.has(notif.id)}

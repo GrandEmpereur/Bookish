@@ -125,14 +125,14 @@ export default function ConversationPage() {
   return (
     <div className="flex flex-col h-screen">
       {/* Zone des messages - Prend l'espace disponible entre top bar et input */}
-      <div 
+      <div
         className={cn(
           "flex-1 overflow-y-auto px-4 py-4 space-y-3",
           isNative ? "mt-[120px]" : "mt-[90px]"
         )}
-        style={{ 
-          height: `calc(100vh - ${isNative ? '120px' : '90px'} - 80px)`,
-          paddingBottom: 'env(safe-area-inset-bottom, 0px)'
+        style={{
+          height: `calc(100vh - ${isNative ? "120px" : "90px"} - 80px)`,
+          paddingBottom: "env(safe-area-inset-bottom, 0px)",
         }}
       >
         {messagesLoading ? (
@@ -162,7 +162,8 @@ export default function ConversationPage() {
                   {!message.is_mine && (
                     <Avatar className="h-8 w-8 mb-1">
                       <AvatarFallback className="text-xs">
-                        {message.sender.username?.charAt(0).toUpperCase() || "?"}
+                        {message.sender.username?.charAt(0).toUpperCase() ||
+                          "?"}
                       </AvatarFallback>
                     </Avatar>
                   )}
@@ -188,10 +189,10 @@ export default function ConversationPage() {
       </div>
 
       {/* Input pour envoyer un message - Fixed bottom */}
-      <div 
+      <div
         className="fixed bottom-0 left-0 right-0 border-t bg-background p-4 z-40"
-        style={{ 
-          paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)'
+        style={{
+          paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 16px)",
         }}
       >
         <div className="flex items-center gap-2 max-w-xl mx-auto">

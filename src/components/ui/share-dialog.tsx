@@ -22,8 +22,8 @@ export const ShareDialog = ({ open, onOpenChange, post }: ShareDialogProps) => {
   const [copied, setCopied] = useState(false);
 
   // Générer les URLs - Détecter si c'est un club
-  const isClub = post.id.startsWith('clubs/');
-  const postUrl = isClub 
+  const isClub = post.id.startsWith("clubs/");
+  const postUrl = isClub
     ? `${window.location.origin}/${post.id}` // clubs/clubId -> /clubs/clubId
     : `${window.location.origin}/feed/${post.id}`;
   const shareText = isClub
@@ -72,19 +72,22 @@ export const ShareDialog = ({ open, onOpenChange, post }: ShareDialogProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{isClub ? "Partager ce club" : "Partager ce post"}</DialogTitle>
+          <DialogTitle>
+            {isClub ? "Partager ce club" : "Partager ce post"}
+          </DialogTitle>
           <DialogDescription>
-            {isClub 
+            {isClub
               ? `Invitez vos amis à rejoindre ce club`
-              : `Partagez ce post de ${post.user?.username} avec vos amis`
-            }
+              : `Partagez ce post de ${post.user?.username} avec vos amis`}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           {/* URL du post */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">{isClub ? "Lien du club" : "Lien du post"}</label>
+            <label className="text-sm font-medium">
+              {isClub ? "Lien du club" : "Lien du post"}
+            </label>
             <div className="flex gap-2">
               <Input
                 value={postUrl}

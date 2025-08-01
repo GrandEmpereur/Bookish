@@ -141,17 +141,17 @@ export interface RegisterStep3Response extends ApiBaseResponse {
   };
 }
 
-export interface VerifyEmailResponse extends ApiBaseResponse { }
+export interface VerifyEmailResponse extends ApiBaseResponse {}
 
-export interface ResendVerificationResponse extends ApiBaseResponse { }
+export interface ResendVerificationResponse extends ApiBaseResponse {}
 
-export interface RequestPasswordResetResponse extends ApiBaseResponse { }
+export interface RequestPasswordResetResponse extends ApiBaseResponse {}
 
-export interface VerifyResetCodeResponse extends ApiBaseResponse { }
+export interface VerifyResetCodeResponse extends ApiBaseResponse {}
 
-export interface ResetPasswordResponse extends ApiBaseResponse { }
+export interface ResetPasswordResponse extends ApiBaseResponse {}
 
-export interface LogoutResponse extends ApiBaseResponse { }
+export interface LogoutResponse extends ApiBaseResponse {}
 
 export interface RegisterStepOneResponse {
   status: "success";

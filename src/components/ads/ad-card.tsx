@@ -19,7 +19,9 @@ export function AdCard({ ad }: AdCardProps) {
         <div className="flex items-center gap-3">
           <div className="flex flex-col leading-tight">
             <span className="text-sm font-medium">Bookish Ads</span>
-            <span className="text-xs text-muted-foreground -mt-0.5">Contenu sponsorisé</span>
+            <span className="text-xs text-muted-foreground -mt-0.5">
+              Contenu sponsorisé
+            </span>
           </div>
         </div>
       </div>
@@ -48,4 +50,4 @@ export function AdCard({ ad }: AdCardProps) {
       </div>
     </article>
   );
-} 
+}

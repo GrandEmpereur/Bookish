@@ -5,11 +5,11 @@ import { useNotificationsCount } from "@/hooks/use-notifications-count";
 
 export function NotificationBadgeIcon() {
   const { count, isLoading, error } = useNotificationsCount();
-  
+
   if (isLoading || error || count === 0) {
     return null;
   }
-  
+
   return (
     <Badge
       variant="destructive"

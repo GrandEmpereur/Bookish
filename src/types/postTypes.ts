@@ -94,7 +94,7 @@ export interface CreatePostRequest {
   media?: File[];
 }
 
-export interface UpdatePostRequest extends Partial<CreatePostRequest> { }
+export interface UpdatePostRequest extends Partial<CreatePostRequest> {}
 
 export interface CreateCommentRequest {
   content: string;
@@ -253,11 +253,7 @@ export type ActionTaken =
   | "user_banned"
   | "other";
 
-export type ReportPriority =
-  | "low"
-  | "medium"
-  | "high"
-  | "critical";
+export type ReportPriority = "low" | "medium" | "high" | "critical";
 
 export interface PostReport {
   id: string;

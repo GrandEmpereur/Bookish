@@ -5,31 +5,18 @@ import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { clubService } from "@/services/club.service";
 import { Club, ClubInvitation } from "@/types/clubTypes";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
-import { 
-  Button 
-} from "@/components/ui/button";
-import { 
-  Input 
-} from "@/components/ui/input";
-import { 
-  Label 
-} from "@/components/ui/label";
-import { 
-  Tabs, 
-  TabsContent, 
-  TabsList, 
-  TabsTrigger 
-} from "@/components/ui/tabs";
-import { 
-  Badge 
-} from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,16 +28,16 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { 
-  Loader2, 
-  Send, 
+import {
+  Loader2,
+  Send,
   Link2,
   Users,
   Calendar,
   Trash2,
   Copy,
   Plus,
-  Shield
+  Shield,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -86,7 +73,6 @@ const InvitationsPage = () => {
 
         // Récupérer les invitations existantes
         await fetchInvitations();
-
       } catch (error) {
         console.error("Erreur lors du chargement:", error);
         toast.error("Impossible de charger les données");
@@ -103,9 +89,9 @@ const InvitationsPage = () => {
   const fetchInvitations = async () => {
     try {
       setLoadingInvitations(true);
-      const response = await clubService.getInvitations(clubId, { 
-        page: 1, 
-        perPage: 50 
+      const response = await clubService.getInvitations(clubId, {
+        page: 1,
+        perPage: 50,
       });
       if (response.data) {
         setInvitations(response.data.data || []);
@@ -119,7 +105,7 @@ const InvitationsPage = () => {
 
   const handleSendInvitation = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!userIdentifier.trim()) {
       toast.error("Veuillez saisir un nom d'utilisateur ou email");
       return;
@@ -129,7 +115,7 @@ const InvitationsPage = () => {
     try {
       await clubService.sendInvitation(clubId, {
         userIdentifier: userIdentifier.trim(),
-        expiresInDays
+        expiresInDays,
       });
 
       toast.success("Invitation envoyée avec succès !");
@@ -147,7 +133,7 @@ const InvitationsPage = () => {
     setCreatingInvitation(true);
     try {
       const response = await clubService.createInvitation(clubId, {
-        expiresInDays
+        expiresInDays,
       });
 
       if (response.data) {
@@ -156,7 +142,9 @@ const InvitationsPage = () => {
       }
     } catch (error: any) {
       console.error("Erreur lors de la création de l'invitation:", error);
-      toast.error(error.message || "Erreur lors de la création de l'invitation");
+      toast.error(
+        error.message || "Erreur lors de la création de l'invitation"
+      );
     } finally {
       setCreatingInvitation(false);
     }
@@ -175,11 +163,14 @@ const InvitationsPage = () => {
 
   const copyInvitationLink = (code: string) => {
     const link = `${window.location.origin}/clubs/join/${code}`;
-    navigator.clipboard.writeText(link).then(() => {
-      toast.success("Lien copié dans le presse-papiers");
-    }).catch(() => {
-      toast.error("Impossible de copier le lien");
-    });
+    navigator.clipboard
+      .writeText(link)
+      .then(() => {
+        toast.success("Lien copié dans le presse-papiers");
+      })
+      .catch(() => {
+        toast.error("Impossible de copier le lien");
+      });
   };
 
   // Redirection si pas autorisé
@@ -192,8 +183,8 @@ const InvitationsPage = () => {
           <p className="text-center text-muted-foreground">
             Seuls les propriétaires de club peuvent gérer les invitations.
           </p>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => router.push(`/clubs/${clubId}`)}
             className="mt-4"
           >
@@ -243,14 +234,17 @@ const InvitationsPage = () => {
               <CardHeader>
                 <CardTitle>Inviter un utilisateur</CardTitle>
                 <CardDescription>
-                  Envoyez une invitation personnalisée à un utilisateur spécifique
+                  Envoyez une invitation personnalisée à un utilisateur
+                  spécifique
                 </CardDescription>
               </CardHeader>
-              
+
               <CardContent>
                 <form onSubmit={handleSendInvitation} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="userIdentifier">Nom d'utilisateur ou email *</Label>
+                    <Label htmlFor="userIdentifier">
+                      Nom d'utilisateur ou email *
+                    </Label>
                     <Input
                       id="userIdentifier"
                       placeholder="Ex: utilisateur123 ou user@email.com"
@@ -268,10 +262,13 @@ const InvitationsPage = () => {
                       min="1"
                       max="30"
                       value={expiresInDays}
-                      onChange={(e) => setExpiresInDays(parseInt(e.target.value) || 7)}
+                      onChange={(e) =>
+                        setExpiresInDays(parseInt(e.target.value) || 7)
+                      }
                     />
                     <p className="text-xs text-muted-foreground">
-                      L'invitation expirera dans {expiresInDays} jour{expiresInDays > 1 ? "s" : ""}
+                      L'invitation expirera dans {expiresInDays} jour
+                      {expiresInDays > 1 ? "s" : ""}
                     </p>
                   </div>
 
@@ -307,7 +304,7 @@ const InvitationsPage = () => {
                   Générez un lien que vous pouvez partager librement
                 </CardDescription>
               </CardHeader>
-              
+
               <CardContent>
                 <div className="space-y-4">
                   <div className="space-y-2">
@@ -318,7 +315,9 @@ const InvitationsPage = () => {
                       min="1"
                       max="30"
                       value={expiresInDays}
-                      onChange={(e) => setExpiresInDays(parseInt(e.target.value) || 7)}
+                      onChange={(e) =>
+                        setExpiresInDays(parseInt(e.target.value) || 7)
+                      }
                     />
                   </div>
 
@@ -354,7 +353,7 @@ const InvitationsPage = () => {
                   Liste des invitations en cours de validité
                 </CardDescription>
               </CardHeader>
-              
+
               <CardContent>
                 {loadingInvitations ? (
                   <div className="text-center py-8">
@@ -368,8 +367,8 @@ const InvitationsPage = () => {
                 ) : (
                   <div className="space-y-4">
                     {invitations.map((invitation) => (
-                      <div 
-                        key={invitation.id} 
+                      <div
+                        key={invitation.id}
                         className="flex items-center justify-between p-4 border rounded-lg"
                       >
                         <div className="flex-1">
@@ -383,18 +382,27 @@ const InvitationsPage = () => {
                               </span>
                             )}
                           </div>
-                          
+
                           <div className="text-sm text-muted-foreground space-y-1">
-                            <p>Code: <span className="font-mono bg-muted px-2 py-1 rounded">{invitation.code}</span></p>
+                            <p>
+                              Code:{" "}
+                              <span className="font-mono bg-muted px-2 py-1 rounded">
+                                {invitation.code}
+                              </span>
+                            </p>
                             <div className="flex items-center gap-4">
                               <span className="flex items-center gap-1">
                                 <Calendar className="w-3 h-3" />
-                                Expire le {new Date(invitation.expiresAt).toLocaleDateString('fr-FR')}
+                                Expire le{" "}
+                                {new Date(
+                                  invitation.expiresAt
+                                ).toLocaleDateString("fr-FR")}
                               </span>
                               {(invitation.usesCount ?? 0) > 0 && (
                                 <span className="flex items-center gap-1">
                                   <Users className="w-3 h-3" />
-                                  {invitation.usesCount} utilisation{(invitation.usesCount ?? 0) > 1 ? "s" : ""}
+                                  {invitation.usesCount} utilisation
+                                  {(invitation.usesCount ?? 0) > 1 ? "s" : ""}
                                 </span>
                               )}
                             </div>
@@ -406,12 +414,14 @@ const InvitationsPage = () => {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => copyInvitationLink(invitation.code)}
+                              onClick={() =>
+                                copyInvitationLink(invitation.code)
+                              }
                             >
                               <Copy className="w-4 h-4" />
                             </Button>
                           )}
-                          
+
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <Button size="sm" variant="destructive">
@@ -420,15 +430,20 @@ const InvitationsPage = () => {
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Supprimer l'invitation</AlertDialogTitle>
+                                <AlertDialogTitle>
+                                  Supprimer l'invitation
+                                </AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Êtes-vous sûr de vouloir supprimer cette invitation ? Cette action est irréversible.
+                                  Êtes-vous sûr de vouloir supprimer cette
+                                  invitation ? Cette action est irréversible.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Annuler</AlertDialogCancel>
                                 <AlertDialogAction
-                                  onClick={() => handleDeleteInvitation(invitation.id)}
+                                  onClick={() =>
+                                    handleDeleteInvitation(invitation.id)
+                                  }
                                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                 >
                                   Supprimer

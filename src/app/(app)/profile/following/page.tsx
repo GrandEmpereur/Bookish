@@ -6,7 +6,7 @@ import { userService } from "@/services/user.service";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BookUser, Trash2 } from "lucide-react"; 
+import { BookUser, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface UserRelations {
@@ -48,7 +48,7 @@ export default function FollowingPage() {
     } catch (error) {
       console.error("Error fetching friends:", error);
       toast.error("Impossible de charger la liste de vos amis");
-      setFriends([]); 
+      setFriends([]);
     } finally {
       setLoading(false);
     }
@@ -57,7 +57,9 @@ export default function FollowingPage() {
   const removeFriend = async (userId: string) => {
     try {
       await userService.removeFriend(userId);
-      setFriends((prevFriends) => prevFriends.filter((friend) => friend.id !== userId));
+      setFriends((prevFriends) =>
+        prevFriends.filter((friend) => friend.id !== userId)
+      );
       toast.success("Ami supprimé avec succès");
     } catch (error) {
       console.error("Erreur lors de la suppression de l'ami:", error);
@@ -113,7 +115,10 @@ export default function FollowingPage() {
             )}
             <div className="space-y-2">
               {friends.map((user) => (
-                <div key={user.id} className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors">
+                <div
+                  key={user.id}
+                  className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors"
+                >
                   <Avatar className="h-12 w-12">
                     <AvatarImage
                       src={user.profile?.profilePictureUrl || undefined}
@@ -123,7 +128,10 @@ export default function FollowingPage() {
                       {user.username.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1 text-left" onClick={() => handleUserClick}>
+                  <div
+                    className="flex-1 text-left"
+                    onClick={() => handleUserClick}
+                  >
                     <div className="flex items-center gap-2">
                       <span className="font-medium">{user.username}</span>
                     </div>
@@ -138,7 +146,7 @@ export default function FollowingPage() {
                     className="ml-4 h-8 w-8 flex items-center justify-center"
                     onClick={() => removeFriend(user.id)}
                   >
-                    <Trash2 className="h-4 w-4" /> 
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               ))}

@@ -40,7 +40,11 @@ class ReviewService {
   private makeRequest<T>(
     method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
     endpoint: string,
-    options?: { data?: unknown; params?: Record<string, any>; headers?: Record<string, string> }
+    options?: {
+      data?: unknown;
+      params?: Record<string, any>;
+      headers?: Record<string, string>;
+    }
   ): Promise<T> {
     return apiRequest<T>(method, endpoint, options);
   }
@@ -67,9 +71,8 @@ class ReviewService {
   }
 
   async deleteReview(id: string): Promise<void> {
-  return apiRequest<void>("DELETE", `/reviews/${id}`);
-}
-
+    return apiRequest<void>("DELETE", `/reviews/${id}`);
+  }
 }
 
 export const reviewService = new ReviewService();

@@ -5,27 +5,27 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { 
-  Sparkles, 
-  Trophy, 
-  Star, 
-  Crown, 
-  Zap, 
+import {
+  Sparkles,
+  Trophy,
+  Star,
+  Crown,
+  Zap,
   Gift,
   ChevronRight,
   BookOpen,
   Shield,
-  Award
+  Award,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { 
-  getLevelTitle, 
-  getLevelTier, 
-  getProgressToNextLevel, 
+import {
+  getLevelTitle,
+  getLevelTier,
+  getProgressToNextLevel,
   getExperienceToNextLevel,
   getExperienceForLevelUp,
   getLevelUpRewards,
-  getUnlockedFeatures
+  getUnlockedFeatures,
 } from "@/utils/gamificationUtils";
 import { LevelsInfoModal } from "@/components/ui/levels-info-modal";
 
@@ -38,24 +38,24 @@ interface LevelProgressProps {
   onCelebrationComplete?: () => void;
 }
 
-export function LevelProgress({ 
-  level, 
-  currentXP, 
-  totalXP, 
+export function LevelProgress({
+  level,
+  currentXP,
+  totalXP,
   className,
   showCelebration = false,
-  onCelebrationComplete
+  onCelebrationComplete,
 }: LevelProgressProps) {
   const [isAnimating, setIsAnimating] = useState(false);
   const [showRewards, setShowRewards] = useState(false);
-  
+
   const tier = getLevelTier(level);
   const title = getLevelTitle(level);
   // Calculate progress based on current XP vs required XP
   const progress = totalXP > 0 ? (currentXP / totalXP) * 100 : 0;
   const xpToNext = Math.max(0, totalXP - currentXP);
   const xpForNext = totalXP;
-  
+
   const rewards = getLevelUpRewards(level);
   const unlockedFeatures = getUnlockedFeatures(level);
 
@@ -73,12 +73,18 @@ export function LevelProgress({
 
   const getTierIcon = () => {
     switch (tier.icon) {
-      case 'BookOpen': return BookOpen;
-      case 'Shield': return Shield;
-      case 'Crown': return Crown;
-      case 'Sparkles': return Sparkles;
-      case 'Zap': return Zap;
-      default: return BookOpen;
+      case "BookOpen":
+        return BookOpen;
+      case "Shield":
+        return Shield;
+      case "Crown":
+        return Crown;
+      case "Sparkles":
+        return Sparkles;
+      case "Zap":
+        return Zap;
+      default:
+        return BookOpen;
     }
   };
 
@@ -86,14 +92,16 @@ export function LevelProgress({
 
   return (
     <div className={cn("relative", className)}>
-      <Card className={cn(
-        "relative overflow-hidden transition-all duration-300",
-        isAnimating && "animate-pulse shadow-lg border-yellow-500"
-      )}>
+      <Card
+        className={cn(
+          "relative overflow-hidden transition-all duration-300",
+          isAnimating && "animate-pulse shadow-lg border-yellow-500"
+        )}
+      >
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 flex-1 min-w-0">
-              <div 
+              <div
                 className={cn(
                   "p-2 rounded-full flex-shrink-0",
                   `bg-[${tier.color}]`,
@@ -103,24 +111,29 @@ export function LevelProgress({
                 <TierIcon className="w-4 h-4 md:w-5 md:h-5" />
               </div>
               <div className="min-w-0 flex-1">
-                <CardTitle className="text-base md:text-lg truncate">{title}</CardTitle>
+                <CardTitle className="text-base md:text-lg truncate">
+                  {title}
+                </CardTitle>
                 <p className="text-xs md:text-sm text-muted-foreground truncate">
                   {tier.name} • Niveau {level}
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="text-xs flex-shrink-0 hidden md:inline-flex">
+              <Badge
+                variant="secondary"
+                className="text-xs flex-shrink-0 hidden md:inline-flex"
+              >
                 {tier.description}
               </Badge>
-              <LevelsInfoModal 
-                currentLevel={level} 
+              <LevelsInfoModal
+                currentLevel={level}
                 className="text-muted-foreground hover:text-foreground"
               />
             </div>
           </div>
         </CardHeader>
-        
+
         <CardContent className="space-y-4">
           {/* XP Progress Bar */}
           <div className="space-y-2">
@@ -130,8 +143,8 @@ export function LevelProgress({
                 {currentXP} XP / {totalXP} XP
               </span>
             </div>
-            <Progress 
-              value={progress} 
+            <Progress
+              value={progress}
               className={cn(
                 "h-3 bg-muted transition-all duration-500",
                 isAnimating && "animate-pulse"
@@ -139,7 +152,9 @@ export function LevelProgress({
             />
             <div className="flex justify-between items-center text-xs text-muted-foreground gap-2">
               <span className="truncate">Niveau actuel</span>
-              <span className="text-right text-xs flex-shrink-0">{xpToNext} XP pour le niveau suivant</span>
+              <span className="text-right text-xs flex-shrink-0">
+                {xpToNext} XP pour le niveau suivant
+              </span>
             </div>
           </div>
 
@@ -147,7 +162,9 @@ export function LevelProgress({
           <div className="p-3 bg-muted/50 rounded-lg overflow-hidden">
             <div className="flex items-center gap-2 text-sm min-w-0">
               <Star className="w-4 h-4 text-yellow-500 flex-shrink-0" />
-              <span className="font-medium flex-shrink-0">Niveau {level + 1}</span>
+              <span className="font-medium flex-shrink-0">
+                Niveau {level + 1}
+              </span>
               <ChevronRight className="w-3 h-3 text-muted-foreground flex-shrink-0" />
               <span className="text-muted-foreground truncate">
                 {getLevelTitle(level + 1)}
@@ -164,7 +181,10 @@ export function LevelProgress({
               </h4>
               <div className="grid gap-1">
                 {unlockedFeatures.slice(0, 3).map((feature, index) => (
-                  <div key={index} className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <div
+                    key={index}
+                    className="flex items-center gap-2 text-xs text-muted-foreground"
+                  >
                     <div className="w-1.5 h-1.5 bg-primary rounded-full" />
                     {feature}
                   </div>
@@ -183,8 +203,10 @@ export function LevelProgress({
               <Trophy className="w-16 h-16 text-yellow-500 animate-bounce" />
             </div>
             <h3 className="text-2xl font-bold mb-2">Niveau supérieur !</h3>
-            <p className="text-lg mb-4">Vous êtes maintenant <strong>{title}</strong></p>
-            
+            <p className="text-lg mb-4">
+              Vous êtes maintenant <strong>{title}</strong>
+            </p>
+
             {/* Rewards */}
             <div className="space-y-2 mb-4">
               <div className="flex justify-center gap-4 text-sm">
@@ -201,7 +223,7 @@ export function LevelProgress({
               </div>
             </div>
 
-            <Button 
+            <Button
               onClick={() => {
                 setShowRewards(false);
                 onCelebrationComplete?.();
@@ -215,4 +237,4 @@ export function LevelProgress({
       )}
     </div>
   );
-} 
+}

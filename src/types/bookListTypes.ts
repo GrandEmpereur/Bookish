@@ -16,7 +16,7 @@ export interface BookList {
   genre: string;
   book_count: number;
   created_at: string;
-  book_ids: [],
+  book_ids: [];
   books?: Array<{
     id: string;
     title: string;

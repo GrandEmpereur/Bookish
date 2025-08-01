@@ -5,7 +5,13 @@ import type { UserProfile } from "./userTypes";
 export type ClubType = "Public" | "Private";
 export type ClubMemberRole = "MEMBER" | "MODERATOR" | "ADMIN" | "OWNER";
 export type ReportStatus = "pending" | "reviewed" | "resolved" | "dismissed";
-export type ReportReason = "spam" | "harassment" | "inappropriate" | "hate_speech" | "misinformation" | "other";
+export type ReportReason =
+  | "spam"
+  | "harassment"
+  | "inappropriate"
+  | "hate_speech"
+  | "misinformation"
+  | "other";
 export type RequestStatus = "pending" | "approved" | "rejected";
 export type ReportAction = "resolve" | "dismiss";
 export type RequestAction = "approve" | "reject";
@@ -347,9 +353,9 @@ export interface JoinClubResponse {
   };
 }
 
-export interface GetBannedUsersResponse extends PaginatedResponse<ClubBan> { }
+export interface GetBannedUsersResponse extends PaginatedResponse<ClubBan> {}
 
-// Gestion des posts - Structure réelle de l'API  
+// Gestion des posts - Structure réelle de l'API
 export interface GetPostsResponse {
   posts: ClubPost[];
   pagination: PaginationMeta;
@@ -385,7 +391,8 @@ export interface SendMessageResponse {
 }
 
 // Gestion des invitations
-export interface GetInvitationsResponse extends PaginatedResponse<ClubInvitation> { }
+export interface GetInvitationsResponse
+  extends PaginatedResponse<ClubInvitation> {}
 
 export interface CreateInvitationResponse {
   data: ClubInvitation;
@@ -399,16 +406,18 @@ export interface JoinByInvitationResponse {
 }
 
 // Gestion des demandes d'adhésion
-export interface GetJoinRequestsResponse extends PaginatedResponse<JoinRequest> { }
+export interface GetJoinRequestsResponse
+  extends PaginatedResponse<JoinRequest> {}
 
 export interface CreateJoinRequestResponse {
   data: JoinRequest;
 }
 
-export interface GetMyJoinRequestsResponse extends PaginatedResponse<JoinRequest> { }
+export interface GetMyJoinRequestsResponse
+  extends PaginatedResponse<JoinRequest> {}
 
 // Gestion des signalements
-export interface GetReportsResponse extends PaginatedResponse<Report> { }
+export interface GetReportsResponse extends PaginatedResponse<Report> {}
 
 export interface CreateReportResponse {
   data: Report;
@@ -430,5 +439,3 @@ export interface UploadMediaResponse {
     type: MediaType;
   };
 }
-
-

@@ -73,7 +73,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 function AuthProviderInner({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const [user, setUser] = useState<User | null>(null);
-  const [rememberMe, setRememberMe] = useState<CurrentSessionResponse["data"]["rememberMe"] | null>(null);
+  const [rememberMe, setRememberMe] = useState<
+    CurrentSessionResponse["data"]["rememberMe"] | null
+  >(null);
   const router = useRouter();
 
   // ------------- Vérification de session actuelle -------------
@@ -106,11 +108,14 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
     refetchOnWindowFocus: false,
   });
 
-  const isLoading = sessionLoading || sessionFetching || (sessionActive && (profileLoading || profileFetching));
-  
+  const isLoading =
+    sessionLoading ||
+    sessionFetching ||
+    (sessionActive && (profileLoading || profileFetching));
+
   usePushNotifications({
     isAuthenticated: !!user,
-    userId: user?.id
+    userId: user?.id,
   });
 
   useEffect(() => {
@@ -138,7 +143,11 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
         queryClient.invalidateQueries({ queryKey: ["me"] }),
       ]);
       toast.success("Connexion réussie", {
-        description: <span className="text-foreground font-medium">Bienvenue sur Bookish !</span>,
+        description: (
+          <span className="text-foreground font-medium">
+            Bienvenue sur Bookish !
+          </span>
+        ),
       });
       router.replace("/feed");
     },

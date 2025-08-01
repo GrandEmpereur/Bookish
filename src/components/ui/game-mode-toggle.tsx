@@ -5,25 +5,24 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { GAME_MODES } from "@/utils/gamificationUtils";
-import {
-  Heart,
-  Info,
-  Settings,
-  Sword
-} from "lucide-react";
+import { Heart, Info, Settings, Sword } from "lucide-react";
 import { useState } from "react";
 
 interface GameModeToggleProps {
-  currentMode: 'zen' | 'challenge';
-  onModeChange: (mode: 'zen' | 'challenge') => void;
+  currentMode: "zen" | "challenge";
+  onModeChange: (mode: "zen" | "challenge") => void;
   className?: string;
 }
 
-export function GameModeToggle({ currentMode, onModeChange, className }: GameModeToggleProps) {
+export function GameModeToggle({
+  currentMode,
+  onModeChange,
+  className,
+}: GameModeToggleProps) {
   const [showDetails, setShowDetails] = useState(false);
-  
+
   const handleToggle = () => {
-    const newMode = currentMode === 'zen' ? 'challenge' : 'zen';
+    const newMode = currentMode === "zen" ? "challenge" : "zen";
     onModeChange(newMode);
   };
 
@@ -33,9 +32,9 @@ export function GameModeToggle({ currentMode, onModeChange, className }: GameMod
         <CardTitle className="flex items-center gap-2 text-lg">
           <Settings className="h-5 w-5" />
           Mode de Jeu
-          <Button 
-            variant="ghost" 
-            size="sm" 
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => setShowDetails(!showDetails)}
             className="ml-auto"
           >
@@ -43,7 +42,7 @@ export function GameModeToggle({ currentMode, onModeChange, className }: GameMod
           </Button>
         </CardTitle>
       </CardHeader>
-      
+
       <CardContent className="space-y-4">
         {/* Toggle Switch */}
         <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
@@ -51,38 +50,40 @@ export function GameModeToggle({ currentMode, onModeChange, className }: GameMod
             <Heart className="h-5 w-5 text-emerald-500" />
             <span className="font-medium">Zen</span>
           </div>
-          
+
           <Switch
-            checked={currentMode === 'challenge'}
+            checked={currentMode === "challenge"}
             onCheckedChange={handleToggle}
             className="data-[state=checked]:bg-orange-500"
           />
-          
+
           <div className="flex items-center gap-3">
             <span className="font-medium">Challenge</span>
             <Sword className="h-5 w-5 text-orange-500" />
           </div>
         </div>
-        
+
         {/* Current Mode Display */}
         <div className="text-center">
-          <Badge 
-            variant={currentMode === 'zen' ? 'secondary' : 'destructive'}
+          <Badge
+            variant={currentMode === "zen" ? "secondary" : "destructive"}
             className="mb-2"
           >
-            {currentMode === 'zen' ? '🧘 ' : '⚔️ '}
+            {currentMode === "zen" ? "🧘 " : "⚔️ "}
             {GAME_MODES[currentMode].name}
           </Badge>
           <p className="text-sm text-muted-foreground">
             {GAME_MODES[currentMode].description}
           </p>
         </div>
-        
+
         {/* Detailed Features */}
         {showDetails && (
           <div className="grid gap-3 pt-3 border-t">
             <div className="space-y-2">
-              <h4 className="font-medium text-sm">Fonctionnalités du mode actuel :</h4>
+              <h4 className="font-medium text-sm">
+                Fonctionnalités du mode actuel :
+              </h4>
               <ul className="text-sm text-muted-foreground space-y-1">
                 {GAME_MODES[currentMode].features.map((feature, index) => (
                   <li key={index} className="flex items-start gap-2">
@@ -92,7 +93,7 @@ export function GameModeToggle({ currentMode, onModeChange, className }: GameMod
                 ))}
               </ul>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-2 pt-2">
               <div className="p-2 bg-emerald-50 dark:bg-emerald-950 rounded text-center">
                 <Heart className="h-4 w-4 text-emerald-500 mx-auto mb-1" />
@@ -110,4 +111,4 @@ export function GameModeToggle({ currentMode, onModeChange, className }: GameMod
       </CardContent>
     </Card>
   );
-} 
+}

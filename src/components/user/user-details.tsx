@@ -178,7 +178,6 @@ export default function UserDetails() {
         error?.response?.status === 409 &&
         error?.response?.data?.code === "ALREADY_FOLLOWING"
       ) {
-        
         setIsFollowing(true);
       } else {
         console.error("Erreur follow/unfollow :", error);
@@ -287,7 +286,7 @@ export default function UserDetails() {
             onClick={() => router.push(`/messages/${userId}`)}
             className="w-auto px-3 py-2 flex items-center justify-center space-x-2"
           >
-                <Mail className="h-4 w-4" />
+            <Mail className="h-4 w-4" />
           </Button>
         </div>
 
@@ -351,10 +350,15 @@ export default function UserDetails() {
                       </Avatar>
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
-                        <span className="font-medium">{data.data?.username}</span>
-              <span className="text-sm text-muted-foreground">
-                {safeFormatDistanceToNow(data.data?.created_at, true)}
-              </span>
+                          <span className="font-medium">
+                            {data.data?.username}
+                          </span>
+                          <span className="text-sm text-muted-foreground">
+                            {safeFormatDistanceToNow(
+                              data.data?.created_at,
+                              true
+                            )}
+                          </span>
                         </div>
                         <h3 className="text-sm text-muted-foreground">
                           {post.title}

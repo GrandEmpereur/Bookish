@@ -90,7 +90,9 @@ export interface GetConversationsResponse {
 export interface MessagerieService {
   // Conversations
   getConversations(): Promise<ApiResponse<GetConversationsResponse>>;
-  createGroupConversation(data: CreateGroupConversationRequest): Promise<ApiResponse<Conversation>>;
+  createGroupConversation(
+    data: CreateGroupConversationRequest
+  ): Promise<ApiResponse<Conversation>>;
 
   // Messages
   getConversationMessages(

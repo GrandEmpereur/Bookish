@@ -86,7 +86,6 @@ export default function ForgotPassword() {
       transition: {
         duration: 0.4,
         staggerChildren: 0.08,
-
       },
     },
     exit: {
@@ -94,7 +93,6 @@ export default function ForgotPassword() {
       y: -20,
       transition: {
         duration: 0.3,
-
       },
     },
   };
@@ -106,7 +104,6 @@ export default function ForgotPassword() {
       y: 0,
       transition: {
         duration: 0.4,
-
       },
     },
   };
@@ -119,7 +116,6 @@ export default function ForgotPassword() {
       transition: {
         duration: 0.5,
         delay: 0.2,
-
       },
     },
   };

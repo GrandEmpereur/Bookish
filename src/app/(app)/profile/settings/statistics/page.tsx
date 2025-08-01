@@ -50,7 +50,11 @@ export default function Statistiques() {
   }, []);
 
   // Determine padding based on platform and hydration
-  const topPadding = !isMounted ? "pt-[100px]" : isNative ? "pt-[130px]" : "pt-[100px]";
+  const topPadding = !isMounted
+    ? "pt-[100px]"
+    : isNative
+      ? "pt-[130px]"
+      : "pt-[100px]";
 
   return (
     <div className={cn("min-h-screen bg-gray-50 pb-20 relative", topPadding)}>
